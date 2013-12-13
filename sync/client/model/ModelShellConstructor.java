@@ -231,40 +231,50 @@ public class ModelShellConstructor extends ModelBase
 		setRotation(doorLeft, 0F, 0F, 0F);
 	}
 
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void render(float f5)
 	{
-		super.render(entity, f, f1, f2, f3, f4, f5);
+		sprayGStand.render(f5);
+		sprayRStand.render(f5);
+		sprayBStand.render(f5);
+
+		sprayerG.render(f5);
+		sprayerR.render(f5);
+		sprayerB.render(f5);
+		
+		printerR.render(f5);
+		printerL.render(f5);
+		
 		base.render(f5);
 		ceiling.render(f5);
+		
 		baseSkirtBack.render(f5);
-		ceilingSkirtBack.render(f5);
 		baseSkirtLeft.render(f5);
 		baseSkirtRight.render(f5);
-		ceilingSkirtRight.render(f5);
+		baseSkirtFront.render(f5);
+		
+		ceilingSkirtBack.render(f5);
 		ceilingSkirtLeft.render(f5);
-		backWall.render(f5);
+		ceilingSkirtRight.render(f5);
+		ceilingSkirtFront.render(f5);
+		
 		backPillarRight.render(f5);
 		backPillarLeft.render(f5);
-		sideWallLeft.render(f5);
-		sideWallRight.render(f5);
-		baseSkirtFront.render(f5);
-		ceilingSkirtFront.render(f5);
 		frontPillarRight.render(f5);
 		frontPillarLeft.render(f5);
+		
+		backWall.render(f5);
+		sideWallLeft.render(f5);
+		sideWallRight.render(f5);
+		doorRight.render(f5);
+		doorLeft.render(f5);
+	}
+	
+	public void renderConstructionProgress(float f5)
+	{
 		bodyPixel.render(f5);
 		bodyLayer.render(f5);
 		armLayer.render(f5);
 		headLayer.render(f5);
-		printerR.render(f5);
-		printerL.render(f5);
-		sprayGStand.render(f5);
-		sprayRStand.render(f5);
-		sprayBStand.render(f5);
-		sprayerG.render(f5);
-		sprayerR.render(f5);
-		sprayerB.render(f5);
-		doorRight.render(f5);
-		doorLeft.render(f5);
 	}
 
 	private void setRotation(ModelRenderer model, float x, float y, float z)

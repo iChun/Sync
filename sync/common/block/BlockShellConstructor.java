@@ -40,7 +40,13 @@ public class BlockShellConstructor extends BlockContainer
 	{
 		return 0;
 	}
-
+	
+	@Override
+	public int getRenderType()
+	{
+		return -1;
+	}
+	
 	@Override
     public void breakBlock(World world, int i, int j, int k, int par5, int par6)
     {

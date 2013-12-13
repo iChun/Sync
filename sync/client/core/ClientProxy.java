@@ -1,8 +1,11 @@
 package sync.client.core;
 
+import sync.client.render.TileRendererShellConstructor;
+import sync.common.core.CommonProxy;
+import sync.common.tileentity.TileEntityShellConstructor;
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
-import sync.common.core.CommonProxy;
 
 public class ClientProxy extends CommonProxy 
 {
@@ -11,6 +14,8 @@ public class ClientProxy extends CommonProxy
 	public void initMod()
 	{
 		super.initMod();
+		
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityShellConstructor.class, new TileRendererShellConstructor());
 	}
 	
 	@Override
