@@ -10,7 +10,7 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void initMod()
 	{
-		
+		super.initMod();
 	}
 	
 	@Override

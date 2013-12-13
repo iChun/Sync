@@ -3,7 +3,9 @@ package sync.common;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.Item;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
 import sync.common.core.CommonProxy;
 import sync.common.core.MapPacketHandler;
@@ -41,8 +43,11 @@ public class Sync
 	private static Configuration config;
 	
 	public static int idBlockShellConstructor;
+	public static int idItemBlockPlacer;
 	
 	public static Block blockShellConstructor;
+	
+	public static Item itemBlockPlacer;
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
@@ -54,8 +59,11 @@ public class Sync
 		config.load();
 		
 		idBlockShellConstructor = addCommentAndReturnBlockId(config, "ids", "idBlockShellConstructor", "Block ID for the Shell Constructor", 1345);
+		idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
 		
 		config.save();
+		
+		MinecraftForge.EVENT_BUS.register(new sync.common.core.EventHandler());
 		
 		//Following new modding convention, blocks and items are initialized in pre-init
 		proxy.initMod();
@@ -80,6 +88,12 @@ public class Sync
 	public static int addCommentAndReturnBlockId(Configuration config, String cat, String s, String comment, int i)
 	{
 		Property prop = config.getBlock(cat, s, i, comment);
+		return prop.getInt();
+	}
+	
+	public static int addCommentAndReturnItemId(Configuration config, String cat, String s, String comment, int i)
+	{
+		Property prop = config.getItem(cat, s, i, comment);
 		return prop.getInt();
 	}
 	
