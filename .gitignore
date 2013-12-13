@@ -1,0 +1,24 @@
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# MC/Forge Directories #
+cpw/
+ibxm/
+net/
+paulscode/
+assets/forge/
+
+# MC/Forge files #
+deobfuscation_data-*.lzma
+fml_at.cfg
+fml_marker.cfg
+fmlversion.properties
+forge_at.cfg
+forge_logo.png
+mcp.png
+mcpmod.info
+Start.java
