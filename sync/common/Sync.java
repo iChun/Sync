@@ -64,6 +64,7 @@ public class Sync
 	@EventHandler
 	public void load(FMLInitializationEvent event)
 	{
+		proxy.initTickHandlers();
 	}
 	
 	@EventHandler

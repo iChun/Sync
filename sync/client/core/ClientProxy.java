@@ -5,4 +5,10 @@ import sync.common.core.CommonProxy;
 public class ClientProxy extends CommonProxy 
 {
 
+	@Override
+	public void initMod()
+	{
+		
+	}
+	
 }
