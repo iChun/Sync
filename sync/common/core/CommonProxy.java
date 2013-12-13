@@ -2,6 +2,7 @@ package sync.common.core;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import sync.client.core.TickHandlerClient;
 import sync.common.Sync;
 import sync.common.block.BlockShellConstructor;
 import sync.common.tileentity.TileEntityShellConstructor;
