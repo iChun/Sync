@@ -269,7 +269,7 @@ public class ModelShellConstructor extends ModelBase
 		doorLeft.render(f5);
 	}
 	
-	public void renderConstructionProgress(float f5)
+	public void renderConstructionProgress(float progress, float f5)
 	{
 		bodyPixel.render(f5);
 		bodyLayer.render(f5);
