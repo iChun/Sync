@@ -12,6 +12,8 @@ public class TileEntityShellConstructor extends TileEntity
 	public TileEntityShellConstructor pair;
 	public boolean top;
 	public int face;
+	public String playerName;
+	public float constructionProgress;
 	
 	public boolean resync;
 	
@@ -20,6 +22,8 @@ public class TileEntityShellConstructor extends TileEntity
 		pair = null;
 		top = false;
 		face = 0;
+		playerName = "";
+		constructionProgress = 0.0F;
 		
 		resync = false;
 	}
@@ -66,6 +70,8 @@ public class TileEntityShellConstructor extends TileEntity
 		super.writeToNBT(tag);
 		tag.setBoolean("top", top);
 		tag.setInteger("face", face);
+		tag.setString("playerName", playerName);
+		tag.setFloat("constructionProgress", constructionProgress);
     }
 	 
 	@Override
@@ -74,6 +80,8 @@ public class TileEntityShellConstructor extends TileEntity
 		super.readFromNBT(tag);
 		top = tag.getBoolean("top");
 		face = tag.getInteger("face");
+		playerName = tag.getString("playerName");
+		constructionProgress = tag.getFloat("constructionProgress");
 		
 		resync = true;
     }
