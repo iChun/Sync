@@ -24,6 +24,20 @@ public class ShellHandler
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
 		if(all)
 		{
+			
+			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+			DataOutputStream stream = new DataOutputStream(bytes);
+			try
+			{
+				stream.writeByte(0);
+				
+				PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)5, bytes.toByteArray()), (Player)player);
+			}
+			catch(IOException e)
+			{
+			}
+
+			
 			for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
 			{
 				if(e.getKey().playerName.equalsIgnoreCase(player.username))

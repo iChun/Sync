@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.network.packet.Packet131MapData;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.GuiIngameForge;
@@ -217,9 +218,32 @@ public class TickHandlerClient implements ITickHandler {
 				}
 			}
 			
-			if(zoomTimer > -10)
+			if(zoomDimension == world.provider.dimensionId)
 			{
-				zoomTimer--;
+				if(zoomTimer == 60)
+				{
+					TileEntity te = world.getBlockTileEntity(zoomX, zoomY, zoomZ);
+					if(te instanceof TileEntityShellStorage)
+					{
+						TileEntityShellStorage ss = (TileEntityShellStorage)te;
+						ss.occupied = true;
+					}
+				}
+				if(zoomTimer > -10)
+				{
+					mc.thePlayer.setLocationAndAngles(Sync.proxy.tickHandlerClient.zoomX + 0.5D, Sync.proxy.tickHandlerClient.zoomY, Sync.proxy.tickHandlerClient.zoomZ + 0.5D, (Sync.proxy.tickHandlerClient.zoomFace - 2) * 90F, 0F);
+					zoomTimer--;
+				}
+			}
+			else if(zoomTimer > -10)
+			{
+				zoomTimeout++;
+				if(zoomTimeout >= 100)
+				{
+					zoomTimer = 0;
+					zoomTimeout = 0;
+					zoom = false;
+				}
 			}
 			
 			if(lockedStorage != null)
@@ -288,9 +312,9 @@ public class TickHandlerClient implements ITickHandler {
 			Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
 		}
 		
-		ent.lastTickPosY += (revert ? -1 : 1) * (500D * posYProg);
-		ent.prevPosY += (revert ? -1 : 1) * (500D * posYProg);
-		ent.posY += (revert ? -1 : 1) * (500D * posYProg);
+		ent.lastTickPosY += (revert ? -1 : 1) * (600D * posYProg);
+		ent.prevPosY += (revert ? -1 : 1) * (600D * posYProg);
+		ent.posY += (revert ? -1 : 1) * (600D * posYProg);
 		
 		switch(zoomFace)
 		{
@@ -703,6 +727,7 @@ public class TickHandlerClient implements ITickHandler {
 	
 	public int zoomFace;
 	public int zoomTimer;
+	public int zoomTimeout;
 	public boolean zoom;
 	public int zoomX;
 	public int zoomY;

@@ -150,7 +150,7 @@ public class BlockDualVertical extends BlockContainer
 					
 					if(!world.isRemote)
 					{
-						ShellHandler.updatePlayerOfShells(player, dv, false);
+						ShellHandler.updatePlayerOfShells(player, null, true);
 					}
 					return true;
 				}
@@ -233,7 +233,7 @@ public class BlockDualVertical extends BlockContainer
 				else if(dv instanceof TileEntityShellStorage)
 				{
 					TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-					if(!ss.occupied && !world.isRemote)
+					if(!ss.occupied && !world.isRemote && !ss.syncing && ss.resyncPlayer <= -10)
 					{
 				        double d3 = ent.posX - (i + 0.5D);
 				        double d4 = ent.boundingBox.minY - j;

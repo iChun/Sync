@@ -108,7 +108,7 @@ public class MapPacketHandler
 									
 									ss.occupied = true;
 									
-									ss.occupationTime = TileEntityShellStorage.animationTime;
+									ss.occupationTime = TileEntityDualVertical.animationTime;
 									
 									ss.syncing = true;
 									
@@ -142,7 +142,7 @@ public class MapPacketHandler
 								{
 								}
 								
-								//TODO sync...??????????
+								dv1.resyncPlayer = 120;
 							}
 						}
 					}
@@ -291,6 +291,11 @@ public class MapPacketHandler
 					Sync.proxy.tickHandlerClient.zoom = stream.readBoolean();
 					
 					Sync.proxy.tickHandlerClient.zoomTimer = 60;
+					break;
+				}
+				case 5:
+				{
+					Sync.proxy.tickHandlerClient.shells.clear();
 					break;
 				}
 			}

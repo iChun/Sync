@@ -81,7 +81,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			modelStorage.txBiped = rl;
 //			modelStorage.renderPlayer(0.0625F);
 			
-			float prog = MathHelper.clamp_float(TileEntityShellStorage.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityShellStorage.animationTime) / (float)TileEntityShellStorage.animationTime;
+			float prog = MathHelper.clamp_float(TileEntityDualVertical.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 			
 			if(!ss.syncing)
 			{
@@ -95,7 +95,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				}
 			}
 			
-			if(ss.playerInstance != null)
+			if(ss.playerInstance != null && ss.syncing)
 			{
 				GL11.glPushMatrix();
 				

@@ -85,7 +85,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 			
 			if(player != null)
 			{
-				ShellHandler.updatePlayerOfShells(player, dv, false);
+				ShellHandler.updatePlayerOfShells(player, null, true);
 			}
 		}
 	}
