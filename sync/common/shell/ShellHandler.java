@@ -22,6 +22,9 @@ public class ShellHandler
 	public static void updatePlayerOfShells(EntityPlayer player, TileEntityDualVertical dv, boolean all)
 	{
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
+		
+		ArrayList<TileEntityDualVertical> remove = new ArrayList<TileEntityDualVertical>();
+		
 		if(all)
 		{
 			
@@ -42,7 +45,15 @@ public class ShellHandler
 			{
 				if(e.getKey().playerName.equalsIgnoreCase(player.username))
 				{
-					dvs.add(e.getKey());
+					TileEntityDualVertical dv1 = e.getKey();
+					if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
+					{
+						dvs.add(dv1);
+					}
+					else
+					{
+						remove.add(dv1);
+					}
 				}
 			}
 		}
@@ -56,6 +67,11 @@ public class ShellHandler
 			if(dv1.top)
 				continue;
 			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)1, dv1.createShellStateData()), (Player)player);
+		}
+		
+		for(TileEntityDualVertical dv1 : remove)
+		{
+			ChunkLoadHandler.removeShellAsChunkloader(dv1);
 		}
 	}
 	

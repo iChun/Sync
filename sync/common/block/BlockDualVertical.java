@@ -11,7 +11,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -124,6 +124,10 @@ public class BlockDualVertical extends BlockContainer
 						NBTTagCompound tag = new NBTTagCompound();
 						
 						FakePlayer fake = new FakePlayer(player.worldObj, player.username);
+				        fake.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+//				        fake.clonePlayer(par1EntityPlayerMP, par3);
+				        fake.dimension = player.dimension;
+				        fake.entityId = player.entityId;
 						
 						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (sc.face - 2) * 90F, 0F);
 						
@@ -208,12 +212,7 @@ public class BlockDualVertical extends BlockContainer
 				
 				if((ss.top && ss.pair != null && ((TileEntityShellStorage)ss.pair).occupied || ss.occupied) && ss.worldObj.isRemote && isPlayer(ss.playerName))
 				{
-					EntityPlayer ent = Minecraft.getMinecraft().thePlayer;
-					
-			        double d3 = ent.posX - (i + 0.5D);
-			        double d4 = ent.boundingBox.minY - j;
-			        double d5 = ent.posZ - (k + 0.5D);
-			        double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+			        double dist = getDistance(i, j, k);
 					
 			        if(dist < (ss.top ? 1.1D : 0.6D))
 			        {
@@ -223,6 +222,18 @@ public class BlockDualVertical extends BlockContainer
 			}
 		}
     }
+	
+	@SideOnly(Side.CLIENT)
+	public double getDistance(int i, int j, int k)
+	{
+		EntityPlayer ent = Minecraft.getMinecraft().thePlayer;
+		
+        double d3 = ent.posX - (i + 0.5D);
+        double d4 = ent.boundingBox.minY - j;
+        double d5 = ent.posZ - (k + 0.5D);
+        
+        return (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+	}
 	
 	@Override
 	public void onEntityCollidedWithBlock(World world, int i, int j, int k, Entity ent) 

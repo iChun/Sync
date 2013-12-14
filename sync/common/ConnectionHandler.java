@@ -37,7 +37,14 @@ public class ConnectionHandler
 	
 	public void onClientConnection()
 	{
+		Sync.proxy.tickHandlerClient.radialShow = false;
+		Sync.proxy.tickHandlerClient.zoom = false;
+		Sync.proxy.tickHandlerClient.renderCrosshair = true;
+		Sync.proxy.tickHandlerClient.lockTime = 0;
+		Sync.proxy.tickHandlerClient.zoomTimer = 0;
+		Sync.proxy.tickHandlerClient.zoomTimeout = 0;
 		Sync.proxy.tickHandlerClient.shells.clear();
+		Sync.proxy.tickHandlerClient.refusePlayerRender.clear();
 		Sync.proxy.tickHandlerClient.lockedStorage = null;
 	}
 
@@ -60,6 +67,7 @@ public class ConnectionHandler
 		try
 		{
 			stream.writeInt(SessionState.shellConstructionPowerRequirement);
+			stream.writeBoolean(SessionState.allowCrossDimensional);
 			
 			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray()), player);
 		}

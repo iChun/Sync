@@ -1,6 +1,7 @@
 package sync.common.core;
 
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.event.ForgeSubscribe;
 import sync.common.Sync;
 import cpw.mods.fml.relauncher.Side;
@@ -26,5 +27,28 @@ public class EventHandler
 			}
 		}
 	}
+
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void onRenderPlayer(RenderPlayerEvent.Pre event)
+	{
+		if(Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.username) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) < 118)
+		{
+			event.entityPlayer.lastTickPosX = event.entityPlayer.prevPosX = event.entityPlayer.posX;
+			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer.posY;
+			event.entityPlayer.lastTickPosZ = event.entityPlayer.prevPosZ = event.entityPlayer.posZ;
+			event.entityPlayer.renderYawOffset = event.entityPlayer.rotationYaw;
+			event.setCanceled(true);
+		}
+	}
 	
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void onRenderPlayerSpecials(RenderPlayerEvent.Specials.Pre event)
+	{
+//		if(Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.username) && !Sync.proxy.tickHandlerClient.forceRender)
+//		{
+//			event.setCanceled(true);
+//		}
+	}
 }

@@ -15,6 +15,7 @@ import org.lwjgl.opengl.GL11;
 
 import sync.client.model.ModelShellConstructor;
 import sync.client.model.ModelShellStorage;
+import sync.common.Sync;
 import sync.common.core.SessionState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -117,7 +118,10 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				
 				ss.playerInstance.setCurrentItemOrArmor(0, null);
 				
+				
+				Sync.proxy.tickHandlerClient.forceRender = true; 
 				RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
+				Sync.proxy.tickHandlerClient.forceRender = false;
 				
 				ss.playerInstance.setCurrentItemOrArmor(0, is);
 				

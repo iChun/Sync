@@ -18,10 +18,12 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
 import sync.common.Sync;
+import sync.common.shell.ShellHandler;
 import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ITinyPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -145,9 +147,30 @@ public class MapPacketHandler
 								
 								dv1.resyncPlayer = 120;
 								dv.canSavePlayer = -1;
+								
+								bytes = new ByteArrayOutputStream();
+								stream1 = new DataOutputStream(bytes);
+								try
+								{
+									stream1.writeUTF(player.username);
+									PacketDispatcher.sendPacketToAllPlayers(new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray()));
+								}
+								catch(IOException e)
+								{
+								}
 							}
 						}
 					}
+					break;
+				}
+				case 1:
+				{
+					player.setLocationAndAngles(stream.readDouble(), stream.readDouble(), stream.readDouble(), stream.readFloat(), stream.readFloat());
+					
+					FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().syncPlayerInventory(player);
+					
+					ShellHandler.updatePlayerOfShells(player, null, true);
+					
 					break;
 				}
 			}
@@ -171,6 +194,7 @@ public class MapPacketHandler
 				case 0:
 				{
 					SessionState.shellConstructionPowerRequirement = stream.readInt();
+					SessionState.allowCrossDimensional = stream.readBoolean();
 					break;
 				}
 				case 1:
@@ -304,6 +328,11 @@ public class MapPacketHandler
 				{
 					NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 					mc.thePlayer.readFromNBT(tag);
+					break;
+				}
+				case 7:
+				{
+					Sync.proxy.tickHandlerClient.refusePlayerRender.put(stream.readUTF(), 120);
 					break;
 				}
 			}

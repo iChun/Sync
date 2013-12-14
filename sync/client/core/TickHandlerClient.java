@@ -5,6 +5,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -128,7 +131,7 @@ public class TickHandlerClient implements ITickHandler {
 				{
 					ShellState state = selectedShells.get(i);
 					
-					if(state.playerState == null)
+					if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && !SessionState.allowCrossDimensional)
 					{
 						selectedShells.remove(i);
 					}
@@ -208,6 +211,18 @@ public class TickHandlerClient implements ITickHandler {
 				state.tick();
 			}
 			
+			Iterator<Entry<String, Integer>> ite = refusePlayerRender.entrySet().iterator();
+			while(ite.hasNext())
+			{
+				Entry<String, Integer> e = ite.next();
+				e.setValue(e.getValue() - 1);
+				
+				if(e.getValue() <= 0)
+				{
+					ite.remove();
+				}
+			}
+			
 			if(lockTime > 0)
 			{
 				lockTime--;
@@ -229,10 +244,34 @@ public class TickHandlerClient implements ITickHandler {
 						ss.occupied = true;
 					}
 				}
-				if(zoomTimer > -10)
+				if(zoomTimer > -5)
 				{
 					mc.thePlayer.setLocationAndAngles(Sync.proxy.tickHandlerClient.zoomX + 0.5D, Sync.proxy.tickHandlerClient.zoomY, Sync.proxy.tickHandlerClient.zoomZ + 0.5D, (Sync.proxy.tickHandlerClient.zoomFace - 2) * 90F, 0F);
+				}
+				if(zoomTimer > -10)
+				{
 					zoomTimer--;
+				}
+				if(zoomTimer == 0)
+				{
+					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+					DataOutputStream stream = new DataOutputStream(bytes);
+					try
+					{
+						stream.writeDouble(mc.thePlayer.posX);
+						stream.writeDouble(mc.thePlayer.posY - mc.thePlayer.yOffset);
+						stream.writeDouble(mc.thePlayer.posZ);
+						
+						stream.writeFloat(mc.thePlayer.rotationYaw);
+						stream.writeFloat(mc.thePlayer.rotationPitch);
+						
+						PacketDispatcher.sendPacketToServer(new Packet131MapData((short)Sync.getNetId(), (short)1, bytes.toByteArray()));
+					}
+					catch(IOException e)
+					{
+					}
+					
+					mc.thePlayer.sendPlayerAbilities();
 				}
 			}
 			else if(zoomTimer > -10)
@@ -519,7 +558,7 @@ public class TickHandlerClient implements ITickHandler {
 			{
 				ShellState state = selectedShells.get(i);
 				
-				if(state.playerState == null)
+				if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && !SessionState.allowCrossDimensional)
 				{
 					selectedShells.remove(i);
 				}
@@ -531,6 +570,7 @@ public class TickHandlerClient implements ITickHandler {
 			
 			ShellState selected = null;
 			
+			Sync.proxy.tickHandlerClient.forceRender = true;
 			for(int i = 0; i < selectedShells.size(); i++)
 			{
 				double angle = Math.PI * 2 * i / selectedShells.size();
@@ -548,6 +588,7 @@ public class TickHandlerClient implements ITickHandler {
 	    		
 	    		drawEntityOnScreen(selectedShells.get(i), selectedShells.get(i).playerState, reso.getScaledWidth() / 2 + (int)(radius * Math.cos(angle)), (reso.getScaledHeight() + 32) / 2 + (int)(radius * Math.sin(angle)), 16 * prog + (float)(selectedState ? 6 * mag : 0), 2, 2, renderTick);
 			}
+			Sync.proxy.tickHandlerClient.forceRender = false;
 			
 			drawSelectedShellText(reso, selected);
 			
@@ -746,6 +787,9 @@ public class TickHandlerClient implements ITickHandler {
 	public int lockTime;
 	public TileEntityShellStorage lockedStorage = null;
 	public ArrayList<ShellState> shells = new ArrayList<ShellState>();
+	
+	public HashMap<String, Integer> refusePlayerRender = new HashMap<String, Integer>();
+	public boolean forceRender;
 	
 	public static boolean hasStencilBits = MinecraftForgeClient.getStencilBits() > 0;
 }

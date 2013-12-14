@@ -101,6 +101,8 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					vacating = false;
 					occupied = false;
 					syncing = false;
+					prevPlayerName = playerName = "";
+					playerNBT = new NBTTagCompound();
 					if(!worldObj.isRemote && !top )
 					{
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);

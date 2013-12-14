@@ -58,6 +58,8 @@ public class Sync
 	
 	public static int shellConstructionPowerRequirement;
 	
+	public static int allowCrossDimensional;
+	
 	public static Block blockShellConstructor;
 	
 	public static Item itemBlockPlacer;
@@ -75,6 +77,8 @@ public class Sync
 		idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
 		
 		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
+		
+		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?", 1); // Dogs power 4, Pigs power... 2?
 		
 		config.save();
 		
@@ -96,6 +100,7 @@ public class Sync
 	public void serverStarted(FMLServerStartedEvent event)
 	{
 		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
+		SessionState.allowCrossDimensional = allowCrossDimensional == 1;
 	}
 	
 	@EventHandler

@@ -194,6 +194,10 @@ public class TileEntityDualVertical extends TileEntity
 								NBTTagCompound tag = new NBTTagCompound();
 								
 								FakePlayer fake = new FakePlayer(worldObj, player.username);
+						        fake.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+//						        fake.clonePlayer(par1EntityPlayerMP, par3);
+						        fake.dimension = player.dimension;
+						        fake.entityId = player.entityId;
 								
 								fake.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 								
