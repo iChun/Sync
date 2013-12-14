@@ -74,8 +74,9 @@ public class MapPacketHandler
 					
 					if(worldOri != null && world != null)
 					{
-						TileEntity oriTe = world.getBlockTileEntity(oriX, oriY, oriZ);
+						TileEntity oriTe = worldOri.getBlockTileEntity(oriX, oriY, oriZ);
 						TileEntity te = world.getBlockTileEntity(x, y, z);
+						
 						if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
 						{
 							TileEntityDualVertical dv = (TileEntityDualVertical)oriTe;
@@ -296,6 +297,12 @@ public class MapPacketHandler
 				case 5:
 				{
 					Sync.proxy.tickHandlerClient.shells.clear();
+					break;
+				}
+				case 6:
+				{
+					NBTTagCompound tag = Sync.readNBTTagCompound(stream);
+					mc.thePlayer.readFromNBT(tag);
 					break;
 				}
 			}

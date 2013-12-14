@@ -13,12 +13,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.FakePlayer;
 import sync.common.Sync;
 import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
@@ -114,6 +116,22 @@ public class BlockDualVertical extends BlockContainer
 				if(sc.playerName.equalsIgnoreCase(""))
 				{
 					sc.playerName = player.username;
+
+					if(!world.isRemote)
+					{	
+						NBTTagCompound tag = new NBTTagCompound();
+						
+						FakePlayer fake = new FakePlayer(player.worldObj, player.username);
+						
+						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (sc.face - 2) * 90F, 0F);
+						
+						fake.writeToNBT(tag);
+						
+						player.capabilities.writeCapabilitiesToNBT(tag);
+						
+						sc.playerNBT = tag;
+					}
+					
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					return true;

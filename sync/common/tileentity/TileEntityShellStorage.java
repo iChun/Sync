@@ -149,8 +149,6 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		tag.setBoolean("syncing", syncing);
 		
 		tag.setInteger("occupationTime", occupationTime);
-		
-		tag.setCompoundTag("playerNBT", playerNBT);
     }
 	 
 	@Override
@@ -163,8 +161,6 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		syncing = tag.getBoolean("syncing");
 		
 		occupationTime = tag.getInteger("occupationTime");
-		
-		playerNBT = tag.getCompoundTag("playerNBT");
 		
 		resync = true;
     }

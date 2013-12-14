@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
@@ -14,9 +15,13 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.FakePlayer;
 import sync.common.Sync;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.TeleporterShell;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -99,11 +104,20 @@ public class TileEntityDualVertical extends TileEntity
 						ss.occupied = true;
 					}
 					
-					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					if(player != null)
 					{
-						player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-						
+						if(player.dimension != worldObj.provider.dimensionId)
+						{
+							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
+							
+							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+						}
+						else
+						{
+							player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+						}
+							
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
@@ -148,6 +162,41 @@ public class TileEntityDualVertical extends TileEntity
 						
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					}
+				}
+				if(resyncPlayer == 30)
+				{
+					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+					
+					if(player != null)
+					{
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						DataOutputStream stream1 = new DataOutputStream(bytes);
+						try
+						{
+							if(!playerNBT.hasKey("Inventory"))
+							{
+								NBTTagCompound tag = new NBTTagCompound();
+								
+								FakePlayer fake = new FakePlayer(worldObj, player.username);
+								
+								fake.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+								
+								fake.writeToNBT(tag);
+								
+								player.capabilities.writeCapabilitiesToNBT(tag);
+								
+								playerNBT = tag;
+							}
+							Sync.writeNBTTagCompound(playerNBT, stream1);
+							
+							player.readFromNBT(playerNBT);
+							
+							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)6, bytes.toByteArray()), (Player)player);
+						}
+						catch(IOException e)
+						{
+						}
 					}
 				}
 				if(resyncPlayer == 0)
@@ -220,6 +269,7 @@ public class TileEntityDualVertical extends TileEntity
 		tag.setBoolean("vacating", vacating);
 		tag.setString("playerName", playerName);
 		tag.setString("name", name);
+		tag.setCompoundTag("playerNBT", playerNBT);
     }
 	 
 	@Override
@@ -231,6 +281,7 @@ public class TileEntityDualVertical extends TileEntity
 		vacating = tag.getBoolean("vacating");
 		playerName = tag.getString("playerName");
 		name = tag.getString("name");
+		playerNBT = tag.getCompoundTag("playerNBT");
 		
 		resync = true;
     }
