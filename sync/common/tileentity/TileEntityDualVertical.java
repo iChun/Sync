@@ -1,5 +1,9 @@
 package sync.common.tileentity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import sync.client.entity.EntityPaintFX;
 import sync.common.core.SessionState;
 import cpw.mods.fml.relauncher.Side;
@@ -72,6 +76,16 @@ public class TileEntityDualVertical extends TileEntity
 		face = placeYaw;
 	}
 	
+	public float powerAmount()
+	{
+		return 0F;
+	}
+
+	public float getBuildProgress()
+	{
+		return SessionState.shellConstructionPowerRequirement;
+	}
+	
 	@Override
 	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)
 	{
@@ -113,4 +127,29 @@ public class TileEntityDualVertical extends TileEntity
     {
         return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
     }
+
+	public byte[] createShellStateData() 
+	{
+		if(top && pair != null)
+		{
+			return pair.createShellStateData();
+		}
+			
+		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+		DataOutputStream stream = new DataOutputStream(bytes);
+		try
+		{
+			stream.writeInt(xCoord);
+			stream.writeInt(yCoord);
+			stream.writeInt(zCoord);
+			stream.writeInt(worldObj.provider.dimensionId);
+			
+			stream.writeFloat(getBuildProgress());
+			stream.writeFloat(powerAmount());
+		}
+		catch(IOException e)
+		{
+		}
+		return bytes.toByteArray();
+	}
 }

@@ -1,15 +1,22 @@
 package sync.common;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
 import sync.common.core.CommonProxy;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
+import sync.common.item.ChunkLoadHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -81,6 +88,8 @@ public class Sync
 	public void load(FMLInitializationEvent event)
 	{
 		proxy.initTickHandlers();
+		
+		ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 	}
 	
 	@EventHandler
@@ -92,6 +101,7 @@ public class Sync
 	@EventHandler
 	public void serverStopped(FMLServerStoppedEvent event)
 	{
+		ChunkLoadHandler.shellTickets.clear();
 	}
 	
 	public static int addCommentAndReturnBlockId(Configuration config, String cat, String s, String comment, int i)
@@ -120,4 +130,34 @@ public class Sync
 	{
 		return ((NetworkModHandler)FMLNetworkHandler.instance().findNetworkModHandler(Sync.instance)).getNetworkId();
 	}
+	
+    public static NBTTagCompound readNBTTagCompound(DataInput par0DataInput) throws IOException
+    {
+        short short1 = par0DataInput.readShort();
+
+        if (short1 < 0)
+        {
+            return null;
+        }
+        else
+        {
+            byte[] abyte = new byte[short1];
+            par0DataInput.readFully(abyte);
+            return CompressedStreamTools.decompress(abyte);
+        }
+    }
+
+    public static void writeNBTTagCompound(NBTTagCompound par0NBTTagCompound, DataOutput par1DataOutput) throws IOException
+    {
+        if (par0NBTTagCompound == null)
+        {
+            par1DataOutput.writeShort(-1);
+        }
+        else
+        {
+            byte[] abyte = CompressedStreamTools.compress(par0NBTTagCompound);
+            par1DataOutput.writeShort((short)abyte.length);
+            par1DataOutput.write(abyte);
+        }
+    }
 }

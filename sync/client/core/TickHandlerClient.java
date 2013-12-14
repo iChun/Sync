@@ -1,5 +1,6 @@
 package sync.client.core;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import sync.common.Sync;
+import sync.common.shell.ShellState;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -92,6 +94,16 @@ public class TickHandlerClient implements ITickHandler {
 		else
 		{
 			radialShow = false;
+		}
+		
+		if(clock != world.getWorldTime() || world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
+		{
+			clock = world.getWorldTime();
+			
+			for(ShellState state : shells)
+			{
+				state.tick();
+			}
 		}
 		
 //		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
@@ -230,6 +242,10 @@ public class TickHandlerClient implements ITickHandler {
 	public double radialDeltaY;
 	public int radialTime;
 	public boolean renderCrosshair;
+	
+	public long clock;
+	
+	public ArrayList<ShellState> shells = new ArrayList<ShellState>();
 	
 	public static boolean hasStencilBits = MinecraftForgeClient.getStencilBits() > 0;
 }

@@ -3,6 +3,7 @@ package sync.common.tileentity;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import sync.common.core.SessionState;
+import sync.common.item.ChunkLoadHandler;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -40,6 +41,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				spawnParticles();
 			}
 		}
+		if(!worldObj.isRemote && constructionProgress > 0.0F && !top && !ChunkLoadHandler.shellTickets.containsKey(this))
+		{
+			ChunkLoadHandler.addShellAsChunkloader(this);
+		}
+		
+		//TODO removal of chunk loader
 	}
 	
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
@@ -62,9 +69,16 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		return true;
 	}
 	
+	@Override
 	public float powerAmount()
 	{
 		return 40F;
+	}
+
+	@Override
+	public float getBuildProgress()
+	{
+		return constructionProgress;
 	}
 	
 	@SideOnly(Side.CLIENT)

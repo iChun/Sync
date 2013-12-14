@@ -408,6 +408,13 @@ public class ModelShellConstructor extends ModelBase
 			
 			int pixelCount = 0;
 			
+			int level = 0;
+			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
+			{
+				rand.nextInt();
+				level++;
+			}
+			
 			for(float f = 0; f < pixProg; f += progPerLayer / 32F)
 			{
 				pixelCount++;
@@ -418,11 +425,6 @@ public class ModelShellConstructor extends ModelBase
 				bodyPix.remove(rand.nextInt(bodyPix.size()));
 			}
 			
-			int level = 0;
-			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
-			{
-				level++;
-			}
 			for(int i = 0; i < bodyPix.size(); i++)
 			{
 				int[] coord = bodyPix.get(i);
@@ -450,6 +452,7 @@ public class ModelShellConstructor extends ModelBase
 			int armLevel = 0;
 			for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
 			{
+				rand.nextInt();
 				armLevel++;
 			}
 			

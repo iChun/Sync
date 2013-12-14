@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
+import sync.common.Sync;
+import sync.common.shell.ShellState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -65,6 +67,67 @@ public class MapPacketHandler
 				case 0:
 				{
 					SessionState.shellConstructionPowerRequirement = stream.readInt();
+					break;
+				}
+				case 1:
+				{
+					//Create shell state
+					int x = stream.readInt();
+					int y = stream.readInt();
+					int z = stream.readInt();
+					int dim = stream.readInt();
+					
+					ShellState state = new ShellState(x, y, z, dim);
+
+					state.buildProgress = stream.readFloat();
+					state.powerReceived = stream.readFloat();
+					
+					boolean add = true;
+					for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
+					{
+						ShellState state1 = Sync.proxy.tickHandlerClient.shells.get(i);
+						if(state1.matches(state))
+						{
+							Sync.proxy.tickHandlerClient.shells.remove(i);
+						}
+						if(!Sync.proxy.tickHandlerClient.shells.contains(state))
+						{
+							Sync.proxy.tickHandlerClient.shells.add(i, state);
+						}
+						add = false;
+					}
+					
+					if(add)
+					{
+						Sync.proxy.tickHandlerClient.shells.add(state);
+					}
+
+					System.out.println("add!!");
+					
+					break;
+				}
+				case 2:
+				{
+					//Remove shell state
+					
+					int x = stream.readInt();
+					int y = stream.readInt();
+					int z = stream.readInt();
+					int dim = stream.readInt();
+					
+					ShellState state = new ShellState(x, y, z, dim);
+
+					for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
+					{
+						ShellState state1 = Sync.proxy.tickHandlerClient.shells.get(i);
+						if(state1.matches(state))
+						{
+							Sync.proxy.tickHandlerClient.shells.remove(i);
+						}
+					}
+					
+					System.out.println("removal!!");
+					
 					break;
 				}
 			}

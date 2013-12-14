@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -101,7 +102,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				ss.playerInstance.ticksExisted = 35;
 				ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
 				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
-				ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * 15F;
+				ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
 				
 //				ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
 //				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
@@ -110,7 +111,13 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				
 				ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
 				
+				ItemStack is = ss.playerInstance.getCurrentEquippedItem();
+				
+				ss.playerInstance.setCurrentItemOrArmor(0, null);
+				
 				RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
+				
+				ss.playerInstance.setCurrentItemOrArmor(0, is);
 				
 				GL11.glPopMatrix();
 			}

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.NetLoginHandler;
 import net.minecraft.network.packet.NetHandler;
@@ -11,6 +12,7 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.server.MinecraftServer;
 import sync.common.core.SessionState;
+import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -33,6 +35,7 @@ public class ConnectionHandler
 	
 	public void onClientConnection()
 	{
+		Sync.proxy.tickHandlerClient.shells.clear();
 	}
 
 	@Override
@@ -60,6 +63,8 @@ public class ConnectionHandler
 		catch(IOException e)
 		{
 		}
+		
+		ShellHandler.updatePlayerOfShells((EntityPlayer)player, null, true);
 	}
 
 	@Override

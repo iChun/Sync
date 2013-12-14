@@ -5,9 +5,11 @@ import java.util.Random;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import sync.common.Sync;
+import sync.common.item.ChunkLoadHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
@@ -113,6 +115,12 @@ public class BlockDualVertical extends BlockContainer
 					
 					ss.occupationTime = TileEntityShellStorage.animationTime;
 					
+					NBTTagCompound tag = new NBTTagCompound();
+					
+					player.writeToNBT(tag);
+					
+					ss.playerNBT = tag;
+					
 					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
 					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 					return true;
@@ -151,15 +159,19 @@ public class BlockDualVertical extends BlockContainer
 		TileEntity te = world.getBlockTileEntity(i, j, k);
 		if(te instanceof TileEntityDualVertical)
 		{
-			TileEntityDualVertical sc = (TileEntityDualVertical)te;
-			TileEntity te1 = world.getBlockTileEntity(i, j + (sc.top ? -1 : 1), k);
+			TileEntityDualVertical dv = (TileEntityDualVertical)te;
+			TileEntity te1 = world.getBlockTileEntity(i, j + (dv.top ? -1 : 1), k);
 			if(te1 instanceof TileEntityDualVertical)
 			{
-				TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
-				if(sc1.pair == sc)
+				TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
+				if(dv1.pair == dv)
 				{
-					world.playAuxSFX(2001, i, j + (sc.top ? -1 : 1), k, Sync.blockShellConstructor.blockID);
-					world.setBlockToAir(i, j + (sc.top ? -1 : 1), k);
+					world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockShellConstructor.blockID);
+					world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
+				}
+				if(!world.isRemote)
+				{
+					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 				}
 			}
 		}
