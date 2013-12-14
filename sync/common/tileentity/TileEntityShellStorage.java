@@ -70,7 +70,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		}
 		super.updateEntity();
 		
-		if(!top && occupied && !worldObj.isRemote)
+		if(!top && occupied && !worldObj.isRemote && !syncing)
 		{
 			EntityPlayer player = worldObj.getPlayerEntityByName(playerName);
 			if(player != null)
@@ -101,11 +101,11 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			occupationTime--;
 			if(occupationTime == 0)
 			{
-				syncing = false;
 				if(vacating)
 				{
 					vacating = false;
 					occupied = false;
+					syncing = false;
 					if(!worldObj.isRemote && !top )
 					{
 						ChunkLoadHandler.removeShellAsChunkloader(this);
@@ -151,6 +151,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
 		tag.setBoolean("vacating", vacating);
+		tag.setBoolean("syncing", syncing);
 		
 		tag.setInteger("occupationTime", occupationTime);
 		
@@ -165,6 +166,8 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		occupied = tag.getBoolean("occupied");
 		
 		vacating = tag.getBoolean("vacating");
+		
+		syncing = tag.getBoolean("syncing");
 		
 		occupationTime = tag.getInteger("occupationTime");
 		

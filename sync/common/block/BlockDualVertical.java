@@ -11,6 +11,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemNameTag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -19,6 +21,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import sync.common.Sync;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
@@ -120,6 +123,38 @@ public class BlockDualVertical extends BlockContainer
 			{
 				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
 				
+				ItemStack is = player.getCurrentEquippedItem();
+				
+				if(is != null && is.getItem() instanceof ItemNameTag)
+				{
+					if(!is.hasDisplayName())
+					{
+						dv.name = "";
+					}
+					else
+					{
+						dv.name = is.getDisplayName();
+					}
+					
+					if(!player.capabilities.isCreativeMode)
+					{
+						is.stackSize--;
+						if(is.stackSize <= 0)
+						{
+							player.inventory.mainInventory[player.inventory.currentItem] = null;
+						}
+					}
+					
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+					
+					if(!world.isRemote)
+					{
+						ShellHandler.updatePlayerOfShells(player, dv, false);
+					}
+					return true;
+				}
+				
 //				else if(!ss.playerName.equalsIgnoreCase("") && ss.occupied)
 //				{
 //					ss.vacating = true;
@@ -150,9 +185,20 @@ public class BlockDualVertical extends BlockContainer
 			else if(dv instanceof TileEntityShellStorage)
 			{
 				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+				
 				if((ss.top && ss.pair != null && ((TileEntityShellStorage)ss.pair).occupied || ss.occupied) && ss.worldObj.isRemote && isPlayer(ss.playerName))
 				{
-					this.setBlockBounds(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+					EntityPlayer ent = Minecraft.getMinecraft().thePlayer;
+					
+			        double d3 = ent.posX - (i + 0.5D);
+			        double d4 = ent.boundingBox.minY - j;
+			        double d5 = ent.posZ - (k + 0.5D);
+			        double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+					
+			        if(dist < (ss.top ? 1.1D : 0.6D))
+			        {
+			        	this.setBlockBounds(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+			        }
 				}
 			}
 		}
@@ -220,22 +266,6 @@ public class BlockDualVertical extends BlockContainer
 				    		
 							world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
 							world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
-
-				        	
-//							ss.playerName = player.username;
-//							
-//							ss.occupied = true;
-//							
-//							ss.occupationTime = TileEntityShellStorage.animationTime;
-//							
-//							NBTTagCompound tag = new NBTTagCompound();
-//							
-//							player.writeToNBT(tag);
-//							
-//							ss.playerNBT = tag;
-//							
-//							world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-//							world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 				        }
 					}
 				}
@@ -269,7 +299,7 @@ public class BlockDualVertical extends BlockContainer
 			else if(dv instanceof TileEntityShellStorage)
 			{
 				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-				if(!ss.occupied || (world.isRemote && isPlayer(ss.playerName)))
+				if((!ss.occupied || (world.isRemote && isPlayer(ss.playerName))) && !ss.syncing)
 				{
 					float thickness = 0.05F;
 					if(ss.face != 0)

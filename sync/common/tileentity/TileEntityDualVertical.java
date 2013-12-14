@@ -29,6 +29,7 @@ public class TileEntityDualVertical extends TileEntity
 	public boolean top;
 	public int face;
 	public String playerName;
+	public String name;
 	
 	public NBTTagCompound playerNBT;
 
@@ -42,6 +43,7 @@ public class TileEntityDualVertical extends TileEntity
 		top = false;
 		face = 0;
 		playerName = "";
+		name = "";
 		
 		playerNBT = new NBTTagCompound();
 		
@@ -70,6 +72,7 @@ public class TileEntityDualVertical extends TileEntity
 		if(top && pair != null)
 		{
 			playerName = pair.playerName;
+			name = pair.name;
 		}
 		resync = false;
 	}
@@ -112,7 +115,7 @@ public class TileEntityDualVertical extends TileEntity
 		tag.setBoolean("top", top);
 		tag.setInteger("face", face);
 		tag.setString("playerName", playerName);
-
+		tag.setString("name", name);
     }
 	 
 	@Override
@@ -122,6 +125,7 @@ public class TileEntityDualVertical extends TileEntity
 		top = tag.getBoolean("top");
 		face = tag.getInteger("face");
 		playerName = tag.getString("playerName");
+		name = tag.getString("name");
 		
 		resync = true;
     }
@@ -151,6 +155,9 @@ public class TileEntityDualVertical extends TileEntity
 			
 			stream.writeFloat(getBuildProgress());
 			stream.writeFloat(powerAmount());
+			
+			stream.writeUTF(name);
+			stream.writeUTF(worldObj.provider.getDimensionName());
 			
 			stream.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
 			

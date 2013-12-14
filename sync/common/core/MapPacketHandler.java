@@ -1,7 +1,9 @@
 package sync.common.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import net.minecraft.client.Minecraft;
@@ -12,11 +14,17 @@ import net.minecraft.network.NetServerHandler;
 import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.GuiIngameForge;
+import net.minecraftforge.common.DimensionManager;
 import sync.common.Sync;
 import sync.common.shell.ShellState;
+import sync.common.tileentity.TileEntityDualVertical;
+import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import cpw.mods.fml.common.network.ITinyPacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -47,7 +55,97 @@ public class MapPacketHandler
 			{
 				case 0:
 				{
-					stream.readByte();
+					//Receive sync request from client;
+					
+					int oriX = stream.readInt();
+					int oriY = stream.readInt();
+					int oriZ = stream.readInt();
+					
+					int oriDim = stream.readInt();
+					
+					int x = stream.readInt();
+					int y = stream.readInt();
+					int z = stream.readInt();
+					
+					int dim = stream.readInt();
+					
+					WorldServer worldOri = DimensionManager.getWorld(oriDim);
+					WorldServer world = DimensionManager.getWorld(dim);
+					
+					if(worldOri != null && world != null)
+					{
+						TileEntity oriTe = world.getBlockTileEntity(oriX, oriY, oriZ);
+						TileEntity te = world.getBlockTileEntity(x, y, z);
+						if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
+						{
+							TileEntityDualVertical dv = (TileEntityDualVertical)oriTe;
+							TileEntityDualVertical dv1 = (TileEntityDualVertical)te;
+							
+							if(dv.playerName.equalsIgnoreCase(player.username) && dv1.playerName.equalsIgnoreCase(player.username))
+							{
+								if(dv1 instanceof TileEntityShellConstructor)
+								{
+									TileEntityShellConstructor sc = (TileEntityShellConstructor)dv1;
+									if(sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+									{
+										break;
+									}
+								}
+								if(dv1 instanceof TileEntityShellStorage)
+								{
+									TileEntityShellStorage ss = (TileEntityShellStorage)dv1;
+									if(!ss.syncing)
+									{
+										break;
+									}
+								}
+								
+								if(dv instanceof TileEntityShellStorage)
+								{
+									TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+									
+									ss.playerName = player.username;
+									
+									ss.occupied = true;
+									
+									ss.occupationTime = TileEntityShellStorage.animationTime;
+									
+									ss.syncing = true;
+									
+									NBTTagCompound tag = new NBTTagCompound();
+									
+									player.writeToNBT(tag);
+									
+									ss.playerNBT = tag;
+									
+									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+								}
+
+								ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+								DataOutputStream stream1 = new DataOutputStream(bytes);
+								try
+								{
+									stream1.writeInt(oriX);
+									stream1.writeInt(oriY);
+									stream1.writeInt(oriZ);
+									
+									stream1.writeInt(oriDim);
+									
+									stream1.writeInt(dv.face);
+									
+									stream1.writeBoolean(false);
+									
+									PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
+								}
+								catch(IOException e)
+								{
+								}
+								
+								//TODO sync...??????????
+							}
+						}
+					}
 					break;
 				}
 			}
@@ -85,6 +183,10 @@ public class MapPacketHandler
 
 					state.buildProgress = stream.readFloat();
 					state.powerReceived = stream.readFloat();
+					
+					state.name = stream.readUTF();
+					
+					state.dimName = stream.readUTF();
 					
 					boolean isConstructor = stream.readBoolean();
 					
@@ -171,10 +273,24 @@ public class MapPacketHandler
 						
 						Sync.proxy.tickHandlerClient.renderCrosshair = GuiIngameForge.renderCrosshairs;
 						GuiIngameForge.renderCrosshairs = false;
-						
-						System.out.println(Sync.proxy.tickHandlerClient.shells.size());
 					}
 					
+					break;
+				}
+				case 4:
+				{
+					//zoom state
+					
+					Sync.proxy.tickHandlerClient.zoomX = stream.readInt();
+					Sync.proxy.tickHandlerClient.zoomY = stream.readInt();
+					Sync.proxy.tickHandlerClient.zoomZ = stream.readInt();
+					
+					Sync.proxy.tickHandlerClient.zoomDimension = stream.readInt();
+					
+					Sync.proxy.tickHandlerClient.zoomFace = stream.readInt();
+					Sync.proxy.tickHandlerClient.zoom = stream.readBoolean();
+					
+					Sync.proxy.tickHandlerClient.zoomTimer = 60;
 					break;
 				}
 			}

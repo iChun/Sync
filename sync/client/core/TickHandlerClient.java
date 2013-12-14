@@ -1,24 +1,37 @@
 package sync.client.core;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.network.packet.Packet131MapData;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.MinecraftForgeClient;
 
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import sync.common.Sync;
+import sync.common.core.SessionState;
 import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityShellStorage;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.network.PacketDispatcher;
 
 public class TickHandlerClient implements ITickHandler {
 
@@ -75,7 +88,99 @@ public class TickHandlerClient implements ITickHandler {
 		{
 			if(Mouse.isButtonDown(0) && !lmbDown)
 			{
-				//Confirm selection
+				double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
+				double magAcceptance = 0.8D;
+
+				double radialAngle = -720F;
+				
+				if(mag > magAcceptance)
+				{
+					//is on the radial menu
+					double aSin = Math.toDegrees(Math.asin(Sync.proxy.tickHandlerClient.radialDeltaX));
+					
+					if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+					{
+						radialAngle = aSin;
+					}
+					else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+					{
+						radialAngle = 90D + (90D - aSin);
+					}
+					else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+					{
+						radialAngle = 180D - aSin;
+					}
+					else if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+					{
+						radialAngle = 270D + (90D + aSin);
+					}
+				}
+				
+				if(mag > 0.9999999D)
+				{
+					mag = Math.round(mag);
+				}
+				
+				ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
+				
+				for(int i = selectedShells.size() - 1; i >= 0; i--)
+				{
+					ShellState state = selectedShells.get(i);
+					
+					if(state.playerState == null)
+					{
+						selectedShells.remove(i);
+					}
+					if(lockedStorage != null && lockedStorage.xCoord == state.xCoord && lockedStorage.yCoord == state.yCoord && lockedStorage.zCoord == state.zCoord && lockedStorage.worldObj.provider.dimensionId == state.dimension)
+					{
+						selectedShells.remove(i);
+					}
+				}
+				
+				ShellState selected = null;
+				
+				for(int i = 0; i < selectedShells.size(); i++)
+				{
+					double angle = Math.PI * 2 * i / selectedShells.size();
+					
+					angle -= Math.toRadians(90D);
+					
+					float leeway = 360F / selectedShells.size();
+					
+		    		if(mag > magAcceptance * 0.75D && (i == 0 && (radialAngle < (leeway / 2) && radialAngle >= 0F || radialAngle > (360F) - (leeway / 2)) || i != 0 && radialAngle < (leeway * i) + (leeway / 2) && radialAngle > (leeway * i ) - (leeway / 2)))
+		    		{
+		    			selected = selectedShells.get(i);
+		    			break;
+		    		}
+				}
+				if(selected != null && selected.buildProgress >= SessionState.shellConstructionPowerRequirement && lockedStorage != null)
+				{
+					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+					DataOutputStream stream = new DataOutputStream(bytes);
+					try
+					{
+						stream.writeInt(lockedStorage.xCoord);
+						stream.writeInt(lockedStorage.yCoord);
+						stream.writeInt(lockedStorage.zCoord);
+						
+						stream.writeInt(lockedStorage.worldObj.provider.dimensionId);
+						
+						stream.writeInt(selected.xCoord);
+						stream.writeInt(selected.yCoord);
+						stream.writeInt(selected.zCoord);
+						
+						stream.writeInt(selected.dimension);
+						
+						PacketDispatcher.sendPacketToServer(new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray()));
+					}
+					catch(IOException e)
+					{
+					}
+				}
+				
+				radialShow = false;
+	        	lockedStorage = null;
+	        	GuiIngameForge.renderCrosshairs = renderCrosshair;
 			}
 			if(Mouse.isButtonDown(1) && !rmbDown)
 			{
@@ -112,6 +217,11 @@ public class TickHandlerClient implements ITickHandler {
 				}
 			}
 			
+			if(zoomTimer > -10)
+			{
+				zoomTimer--;
+			}
+			
 			if(lockedStorage != null)
 			{
 		        double d3 = mc.thePlayer.posX - (lockedStorage.xCoord + 0.5D);
@@ -131,6 +241,91 @@ public class TickHandlerClient implements ITickHandler {
 //		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
 	}
 	
+	public void updateZoom(EntityLivingBase ent, float f, boolean revert) 
+	{
+		if(zoom && zoomTimer <= 0 || zoomTimer <= -10)
+		{
+			return;
+		}
+		
+		float prog = MathHelper.clamp_float((60 - zoomTimer + f) / 60, 0.0F, 1.0F);
+		
+		if(zoom)
+		{
+			prog = 1.0F - prog;
+		}
+		
+		float rotProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / 0.333F, 0.0F, 1.0F), 4D), 0.0F, 1.0F);
+		
+		float disProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / 0.333F, 0.0F, 1.0F), 2D), 0.0F, 1.0F);
+
+		float posYProg = (float)Math.pow(MathHelper.clamp_float((prog - 0.250F) / 0.750F, 0.0F, 1.0F), 2D);
+		
+		float pitchProg = (float)Math.pow(MathHelper.clamp_float((prog - 0.100F) / 0.2F, 0.0F, 1.0F), 2D);
+
+		if(!revert)
+		{
+			zoomPrevYaw = ent.rotationYaw;
+			zoomPrevPitch = ent.rotationPitch;
+			
+			zoomPrevX = ent.posX;
+			zoomPrevY = ent.posY;
+			zoomPrevZ = ent.posZ;
+			
+			hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
+			Minecraft.getMinecraft().gameSettings.hideGUI = true;
+		}
+		
+		ent.prevRotationYawHead = ent.prevRotationYaw += (revert ? -1 : 1) * ((zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
+		ent.rotationYawHead = ent.rotationYaw += (revert ? -1 : 1) * ((zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
+
+		ent.prevRotationPitch += (revert ? -1 : 1) * (90F * pitchProg);
+		ent.rotationPitch += (revert ? -1 : 1) * (90F * pitchProg);
+		
+		if(revert)
+		{
+			ent.prevRotationPitch = ent.rotationPitch = zoomPrevPitch;
+			Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
+		}
+		
+		ent.lastTickPosY += (revert ? -1 : 1) * (500D * posYProg);
+		ent.prevPosY += (revert ? -1 : 1) * (500D * posYProg);
+		ent.posY += (revert ? -1 : 1) * (500D * posYProg);
+		
+		switch(zoomFace)
+		{
+			case 0:
+			{
+				ent.lastTickPosZ -= (revert ? -1 : 1) * (1.5D * disProg);
+				ent.prevPosZ -= (revert ? -1 : 1) * (1.5D * disProg);
+				ent.posZ -= (revert ? -1 : 1) * (1.5D * disProg);
+				break;
+			}
+			case 1:
+			{
+				ent.lastTickPosX += (revert ? -1 : 1) * (1.5D * disProg);
+				ent.prevPosX += (revert ? -1 : 1) * (1.5D * disProg);
+				ent.posX += (revert ? -1 : 1) * (1.5D * disProg);
+				break;
+			}
+			case 2:
+			{
+				ent.lastTickPosZ += (revert ? -1 : 1) * (1.5D * disProg);
+				ent.prevPosZ += (revert ? -1 : 1) * (1.5D * disProg);
+				ent.posZ += (revert ? -1 : 1) * (1.5D * disProg);
+				break;
+			}
+			case 3:
+			{
+				ent.lastTickPosX -= (revert ? -1 : 1) * (1.5D * disProg);
+				ent.prevPosX -= (revert ? -1 : 1) * (1.5D * disProg);
+				ent.posX -= (revert ? -1 : 1) * (1.5D * disProg);
+				break;
+			}
+		}
+
+	}
+	
 	public void preRenderTick(Minecraft mc, WorldClient world, float renderTick)
 	{
 		if(radialShow)
@@ -142,10 +337,14 @@ public class TickHandlerClient implements ITickHandler {
 			mc.renderViewEntity.prevRotationYaw = mc.renderViewEntity.rotationYaw = radialPlayerYaw;
 			mc.renderViewEntity.prevRotationPitch = mc.renderViewEntity.rotationPitch = radialPlayerPitch;
 		}	
+		
+		updateZoom(mc.renderViewEntity, renderTick, false);
 	}
 
 	public void renderTick(Minecraft mc, WorldClient world, float renderTick)
 	{
+		updateZoom(mc.renderViewEntity, renderTick, true);
+		
 		if(radialShow)
 		{
 			double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
@@ -252,9 +451,243 @@ public class TickHandlerClient implements ITickHandler {
 				
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
 			}
+			
+			GL11.glPushMatrix();
+			
+			double radialAngle = -720F;
+			
+			if(mag > magAcceptance)
+			{
+				//is on the radial menu
+				double aSin = Math.toDegrees(Math.asin(Sync.proxy.tickHandlerClient.radialDeltaX));
+				
+				if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+				{
+					radialAngle = aSin;
+				}
+				else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+				{
+					radialAngle = 90D + (90D - aSin);
+				}
+				else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+				{
+					radialAngle = 180D - aSin;
+				}
+				else if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+				{
+					radialAngle = 270D + (90D + aSin);
+				}
+			}
+			
+			if(mag > 0.9999999D)
+			{
+				mag = Math.round(mag);
+			}
+			
+			GL11.glDepthMask(true);
+			
+			GL11.glEnable(GL11.GL_DEPTH_TEST);
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			
+			ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
+			
+			for(int i = selectedShells.size() - 1; i >= 0; i--)
+			{
+				ShellState state = selectedShells.get(i);
+				
+				if(state.playerState == null)
+				{
+					selectedShells.remove(i);
+				}
+				if(lockedStorage != null && lockedStorage.xCoord == state.xCoord && lockedStorage.yCoord == state.yCoord && lockedStorage.zCoord == state.zCoord && lockedStorage.worldObj.provider.dimensionId == state.dimension)
+				{
+					selectedShells.remove(i);
+				}
+			}
+			
+			ShellState selected = null;
+			
+			for(int i = 0; i < selectedShells.size(); i++)
+			{
+				double angle = Math.PI * 2 * i / selectedShells.size();
+				
+				angle -= Math.toRadians(90D);
+				
+				float leeway = 360F / selectedShells.size();
+				
+				boolean selectedState = false;
+	    		if(mag > magAcceptance * 0.75D && (i == 0 && (radialAngle < (leeway / 2) && radialAngle >= 0F || radialAngle > (360F) - (leeway / 2)) || i != 0 && radialAngle < (leeway * i) + (leeway / 2) && radialAngle > (leeway * i ) - (leeway / 2)))
+	    		{
+	    			selectedState = true;
+	    			selected = selectedShells.get(i);
+	    		}
+	    		
+	    		drawEntityOnScreen(selectedShells.get(i), selectedShells.get(i).playerState, reso.getScaledWidth() / 2 + (int)(radius * Math.cos(angle)), (reso.getScaledHeight() + 32) / 2 + (int)(radius * Math.sin(angle)), 16 * prog + (float)(selectedState ? 6 * mag : 0), 2, 2, renderTick);
+			}
+			
+			drawSelectedShellText(reso, selected);
+			
+			GL11.glPopMatrix();
 		}
 	}
 	
+	private void drawShellConstructionPercentage(ShellState state)
+	{
+    	if(radialShow)
+    	{
+	        GL11.glPushMatrix();
+
+	        GL11.glEnable(GL11.GL_BLEND);
+	        GL11.glBlendFunc(770, 771);
+
+        	GL11.glTranslatef(0F, 0F, 100F);
+        	
+        	if(state != null)
+    		{
+	    		if(state.buildProgress < SessionState.shellConstructionPowerRequirement)
+	    		{
+	        		GL11.glPushMatrix();
+	        		float scaleee = 1.5F;
+	        		GL11.glScalef(scaleee, scaleee, scaleee);
+	        		String name = EnumChatFormatting.RED.toString() + (int)Math.round(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
+	        		
+	        		GL11.glPopMatrix();
+	    		}
+    		}
+        	
+        	GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        
+	        GL11.glDisable(GL11.GL_BLEND);
+
+	        GL11.glPopMatrix();
+     	}
+	}
+
+	
+	private void drawSelectedShellText(ScaledResolution reso, ShellState state)
+	{
+    	if(radialShow)
+    	{
+	        GL11.glPushMatrix();
+
+	        GL11.glEnable(GL11.GL_BLEND);
+	        GL11.glBlendFunc(770, 771);
+
+        	GL11.glTranslatef(reso.getScaledWidth() / 2F, (reso.getScaledHeight() - 20) / 2F, 100F);
+        	
+        	if(state != null)
+    		{
+	    		GL11.glPushMatrix();
+	    		float scaleee = 1F;
+	    		GL11.glScalef(scaleee, scaleee, scaleee);
+	    		int height = 5;
+	    		if(state.name.equalsIgnoreCase(""))
+	    		{
+	        		String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height, 16777215);
+	        		name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
+	    		}
+	    		else
+	    		{
+	        		String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
+	        		name = EnumChatFormatting.YELLOW.toString() + state.name;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
+	        		name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
+	    		}
+	    		GL11.glPopMatrix();
+    		}
+        	else
+        	{
+        		String name = I18n.getString("gui.cancel");
+        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
+        	}
+        	
+        	GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        
+	        GL11.glDisable(GL11.GL_BLEND);
+
+	        GL11.glPopMatrix();
+     	}
+	}
+	
+	private void drawEntityOnScreen(ShellState state, EntityLivingBase ent, int posX, int posY, float scale, float par4, float par5, float renderTick) 
+	{
+		if(ent != null)
+		{
+        	boolean hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
+        	
+        	Minecraft.getMinecraft().gameSettings.hideGUI = true;
+        	
+	        GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+	        GL11.glPushMatrix();
+
+	        GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+	        GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+	        
+	        GL11.glScalef((float)(-scale), (float)scale, (float)scale);
+	        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+	        float f2 = ent.renderYawOffset;
+	        float f3 = ent.rotationYaw;
+	        float f4 = ent.rotationPitch;
+	        float f5 = ent.rotationYawHead;
+
+	        GL11.glRotatef(135.0F, 0.0F, 1.0F, 0.0F);
+	        RenderHelper.enableStandardItemLighting();
+	        GL11.glRotatef(-135.0F, 0.0F, 1.0F, 0.0F);
+	        GL11.glRotatef(-((float)Math.atan((double)(par5 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+	        GL11.glRotatef(15.0F, 1.0F, 0.0F, 0.0F);
+	        GL11.glRotatef(25.0F, 0.0F, 1.0F, 0.0F);
+
+	        ent.renderYawOffset = (float)Math.atan((double)(par4 / 40.0F)) * 20.0F;
+	        ent.rotationYaw = (float)Math.atan((double)(par4 / 40.0F)) * 40.0F;
+	        ent.rotationPitch = -((float)Math.atan((double)(par5 / 40.0F))) * 20.0F;
+	        ent.rotationYawHead = ent.renderYawOffset;
+	        GL11.glTranslatef(0.0F, ent.yOffset, 0.0F);
+
+	        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        
+	        float viewY = RenderManager.instance.playerViewY;
+	        RenderManager.instance.playerViewY = 180.0F;
+	        RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        
+	        GL11.glTranslatef(0.0F, -0.22F, 0.0F);
+	        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
+	        Tessellator.instance.setBrightness(240);
+	        
+	        RenderManager.instance.playerViewY = viewY;
+	        ent.renderYawOffset = f2;
+	        ent.rotationYaw = f3;
+	        ent.rotationPitch = f4;
+	        ent.rotationYawHead = f5;
+
+	        GL11.glPopMatrix();
+	        
+	        RenderHelper.disableStandardItemLighting();
+
+	        GL11.glPushMatrix();
+	        
+	        GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+	        
+	        drawShellConstructionPercentage(state);
+
+	        GL11.glPopMatrix();
+
+	        GL11.glEnable(GL11.GL_ALPHA_TEST);
+	        
+	        GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+	        OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+	        GL11.glDisable(GL11.GL_TEXTURE_2D);
+	        OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+	        
+	        Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
+		}
+	}
+
 	public boolean lmbDown;
 	public boolean rmbDown;
 	
@@ -267,6 +700,23 @@ public class TickHandlerClient implements ITickHandler {
 	public boolean renderCrosshair;
 	
 	public long clock;
+	
+	public int zoomFace;
+	public int zoomTimer;
+	public boolean zoom;
+	public int zoomX;
+	public int zoomY;
+	public int zoomZ;
+	public int zoomDimension;
+	
+	public float zoomPrevYaw;
+	public float zoomPrevPitch;
+	
+	public double zoomPrevX;
+	public double zoomPrevY;
+	public double zoomPrevZ;
+	
+	public boolean hideGui;
 	
 	public int lockTime;
 	public TileEntityShellStorage lockedStorage = null;

@@ -83,13 +83,16 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			
 			float prog = MathHelper.clamp_float(TileEntityShellStorage.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityShellStorage.animationTime) / (float)TileEntityShellStorage.animationTime;
 			
-			if(ss.vacating)
+			if(!ss.syncing)
 			{
-				prog = 1.0F - prog;
-			}
-			else if(!ss.occupied || !ss.syncing)
-			{
-				prog = 0.0F;
+				if(ss.vacating)
+				{
+					prog = 1.0F - prog;
+				}
+				else 
+				{
+					prog = 0.0F;
+				}
 			}
 			
 			if(ss.playerInstance != null)

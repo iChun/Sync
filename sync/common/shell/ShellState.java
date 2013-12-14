@@ -13,6 +13,9 @@ public class ShellState
 	public final int dimension;
 	
 	public EntityPlayer playerState;
+
+	public String name;
+	public String dimName;
 	
 	public float buildProgress;
 	
@@ -24,6 +27,8 @@ public class ShellState
 		yCoord = j;
 		zCoord = k;
 		dimension = dim;
+		name = "";
+		dimName = "";
 	}
 	
 	public void tick()
