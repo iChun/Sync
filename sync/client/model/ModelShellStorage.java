@@ -423,7 +423,7 @@ public class ModelShellStorage extends ModelBase
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
-	public void render(float f5)
+	public void render(float prog, float f5)
 	{
 		base.render(f5);
 		ceiling.render(f5);
@@ -447,6 +447,15 @@ public class ModelShellStorage extends ModelBase
 		frontPillarRight.render(f5);
 		frontPillarLeft.render(f5);
 		
+		float retractProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp_float((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
+
+		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
+		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;
+		doorLeft.rotationPointZ = doorRight.rotationPointZ = -1 + (-14 * retractProg);
+		
+//		rotY = R = 90 L = -90
+//		rotZ = -1, -15;
 		doorRight.render(f5);
 		doorLeft.render(f5);
 	}

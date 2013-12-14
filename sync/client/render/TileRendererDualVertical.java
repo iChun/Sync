@@ -81,13 +81,13 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			modelStorage.txBiped = rl;
 //			modelStorage.renderPlayer(0.0625F);
 			
-			float prog = MathHelper.clamp_float(TileEntityShellStorage.animationTime - ss.occupationTime + f, 0.0F, TileEntityShellStorage.animationTime) / (float)TileEntityShellStorage.animationTime;
+			float prog = MathHelper.clamp_float(TileEntityShellStorage.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityShellStorage.animationTime) / (float)TileEntityShellStorage.animationTime;
 			
 			if(ss.vacating)
 			{
 				prog = 1.0F - prog;
 			}
-			else if(!ss.occupied)
+			else if(!ss.occupied || !ss.syncing)
 			{
 				prog = 0.0F;
 			}
@@ -132,7 +132,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
-			modelStorage.render(0.0625F);
+			modelStorage.render(prog, 0.0625F);
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 		

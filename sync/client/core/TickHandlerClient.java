@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 
 import sync.common.Sync;
 import sync.common.shell.ShellState;
+import sync.common.tileentity.TileEntityShellStorage;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -72,28 +73,24 @@ public class TickHandlerClient implements ITickHandler {
 		}
 		if(mc.currentScreen == null)
 		{
-			if(Keyboard.isKeyDown(Keyboard.KEY_GRAVE) && !tempKeyDown)
+			if(Mouse.isButtonDown(0) && !lmbDown)
 			{
-				radialShow = true;
-				radialTime = 3;
-				
-				radialPlayerYaw = mc.renderViewEntity.rotationYaw;
-				radialPlayerPitch = mc.renderViewEntity.rotationPitch;
-				
-				radialDeltaX = radialDeltaY = 0;
-				
-				renderCrosshair = GuiIngameForge.renderCrosshairs;
-				GuiIngameForge.renderCrosshairs = false;
+				//Confirm selection
 			}
-			else if(!Keyboard.isKeyDown(Keyboard.KEY_GRAVE) && tempKeyDown)
+			if(Mouse.isButtonDown(1) && !rmbDown)
 			{
 				radialShow = false;
+	        	lockedStorage = null;
+	        	GuiIngameForge.renderCrosshairs = renderCrosshair;
 			}
-			tempKeyDown = Keyboard.isKeyDown(Keyboard.KEY_GRAVE);
+			lmbDown = Mouse.isButtonDown(0);
+			rmbDown = Mouse.isButtonDown(1);
 		}
 		else
 		{
 			radialShow = false;
+        	lockedStorage = null;
+        	GuiIngameForge.renderCrosshairs = renderCrosshair;
 		}
 		
 		if(clock != world.getWorldTime() || world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
@@ -103,6 +100,31 @@ public class TickHandlerClient implements ITickHandler {
 			for(ShellState state : shells)
 			{
 				state.tick();
+			}
+			
+			if(lockTime > 0)
+			{
+				lockTime--;
+				
+				if(lockedStorage != null)
+				{
+					mc.thePlayer.setLocationAndAngles(lockedStorage.xCoord + 0.5D, lockedStorage.yCoord, lockedStorage.zCoord + 0.5D, (lockedStorage.face - 2) * 90F, 0F);
+				}
+			}
+			
+			if(lockedStorage != null)
+			{
+		        double d3 = mc.thePlayer.posX - (lockedStorage.xCoord + 0.5D);
+		        double d4 = mc.thePlayer.boundingBox.minY - lockedStorage.yCoord;
+		        double d5 = mc.thePlayer.posZ - (lockedStorage.zCoord + 0.5D);
+		        double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+		        
+		        if(dist >= 0.3D || world.getBlockTileEntity(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord) != lockedStorage)
+		        {
+		        	radialShow = false;
+		        	lockedStorage = null;
+		        	GuiIngameForge.renderCrosshairs = renderCrosshair;
+		        }
 			}
 		}
 		
@@ -233,7 +255,8 @@ public class TickHandlerClient implements ITickHandler {
 		}
 	}
 	
-	public boolean tempKeyDown;
+	public boolean lmbDown;
+	public boolean rmbDown;
 	
 	public boolean radialShow;
 	public float radialPlayerYaw;
@@ -245,6 +268,8 @@ public class TickHandlerClient implements ITickHandler {
 	
 	public long clock;
 	
+	public int lockTime;
+	public TileEntityShellStorage lockedStorage = null;
 	public ArrayList<ShellState> shells = new ArrayList<ShellState>();
 	
 	public static boolean hasStencilBits = MinecraftForgeClient.getStencilBits() > 0;

@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import sync.client.entity.EntityPaintFX;
+import sync.common.Sync;
 import sync.common.core.SessionState;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -28,6 +29,8 @@ public class TileEntityDualVertical extends TileEntity
 	public boolean top;
 	public int face;
 	public String playerName;
+	
+	public NBTTagCompound playerNBT;
 
 	public ResourceLocation locationSkin;
 	
@@ -39,6 +42,8 @@ public class TileEntityDualVertical extends TileEntity
 		top = false;
 		face = 0;
 		playerName = "";
+		
+		playerNBT = new NBTTagCompound();
 		
 		resync = false;
 	}
@@ -146,6 +151,10 @@ public class TileEntityDualVertical extends TileEntity
 			
 			stream.writeFloat(getBuildProgress());
 			stream.writeFloat(powerAmount());
+			
+			stream.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
+			
+			Sync.writeNBTTagCompound(playerNBT, stream);
 		}
 		catch(IOException e)
 		{

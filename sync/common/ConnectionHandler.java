@@ -13,9 +13,11 @@ import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.server.MinecraftServer;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.relauncher.Side;
 
 public class ConnectionHandler 
 	implements IConnectionHandler 
@@ -36,6 +38,7 @@ public class ConnectionHandler
 	public void onClientConnection()
 	{
 		Sync.proxy.tickHandlerClient.shells.clear();
+		Sync.proxy.tickHandlerClient.lockedStorage = null;
 	}
 
 	@Override
@@ -70,6 +73,10 @@ public class ConnectionHandler
 	@Override
 	public void connectionClosed(INetworkManager manager) //both 
 	{
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			onClientConnection();
+		}
 	}
 
 }

@@ -13,7 +13,7 @@ public class EventHandler
 	@ForgeSubscribe
 	public void onMouseEvent(MouseEvent event)
 	{
-		if(Sync.proxy.tickHandlerClient.radialShow)
+		if(Sync.proxy.tickHandlerClient.radialShow && !Sync.proxy.tickHandlerClient.shells.isEmpty())
 		{
 			Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
 			Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;

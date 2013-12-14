@@ -14,6 +14,8 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import sync.common.Sync;
+
 public class ModelShellConstructor extends ModelBase
 {
 	public ModelRenderer base;
@@ -47,6 +49,7 @@ public class ModelShellConstructor extends ModelBase
 	public ModelRenderer sprayerB;
 	public ModelRenderer doorRight;
 	public ModelRenderer doorLeft;
+	public ModelRenderer stencilBuffer;
 	
 	public Random rand;
 	
@@ -286,6 +289,12 @@ public class ModelShellConstructor extends ModelBase
 		doorLeft.setTextureSize(256, 256);
 		doorLeft.mirror = true;
 		setRotation(doorLeft, 0F, 0F, 0F);
+		stencilBuffer = new ModelRenderer(this, 0, 0);
+		stencilBuffer.addBox(-17F, 0.5F, -8.5F, 34, 60, 17);
+		stencilBuffer.setRotationPoint(0F, -9F, 0F);
+		stencilBuffer.setTextureSize(256, 256);
+		stencilBuffer.mirror = true;
+		setRotation(stencilBuffer, 0F, 0F, 0F);
 	}
 
 	public void render(float f5)
@@ -353,8 +362,8 @@ public class ModelShellConstructor extends ModelBase
 			
 			if(prog >= 0.940F)
 			{
-				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
-				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
+				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
 			}
 			else
 			{
@@ -371,8 +380,8 @@ public class ModelShellConstructor extends ModelBase
 			
 			printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * (1.0F - prog) / 0.05F);
 			
-			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-55F * (1.0F - prog) / 0.05F);  
-			sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-55F * (1.0F - prog) / 0.05F);
+			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * (1.0F - prog) / 0.05F);  
+			sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * (1.0F - prog) / 0.05F);
 		}
 		
 		printerR.render(f5);
@@ -554,8 +563,131 @@ public class ModelShellConstructor extends ModelBase
 			GL11.glScalef(2.0F, 2.0F, 2.0F);
 			GL11.glTranslated(0.0D, -0.72D, 0.0D);
 			
-			if(prog < 1.0F)
+			if(Sync.proxy.tickHandlerClient.hasStencilBits && prog < 1.0F)
 			{
+				
+				GL11.glDepthMask(false);
+				
+				GL11.glEnable(GL11.GL_STENCIL_TEST);
+				
+				GL11.glColorMask(false, false, false, false);
+				
+				GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+				GL11.glStencilMask(0xFF);
+				GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+				
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+				modelBiped.bipedHead.render(f5);
+				modelBiped.bipedBody.render(f5);
+				modelBiped.bipedRightArm.render(f5);
+				modelBiped.bipedLeftArm.render(f5);
+				modelBiped.bipedRightLeg.render(f5);
+				modelBiped.bipedLeftLeg.render(f5);
+				
+				GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+				
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				
+				GL11.glPushMatrix();
+				
+				GL11.glScalef(0.5F, 0.5F, 0.5F);
+				stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
+				stencilBuffer.render(f5);
+				
+				GL11.glPopMatrix();
+				
+				GL11.glStencilMask(0x00);
+				GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+
+				GL11.glColorMask(true, true, true, true);
+
+				GL11.glDepthMask(true);
+
+				
+				if(prog < 1.0F)
+				{
+					modelBiped.bipedHead.render(f5);
+					modelBiped.bipedBody.render(f5);
+					modelBiped.bipedRightArm.render(f5);
+					modelBiped.bipedLeftArm.render(f5);
+					modelBiped.bipedRightLeg.render(f5);
+					modelBiped.bipedLeftLeg.render(f5);
+				}
+				
+				GL11.glDepthMask(false);
+				
+				GL11.glColorMask(false, false, false, false);
+				
+				GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+				GL11.glStencilMask(0xFF);
+				GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+				
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+				modelBiped.bipedHead.render(f5);
+				modelBiped.bipedBody.render(f5);
+				modelBiped.bipedRightArm.render(f5);
+				modelBiped.bipedLeftArm.render(f5);
+				modelBiped.bipedRightLeg.render(f5);
+				modelBiped.bipedLeftLeg.render(f5);
+				
+				GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+				
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				
+				GL11.glPushMatrix();
+				
+				GL11.glScalef(0.5F, 0.5F, 0.5F);
+				stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
+				stencilBuffer.render(f5);
+				
+				GL11.glPopMatrix();
+				
+				GL11.glStencilMask(0x00);
+				GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+
+				GL11.glColorMask(true, true, true, true);
+
+				GL11.glDepthMask(true);
+
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
+				
+				GL11.glScalef(1.001F, 1.001F, 1.001F);
+				GL11.glTranslated(0.0D, -0.00005D, 0.0D);
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				
+				modelBiped.bipedHead.render(f5);
+				modelBiped.bipedBody.render(f5);
+				modelBiped.bipedRightArm.render(f5);
+				modelBiped.bipedLeftArm.render(f5);
+				modelBiped.bipedRightLeg.render(f5);
+				modelBiped.bipedLeftLeg.render(f5);
+
+				GL11.glDisable(GL11.GL_STENCIL_TEST);
+			}
+			else
+			{
+				if(prog < 1.0F)
+				{
+					modelBiped.bipedHead.render(f5);
+					modelBiped.bipedBody.render(f5);
+					modelBiped.bipedRightArm.render(f5);
+					modelBiped.bipedLeftArm.render(f5);
+					modelBiped.bipedRightLeg.render(f5);
+					modelBiped.bipedLeftLeg.render(f5);
+				}
+
+				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
+				
+				GL11.glScalef(1.001F, 1.001F, 1.001F);
+				GL11.glTranslated(0.0D, -0.00005D, 0.0D);
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
+				
 				modelBiped.bipedHead.render(f5);
 				modelBiped.bipedBody.render(f5);
 				modelBiped.bipedRightArm.render(f5);
@@ -563,21 +695,6 @@ public class ModelShellConstructor extends ModelBase
 				modelBiped.bipedRightLeg.render(f5);
 				modelBiped.bipedLeftLeg.render(f5);
 			}
-
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
-			
-			GL11.glScalef(1.001F, 1.001F, 1.001F);
-			GL11.glTranslated(0.0D, -0.00005D, 0.0D);
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
-			
-			modelBiped.bipedHead.render(f5);
-			modelBiped.bipedBody.render(f5);
-			modelBiped.bipedRightArm.render(f5);
-			modelBiped.bipedLeftArm.render(f5);
-			modelBiped.bipedRightLeg.render(f5);
-			modelBiped.bipedLeftLeg.render(f5);
-			
 		}
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
