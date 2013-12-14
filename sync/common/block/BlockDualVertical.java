@@ -117,6 +117,15 @@ public class BlockDualVertical extends BlockContainer
 					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 					return true;
 				}
+				else if(!ss.playerName.equalsIgnoreCase("") && ss.occupied)
+				{
+					ss.vacating = true;
+					ss.occupationTime = TileEntityShellStorage.animationTime;
+
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+					return true;
+				}
 			}
 		}
 		return false;

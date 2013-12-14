@@ -50,10 +50,17 @@ public class ModelShellStorage extends ModelBase
 	public ModelRenderer backSupport2;
 	public ModelRenderer backSupport3;
 	public ModelRenderer backSupport4;
+	public ModelRenderer indicatorBottom;
+	public ModelRenderer indicatorTop;
+	public ModelRenderer indicatorRight;
+	public ModelRenderer indicatorLeft;
+	public ModelRenderer indicator2;
 	
 	public ModelBiped modelBiped;
 	
 	public ResourceLocation txBiped;
+	
+	public boolean powered;
 
 	public ModelShellStorage()
 	{
@@ -293,6 +300,38 @@ public class ModelShellStorage extends ModelBase
 		backSupport4.setTextureSize(256, 256);
 		backSupport4.mirror = true;
 		setRotation(backSupport4, 0F, 0F, 0F);
+
+		indicatorBottom = new ModelRenderer(this, 0, 0);
+		indicatorBottom.addBox(-2.5F, 7F, 0.3F, 5, 1, 1);
+		indicatorBottom.setRotationPoint(10.5F, 16F, 12F);
+		indicatorBottom.setTextureSize(256, 256);
+		indicatorBottom.mirror = true;
+		setRotation(indicatorBottom, -0.4833219F, 0F, 0F);
+		indicatorTop = new ModelRenderer(this, 0, 0);
+		indicatorTop.addBox(-2.5F, 0F, 0.3F, 5, 1, 1);
+		indicatorTop.setRotationPoint(10.5F, 16F, 12F);
+		indicatorTop.setTextureSize(256, 256);
+		indicatorTop.mirror = true;
+		setRotation(indicatorTop, -0.4833219F, 0F, 0F);
+		indicatorRight = new ModelRenderer(this, 0, 0);
+		indicatorRight.addBox(-2.5F, 1F, 0.3F, 1, 6, 1);
+		indicatorRight.setRotationPoint(10.5F, 16F, 12F);
+		indicatorRight.setTextureSize(256, 256);
+		indicatorRight.mirror = true;
+		setRotation(indicatorRight, -0.4833219F, 0F, 0F);
+		indicatorLeft = new ModelRenderer(this, 0, 0);
+		indicatorLeft.addBox(1.5F, 1F, 0.3F, 1, 6, 1);
+		indicatorLeft.setRotationPoint(10.5F, 16F, 12F);
+		indicatorLeft.setTextureSize(256, 256);
+		indicatorLeft.mirror = true;
+		setRotation(indicatorLeft, -0.4833219F, 0F, 0F);
+		
+		indicator2 = new ModelRenderer(this, 0, 9);
+		indicator2.addBox(-2.5F, 1F, 0.5F, 5, 8, 1);
+		indicator2.setRotationPoint(10.5F, 16F, 12F);
+		indicator2.setTextureSize(256, 256);
+		indicator2.mirror = true;
+		setRotation(indicator2, -0.4833219F, 0F, 0F);
 	}
 
 	public void renderPlayer(float prog, float f5)
@@ -364,6 +403,24 @@ public class ModelShellStorage extends ModelBase
 		headJackBottom.render(f5);
 		headJackRight.render(f5);
 		headJackCore.render(f5);
+		
+	    indicatorBottom.render(f5);
+	    indicatorTop.render(f5);
+	    indicatorRight.render(f5);
+	    indicatorLeft.render(f5);
+		
+		if(powered)
+		{
+			GL11.glColor4f(0.0F, 1.0F, 0.0F, 1.0F);
+		}
+		else
+		{
+			GL11.glColor4f(1.0F, 0.0F, 0.0F, 1.0F);
+		}
+
+		indicator2.render(f5);
+		
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	public void render(float f5)

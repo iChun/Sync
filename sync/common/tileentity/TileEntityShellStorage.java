@@ -52,6 +52,11 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		if(occupationTime > 0)
 		{
 			occupationTime--;
+			if(vacating && occupationTime == 0)
+			{
+				vacating = false;
+				occupied = false;
+			}
 		}
 	}
 	
@@ -67,23 +72,28 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		{
 			return ((TileEntityShellStorage)pair).isPowered();
 		}
-		if(playerName.equalsIgnoreCase(""))
-		{
-			return false;
-		}
-		return true;
+		return worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) || worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord + 1, zCoord);
 	}
 	
 	@Override
     public void writeToNBT(NBTTagCompound tag)
     {
 		super.writeToNBT(tag);
+		tag.setBoolean("occupied", occupied);
+		tag.setBoolean("vacating", vacating);
+		
+		tag.setInteger("occupationTime", occupationTime);
     }
 	 
 	@Override
     public void readFromNBT(NBTTagCompound tag)
     {
 		super.readFromNBT(tag);
+		
+		occupied = tag.getBoolean("occupied");
+		vacating = tag.getBoolean("vacating");
+		
+		occupationTime = tag.getInteger("occupationTime");
 		
 		resync = true;
     }

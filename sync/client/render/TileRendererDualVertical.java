@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
@@ -97,17 +99,28 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
 
 				ss.playerInstance.ticksExisted = 35;
-				ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F; 
+				ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
 				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
 				ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * 15F;
+				
+//				ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
+//				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
+//				ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
+//				faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 10F, 10F);
+				
+				ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
 				
 				RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
 				
 				GL11.glPopMatrix();
 			}
 			
-			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			
+			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+
+			modelStorage.powered = ss.isPowered();
 			modelStorage.renderInternals(prog, 0.0625F);
 			
 			GL11.glDisable(GL11.GL_CULL_FACE);
@@ -120,6 +133,46 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 		
 		GL11.glPopMatrix();
 	}
+	
+    public void faceEntity(Entity ent, Entity par1Entity, float par2, float par3)
+    {
+        double d0 = par1Entity.posX - ent.posX;
+        double d1 = par1Entity.posZ - ent.posZ;
+        double d2;
+
+        if (par1Entity instanceof EntityLivingBase)
+        {
+            EntityLivingBase entitylivingbase = (EntityLivingBase)par1Entity;
+            d2 = entitylivingbase.posY + (double)entitylivingbase.getEyeHeight() - (ent.posY + (double)ent.getEyeHeight());
+        }
+        else
+        {
+            d2 = (par1Entity.boundingBox.minY + par1Entity.boundingBox.maxY) / 2.0D - (ent.posY + (double)ent.getEyeHeight());
+        }
+
+        double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d1 * d1);
+        float f2 = (float)(Math.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
+        float f3 = (float)(-(Math.atan2(d2, d3) * 180.0D / Math.PI));
+        ent.rotationPitch = this.updateRotation(ent.rotationPitch, f3, par3);
+        ent.rotationYaw = this.updateRotation(ent.rotationYaw, f2, par2);
+    }
+
+    private float updateRotation(float par1, float par2, float par3)
+    {
+        float f3 = MathHelper.wrapAngleTo180_float(par2 - par1);
+
+        if (f3 > par3)
+        {
+            f3 = par3;
+        }
+
+        if (f3 < -par3)
+        {
+            f3 = -par3;
+        }
+
+        return par1 + f3;
+    }
 	
 	@Override
 	public void renderTileEntityAt(TileEntity tileentity, double d0, double d1,	double d2, float f) 

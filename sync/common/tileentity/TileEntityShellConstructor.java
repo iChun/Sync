@@ -64,7 +64,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	
 	public float powerAmount()
 	{
-		return 400F;
+		return 40F;
 	}
 	
 	@SideOnly(Side.CLIENT)
