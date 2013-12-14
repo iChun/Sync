@@ -4,6 +4,7 @@ import java.util.Random;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import sync.common.Sync;
@@ -46,6 +47,51 @@ public class BlockShellConstructor extends BlockContainer
 	{
 		return -1;
 	}
+	
+	@Override
+    public int getRenderBlockPass()
+    {
+        return 0;
+    }
+	
+	@Override
+    public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ)
+    {
+		TileEntity te = world.getBlockTileEntity(i, j, k);
+		if(te instanceof TileEntityShellConstructor)
+		{
+			TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
+			if(sc.top)
+			{
+				TileEntity te1 = world.getBlockTileEntity(i, j - 1, k);
+				if(te1 instanceof TileEntityShellConstructor)
+				{
+					sc = (TileEntityShellConstructor)te1;
+				}
+			}
+			if(sc.playerName.equalsIgnoreCase(""))
+			{
+				sc.playerName = player.username;
+				world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+				world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+			}
+		}
+		return false;
+    }
+	
+	@Override
+    public void onNeighborBlockChange(World world, int i, int j, int k, int par5)
+    {
+		TileEntity te = world.getBlockTileEntity(i, j, k);
+		if(te instanceof TileEntityShellConstructor)
+		{
+			TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
+			if(!sc.top && !world.isBlockOpaqueCube(i, j - 1, k))
+			{
+				world.setBlockToAir(i, j, k);
+			}
+		}
+    }
 	
 	@Override
     public void breakBlock(World world, int i, int j, int k, int par5, int par6)

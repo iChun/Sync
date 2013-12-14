@@ -93,6 +93,8 @@ public class TickHandlerClient implements ITickHandler {
 		{
 			radialShow = false;
 		}
+		
+//		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
 	}
 	
 	public void preRenderTick(Minecraft mc, WorldClient world, float renderTick)

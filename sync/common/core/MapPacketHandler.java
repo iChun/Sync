@@ -64,7 +64,7 @@ public class MapPacketHandler
 			{
 				case 0:
 				{
-					stream.readByte();
+					SessionState.shellConstructionPowerRequirement = stream.readInt();
 					break;
 				}
 			}

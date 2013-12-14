@@ -94,11 +94,11 @@ public class ItemSyncBlockPlacer extends Item
         else
         {
         	Block block = Sync.blockShellConstructor;
-        	boolean flag = world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
+        	boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
         	if(!flag)
         	{
         		j--;
-        		flag = world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
+        		flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
         	}
             if (flag)
             {

@@ -9,6 +9,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
 import sync.common.core.CommonProxy;
 import sync.common.core.MapPacketHandler;
+import sync.common.core.SessionState;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -18,7 +19,9 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
+import cpw.mods.fml.common.network.FMLNetworkHandler;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkModHandler;
 
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version
@@ -26,6 +29,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
 			tinyPacketHandler = MapPacketHandler.class,
+			connectionHandler = ConnectionHandler.class,
 			versionBounds = "[0.0.0,0.1.0)"
 				)
 public class Sync 
@@ -45,6 +49,8 @@ public class Sync
 	public static int idBlockShellConstructor;
 	public static int idItemBlockPlacer;
 	
+	public static int shellConstructionPowerRequirement;
+	
 	public static Block blockShellConstructor;
 	
 	public static Item itemBlockPlacer;
@@ -60,6 +66,8 @@ public class Sync
 		
 		idBlockShellConstructor = addCommentAndReturnBlockId(config, "ids", "idBlockShellConstructor", "Block ID for the Shell Constructor", 1345);
 		idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
+		
+		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
 		
 		config.save();
 		
@@ -78,6 +86,7 @@ public class Sync
 	@EventHandler
 	public void serverStarted(FMLServerStartedEvent event)
 	{
+		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
 	}
 	
 	@EventHandler
@@ -105,5 +114,10 @@ public class Sync
 			prop.comment = comment;
 		}
 		return prop.getInt();
+	}
+	
+	public static int getNetId()
+	{
+		return ((NetworkModHandler)FMLNetworkHandler.instance().findNetworkModHandler(Sync.instance)).getNetworkId();
 	}
 }

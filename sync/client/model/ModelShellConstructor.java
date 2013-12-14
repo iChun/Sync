@@ -1,8 +1,17 @@
 package sync.client.model;
 
+import java.util.ArrayList;
+import java.util.Random;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
+
+import org.lwjgl.opengl.GL11;
 
 public class ModelShellConstructor extends ModelBase
 {
@@ -37,9 +46,54 @@ public class ModelShellConstructor extends ModelBase
 	public ModelRenderer sprayerB;
 	public ModelRenderer doorRight;
 	public ModelRenderer doorLeft;
+	
+	public Random rand;
+	
+	public ArrayList<int[]> bodyPixelCoords;
+	public ArrayList<int[]> armPixelCoords;
+	public ArrayList<int[]> headPixelCoords;
+	
+	public ModelBiped modelBiped;
+	
+	public ResourceLocation txBiped;
 
 	public ModelShellConstructor()
 	{
+		rand = new Random();
+		
+		bodyPixelCoords = new ArrayList<int[]>();
+		
+		for(int x = -7; x <= 7; x += 2)
+		{
+			for(int z = -3; z <= 3; z += 2)
+			{
+				bodyPixelCoords.add(new int[] { x, z });
+			}
+		}
+		
+		armPixelCoords = new ArrayList<int[]>();
+		
+		for(int x = 9; x <= 15; x += 2)
+		{
+			for(int z = -3; z <= 3; z += 2)
+			{
+				armPixelCoords.add(new int[] { x, z });
+			}
+		}
+		
+		headPixelCoords = new ArrayList<int[]>();
+		
+		for(int x = -7; x <= 7; x += 2)
+		{
+			for(int z = -7; z <= 7; z += 2)
+			{
+				headPixelCoords.add(new int[] { x, z });
+			}
+		}
+
+		modelBiped = new ModelBiped();
+		modelBiped.isChild = false;
+		
 		textureWidth = 256;
 		textureHeight = 256;
 
@@ -233,17 +287,6 @@ public class ModelShellConstructor extends ModelBase
 
 	public void render(float f5)
 	{
-		sprayGStand.render(f5);
-		sprayRStand.render(f5);
-		sprayBStand.render(f5);
-
-		sprayerG.render(f5);
-		sprayerR.render(f5);
-		sprayerB.render(f5);
-		
-		printerR.render(f5);
-		printerL.render(f5);
-		
 		base.render(f5);
 		ceiling.render(f5);
 		
@@ -269,12 +312,271 @@ public class ModelShellConstructor extends ModelBase
 		doorLeft.render(f5);
 	}
 	
-	public void renderConstructionProgress(float progress, float f5)
+	public void renderConstructionProgress(float prog, float f5)
 	{
-		bodyPixel.render(f5);
-		bodyLayer.render(f5);
-		armLayer.render(f5);
-		headLayer.render(f5);
+		float printProg = -54F;
+		
+		boolean renderSprayStand = false;
+		
+		if(prog <= 0.95F)
+		{
+			if(prog >= 0.940F)
+			{
+				renderSprayStand = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;  
+			}
+		}
+		else
+		{
+			renderSprayStand = 22F + (-55F * (1.0F - prog) / 0.05F) < -8F;
+		}
+		if(renderSprayStand)
+		{
+			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = -8F;
+			
+			sprayGStand.render(f5);
+			sprayRStand.render(f5);
+			sprayBStand.render(f5);
+		}
+		if(prog <= 0.95F)
+		{
+			if(prog >= 0.75F)
+			{
+				printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F) - (printProg * ((prog - 0.75F) / 0.3F));
+				
+				printerR.render(f5);
+				printerL.render(f5);
+			}
+			printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F);
+			
+			if(prog >= 0.940F)
+			{
+				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
+				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+			}
+			else
+			{
+				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F;  
+				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F;
+			}
+		}
+		else
+		{
+			printerL.rotationPointY = printerR.rotationPointY = 21.0F + ((printProg + 36F) * (1.0F - prog) / 0.05F);
+			
+			printerR.render(f5);
+			printerL.render(f5);
+			
+			printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * (1.0F - prog) / 0.05F);
+			
+			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-55F * (1.0F - prog) / 0.05F);  
+			sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-55F * (1.0F - prog) / 0.05F);
+		}
+		
+		printerR.render(f5);
+		printerL.render(f5);
+		
+		sprayGStand.render(f5); //-8
+		sprayRStand.render(f5);
+		sprayBStand.render(f5);
+
+		sprayerG.render(f5); //-9
+		sprayerR.render(f5);
+		sprayerB.render(f5);
+		
+		GL11.glPushMatrix();
+		
+		float scale = 0.9375F;
+		GL11.glScalef(scale, scale, scale);
+		
+		float brightness = 0.7F;
+		GL11.glColor4f(brightness, brightness, brightness, 1.0F);
+		
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		
+		bodyLayer.rotationPointX = armLayer.rotationPointX = headLayer.rotationPointX = 0.0F;
+		
+		if(prog < 0.75F)
+		{
+			ArrayList<int[]> bodyPix = new ArrayList<int[]>(bodyPixelCoords);
+			
+			float progPerLayer = (0.75F * (1F/24F));
+			
+			float pixProg = prog % progPerLayer;
+			
+			int pixelCount = 0;
+			
+			for(float f = 0; f < pixProg; f += progPerLayer / 32F)
+			{
+				pixelCount++;
+			}
+			
+			while(bodyPix.size() > pixelCount)
+			{
+				bodyPix.remove(rand.nextInt(bodyPix.size()));
+			}
+			
+			int level = 0;
+			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
+			{
+				level++;
+			}
+			for(int i = 0; i < bodyPix.size(); i++)
+			{
+				int[] coord = bodyPix.get(i);
+				bodyPixel.rotationPointX = coord[0];
+				bodyPixel.rotationPointZ = coord[1];
+				bodyPixel.rotationPointY = 24.0F + (-2 * level);
+				bodyPixel.render(f5);
+			}
+		}
+		else if(prog < 0.95F)
+		{
+			ArrayList<int[]> armPix = new ArrayList<int[]>(armPixelCoords);
+			
+			float progPerArmLayer = (0.20F * (1F/12F));
+			
+			float pixArmProg = (prog - 0.75F) % progPerArmLayer;
+			
+			int pixelArmCount = 0;
+			
+			for(float f = 0; f < pixArmProg; f += progPerArmLayer / 16F)
+			{
+				pixelArmCount++;
+			}
+			
+			int armLevel = 0;
+			for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
+			{
+				armLevel++;
+			}
+			
+			while(armPix.size() > pixelArmCount)
+			{
+				armPix.remove(armLevel == 0 ? armPix.size() - 1 : rand.nextInt(armPix.size()));
+			}
+			
+			for(int i = 0; i < armPix.size(); i++)
+			{
+				int[] coord = armPix.get(i);
+				bodyPixel.rotationPointX = coord[0];
+				bodyPixel.rotationPointZ = coord[1];
+				bodyPixel.rotationPointY = -22.0F + (2 * armLevel);
+				bodyPixel.render(f5);
+				
+				bodyPixel.rotationPointX = -coord[0];
+				bodyPixel.rotationPointZ = -coord[1];
+				bodyPixel.render(f5);
+			}
+			
+			rand.setSeed("headConstructor".hashCode());
+			
+			ArrayList<int[]> headPix = new ArrayList<int[]>(headPixelCoords);
+			
+			float progPerHeadLayer = (0.20F * (1F/8F));
+			
+			float pixHeadProg = (prog - 0.75F) % progPerHeadLayer;
+			
+			int pixelHeadCount = 0;
+			
+			for(float f = 0; f < pixHeadProg; f += progPerHeadLayer / 64F)
+			{
+				pixelHeadCount++;
+			}
+			
+			int headLevel = 0;
+			for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
+			{
+				headLevel++;
+			}
+			
+			while(headPix.size() > pixelHeadCount)
+			{
+				headPix.remove(headLevel == 0 ? headPix.size() - 1 : rand.nextInt(headPix.size()));
+			}
+			
+			for(int i = 0; i < headPix.size(); i++)
+			{
+				int[] coord = headPix.get(i);
+				bodyPixel.rotationPointX = coord[0];
+				bodyPixel.rotationPointZ = coord[1];
+				bodyPixel.rotationPointY = -24.0F + (-2 * headLevel);
+				bodyPixel.render(f5);
+			}
+		}
+		
+		if(prog < 0.95F)
+		{
+			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
+			{
+				if(f > 0.75F)
+				{
+					break;
+				}
+				bodyLayer.rotationPointY = 26.0F + (-2 * f / (1F/24F * 0.75F)); 
+				bodyLayer.render(f5);
+			}
+			
+			for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
+			{
+				if(f > 0.95F)
+				{
+					break;
+				}
+				headLayer.rotationPointY = 38.0F + (-2 * f / (1F/8F * 0.20F)); 
+				headLayer.render(f5);
+			}
+			
+			for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
+			{
+				if(f > 0.95F)
+				{
+					break;
+				}
+				armLayer.rotationPointX = 12F;
+				armLayer.rotationPointY = -24F + (2 * (f - 0.75F) / (1F/12F * 0.20F)); 
+				armLayer.render(f5);
+				
+				armLayer.rotationPointX = -12F;
+				armLayer.render(f5);
+			}
+			
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+		}
+		else
+		{
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			GL11.glScalef(2.0F, 2.0F, 2.0F);
+			GL11.glTranslated(0.0D, -0.72D, 0.0D);
+			
+			if(prog < 1.0F)
+			{
+				GL11.glDepthMask(false);
+				modelBiped.bipedHead.render(f5);
+				modelBiped.bipedBody.render(f5);
+				modelBiped.bipedRightArm.render(f5);
+				modelBiped.bipedLeftArm.render(f5);
+				modelBiped.bipedRightLeg.render(f5);
+				modelBiped.bipedLeftLeg.render(f5);
+				GL11.glDepthMask(true);
+			}
+
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
+			
+			GL11.glScalef(1.001F, 1.001F, 1.001F);
+			GL11.glTranslated(0.0D, -0.00005D, 0.0D);
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
+			
+			modelBiped.bipedHead.render(f5);
+			modelBiped.bipedBody.render(f5);
+			modelBiped.bipedRightArm.render(f5);
+			modelBiped.bipedLeftArm.render(f5);
+			modelBiped.bipedRightLeg.render(f5);
+			modelBiped.bipedLeftLeg.render(f5);
+		}
+		
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glPopMatrix();
 	}
 
 	private void setRotation(ModelRenderer model, float x, float y, float z)

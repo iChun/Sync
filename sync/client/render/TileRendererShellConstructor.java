@@ -3,11 +3,13 @@ package sync.client.render;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
 import sync.client.model.ModelShellConstructor;
+import sync.common.core.SessionState;
 import sync.common.tileentity.TileEntityShellConstructor;
 
 public class TileRendererShellConstructor extends TileEntitySpecialRenderer 
@@ -39,12 +41,17 @@ public class TileRendererShellConstructor extends TileEntitySpecialRenderer
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-		GL11.glDisable(GL11.GL_CULL_FACE);
-		
 		Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
 		
-		model.render(null, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0625F);
+		float prog = MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement; 
 		
+		model.rand.setSeed(sc.playerName.hashCode());
+		model.txBiped = sc.locationSkin;
+		model.renderConstructionProgress(prog, 0.0625F); //0.95F;
+		
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
+		model.render(0.0625F);
 		GL11.glEnable(GL11.GL_CULL_FACE);
 		
 		GL11.glDisable(GL11.GL_BLEND);
