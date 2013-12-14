@@ -14,6 +14,7 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -107,11 +108,22 @@ public class TileEntityDualVertical extends TileEntity
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					if(player != null)
 					{
+						int dim = player.dimension;
 						if(player.dimension != worldObj.provider.dimensionId)
 						{
 							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
 							
 							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+							
+							if (dim == 1)
+							{
+								if (player.isEntityAlive())
+								{
+									worldObj.spawnEntityInWorld(player);
+									player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+									worldObj.updateEntityWithOptionalForce(player, false);
+								}
+							}
 						}
 						else
 						{
