@@ -63,7 +63,9 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
 			Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
 			
-			float prog = MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement; 
+			float prog = MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement;
+			
+			float doorProg = MathHelper.clamp_float(TileEntityDualVertical.animationTime - sc.doorTime + (sc.doorOpen && sc.doorTime < TileEntityShellStorage.animationTime ? -f : !sc.doorOpen && sc.doorTime > 0 ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 			
 			modelConstructor.rand.setSeed(sc.playerName.hashCode());
 			modelConstructor.txBiped = rl;
@@ -71,7 +73,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			
 			GL11.glDisable(GL11.GL_CULL_FACE);
 			Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
-			modelConstructor.render(0.0625F);
+			modelConstructor.render(doorProg, 0.0625F);
 			GL11.glEnable(GL11.GL_CULL_FACE);
 		}
 		else if(dv instanceof TileEntityShellStorage)
@@ -83,16 +85,13 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			
 			float prog = MathHelper.clamp_float(TileEntityDualVertical.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 			
-			if(!ss.syncing)
+			if(!ss.syncing && !ss.vacating)
 			{
-				if(ss.vacating)
-				{
-					prog = 1.0F - prog;
-				}
-				else 
-				{
-					prog = 0.0F;
-				}
+				prog = 0.0F;
+			}
+			if(ss.vacating)
+			{
+				prog = 1.0F - prog;
 			}
 			
 			if(ss.playerInstance != null && ss.syncing)

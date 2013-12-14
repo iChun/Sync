@@ -293,8 +293,40 @@ public class BlockDualVertical extends BlockContainer
 			
 			if(dv instanceof TileEntityShellConstructor)
 			{
-				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-				super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+				TileEntityShellConstructor ss = (TileEntityShellConstructor)dv;
+				if(ss.doorOpen)
+				{
+					float thickness = 0.05F;
+					if(ss.face != 0)
+					{
+						this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
+						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+					}
+					if(ss.face != 1)
+					{
+						this.setBlockBounds(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+					}
+					if(ss.face != 2)
+					{
+						this.setBlockBounds(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
+						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+					}
+					if(ss.face != 3)
+					{
+						this.setBlockBounds(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
+						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+					}
+					if(top)
+					{
+						this.setBlockBounds(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
+						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+					}
+				}
+				else
+				{
+					super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);	
+				}
 			}
 			else if(dv instanceof TileEntityShellStorage)
 			{

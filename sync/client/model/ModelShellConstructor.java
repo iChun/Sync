@@ -297,7 +297,7 @@ public class ModelShellConstructor extends ModelBase
 		setRotation(stencilBuffer, 0F, 0F, 0F);
 	}
 
-	public void render(float f5)
+	public void render(float doorProg, float f5)
 	{
 		base.render(f5);
 		ceiling.render(f5);
@@ -320,6 +320,14 @@ public class ModelShellConstructor extends ModelBase
 		backWall.render(f5);
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
+		
+		float retractProg = MathHelper.clamp_float(doorProg / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp_float((doorProg - 0.3F) / 0.4F, 0.0F, 1.0F);
+
+		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
+		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;
+		doorLeft.rotationPointZ = doorRight.rotationPointZ = -1 + (-14 * retractProg);
+
 		doorRight.render(f5);
 		doorLeft.render(f5);
 	}

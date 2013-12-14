@@ -1,22 +1,32 @@
 package sync.common.tileentity;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import java.util.List;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.AxisAlignedBB;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
-import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityShellConstructor extends TileEntityDualVertical 
 {
 	public float constructionProgress;
+	
+	public int doorTime;
+	
+	public boolean doorOpen;
 
 	public TileEntityShellConstructor()
 	{
 		super();
 		
 		constructionProgress = 0.0F;
+		
+		doorTime = 0;
+		
+		doorOpen = false;
 	}
 	
 	@Override
@@ -27,6 +37,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(top && pair != null)
 		{
 			constructionProgress = ((TileEntityShellConstructor)pair).constructionProgress;
+			doorOpen = ((TileEntityShellConstructor)pair).doorOpen;
 		}
 		if(isPowered())
 		{
@@ -41,12 +52,34 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				spawnParticles();
 			}
 		}
-		if(!worldObj.isRemote && constructionProgress > 0.0F && !top && !ChunkLoadHandler.shellTickets.containsKey(this))
+		if(!top)
 		{
-			ChunkLoadHandler.addShellAsChunkloader(this);
+			if(doorOpen)
+			{
+				if(doorTime < TileEntityShellStorage.animationTime)
+				{
+					doorTime++;
+				}
+				List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
+				if(list.isEmpty())
+				{
+					doorOpen = false;
+					
+					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				}
+			}
+			else
+			{
+				if(doorTime > 0)
+				{
+					doorTime--;
+				}
+			}
+			if(!worldObj.isRemote && constructionProgress > 0.0F && !ChunkLoadHandler.shellTickets.containsKey(this))
+			{
+				ChunkLoadHandler.addShellAsChunkloader(this);
+			}
 		}
-		
-		//TODO removal of chunk loader
 	}
 	
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
@@ -99,6 +132,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
     {
 		super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
+		tag.setBoolean("doorOpen", doorOpen);
     }
 	 
 	@Override
@@ -106,6 +140,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
     {
 		super.readFromNBT(tag);
 		constructionProgress = tag.getFloat("constructionProgress");
+		doorOpen = tag.getBoolean("doorOpen");
 		
 		resync = true;
     }

@@ -16,6 +16,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 import sync.common.Sync;
 import sync.common.core.SessionState;
+import sync.common.item.ChunkLoadHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -138,6 +139,31 @@ public class TileEntityDualVertical extends TileEntity
 						
 						worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
 						worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+					}
+					else if(this.getClass() == TileEntityShellConstructor.class)
+					{
+						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
+						
+						sc.doorOpen = true;
+						
+						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					}
+				}
+				if(resyncPlayer == 0)
+				{
+					if(this.getClass() == TileEntityShellConstructor.class)
+					{
+						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
+						
+						ChunkLoadHandler.removeShellAsChunkloader(sc);
+						
+						sc.constructionProgress = 0.0F;
+						
+						sc.playerName = "";
+						
+						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					}
 				}
 				if(resyncPlayer == -10)
