@@ -8,12 +8,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import sync.common.Sync;
+import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityShellStorage;
 
-public class BlockShellConstructor extends BlockContainer 
+public class BlockDualVertical extends BlockContainer 
 {
 
-	public BlockShellConstructor(int par1)
+	public BlockDualVertical(int par1)
 	{
 		super(par1, Material.iron);
 	}
@@ -23,6 +25,23 @@ public class BlockShellConstructor extends BlockContainer
 	{
 		return new TileEntityShellConstructor();
 	}
+	
+	@Override
+    public TileEntity createTileEntity(World world, int metadata)
+    {
+		switch(metadata)
+		{
+			case 0:
+			{
+				return new TileEntityShellConstructor();
+			}
+			case 1:
+			{
+				return new TileEntityShellStorage();
+			}
+		}
+        return createNewTileEntity(world);
+    }
 
 	@Override
 	public boolean isOpaqueCube()
@@ -58,22 +77,46 @@ public class BlockShellConstructor extends BlockContainer
     public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ)
     {
 		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityShellConstructor)
+		if(te instanceof TileEntityDualVertical)
 		{
-			TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
-			if(sc.top)
+			TileEntityDualVertical dv = (TileEntityDualVertical)te;
+			if(dv.top)
 			{
 				TileEntity te1 = world.getBlockTileEntity(i, j - 1, k);
-				if(te1 instanceof TileEntityShellConstructor)
+				if(te1 instanceof TileEntityDualVertical)
 				{
-					sc = (TileEntityShellConstructor)te1;
+					dv = (TileEntityDualVertical)te1;
 				}
 			}
-			if(sc.playerName.equalsIgnoreCase(""))
+			
+			if(dv instanceof TileEntityShellConstructor)
 			{
-				sc.playerName = player.username;
-				world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
-				world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+				
+				if(sc.playerName.equalsIgnoreCase(""))
+				{
+					sc.playerName = player.username;
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					return true;
+				}
+			}
+			else if(dv instanceof TileEntityShellStorage)
+			{
+				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+				
+				if(ss.playerName.equalsIgnoreCase("") && !ss.occupied)
+				{
+					ss.playerName = player.username;
+					
+					ss.occupied = true;
+					
+					ss.occupationTime = TileEntityShellStorage.animationTime;
+					
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -83,9 +126,9 @@ public class BlockShellConstructor extends BlockContainer
     public void onNeighborBlockChange(World world, int i, int j, int k, int par5)
     {
 		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityShellConstructor)
+		if(te instanceof TileEntityDualVertical)
 		{
-			TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
+			TileEntityDualVertical sc = (TileEntityDualVertical)te;
 			if(!sc.top && !world.isBlockOpaqueCube(i, j - 1, k))
 			{
 				world.setBlockToAir(i, j, k);
@@ -97,13 +140,13 @@ public class BlockShellConstructor extends BlockContainer
     public void breakBlock(World world, int i, int j, int k, int par5, int par6)
     {
 		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityShellConstructor)
+		if(te instanceof TileEntityDualVertical)
 		{
-			TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
+			TileEntityDualVertical sc = (TileEntityDualVertical)te;
 			TileEntity te1 = world.getBlockTileEntity(i, j + (sc.top ? -1 : 1), k);
-			if(te1 instanceof TileEntityShellConstructor)
+			if(te1 instanceof TileEntityDualVertical)
 			{
-				TileEntityShellConstructor sc1 = (TileEntityShellConstructor)te1;
+				TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
 				if(sc1.pair == sc)
 				{
 					world.playAuxSFX(2001, i, j + (sc.top ? -1 : 1), k, Sync.blockShellConstructor.blockID);

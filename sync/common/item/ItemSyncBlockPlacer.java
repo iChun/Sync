@@ -13,7 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import sync.common.Sync;
-import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityDualVertical;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -39,6 +39,7 @@ public class ItemSyncBlockPlacer extends Item
     public void getSubItems(int par1, CreativeTabs tab, List itemList)
     {
         itemList.add(new ItemStack(par1, 1, 0));
+        itemList.add(new ItemStack(par1, 1, 1));
     }
     
 	@Override
@@ -102,14 +103,14 @@ public class ItemSyncBlockPlacer extends Item
         	}
             if (flag)
             {
-                if (world.setBlock(i, j, k, block.blockID) && world.setBlock(i, j + 1, k, block.blockID))
+                if (world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(i, j + 1, k, block.blockID, is.getItemDamage(), 3))
                 {
                 	TileEntity te = world.getBlockTileEntity(i, j, k);
                 	TileEntity te1 = world.getBlockTileEntity(i, j + 1, k);
-                	if(te instanceof TileEntityShellConstructor && te1 instanceof TileEntityShellConstructor)
+                	if(te instanceof TileEntityDualVertical && te1 instanceof TileEntityDualVertical)
                 	{
-                		TileEntityShellConstructor sc = (TileEntityShellConstructor)te;
-                		TileEntityShellConstructor sc1 = (TileEntityShellConstructor)te1;
+                		TileEntityDualVertical sc = (TileEntityDualVertical)te;
+                		TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
 
                         int face = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 

@@ -1,8 +1,8 @@
 package sync.client.core;
 
-import sync.client.render.TileRendererShellConstructor;
+import sync.client.render.TileRendererDualVertical;
 import sync.common.core.CommonProxy;
-import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityDualVertical;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -15,7 +15,7 @@ public class ClientProxy extends CommonProxy
 	{
 		super.initMod();
 		
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityShellConstructor.class, new TileRendererShellConstructor());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDualVertical.class, new TileRendererDualVertical());
 	}
 	
 	@Override

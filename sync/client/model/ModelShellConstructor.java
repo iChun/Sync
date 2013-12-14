@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -93,6 +94,8 @@ public class ModelShellConstructor extends ModelBase
 
 		modelBiped = new ModelBiped();
 		modelBiped.isChild = false;
+		
+		txBiped = AbstractClientPlayer.locationStevePng;
 		
 		textureWidth = 256;
 		textureHeight = 256;
@@ -550,14 +553,12 @@ public class ModelShellConstructor extends ModelBase
 			
 			if(prog < 1.0F)
 			{
-				GL11.glDepthMask(false);
 				modelBiped.bipedHead.render(f5);
 				modelBiped.bipedBody.render(f5);
 				modelBiped.bipedRightArm.render(f5);
 				modelBiped.bipedLeftArm.render(f5);
 				modelBiped.bipedRightLeg.render(f5);
 				modelBiped.bipedLeftLeg.render(f5);
-				GL11.glDepthMask(true);
 			}
 
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -573,6 +574,7 @@ public class ModelShellConstructor extends ModelBase
 			modelBiped.bipedLeftArm.render(f5);
 			modelBiped.bipedRightLeg.render(f5);
 			modelBiped.bipedLeftLeg.render(f5);
+			
 		}
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
