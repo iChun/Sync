@@ -199,7 +199,7 @@ public class TickHandlerClient implements ITickHandler {
         	GuiIngameForge.renderCrosshairs = renderCrosshair;
 		}
 		
-		if(clock != world.getWorldTime() || world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
+		if(clock != world.getWorldTime() || !world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
 		{
 			clock = world.getWorldTime();
 			

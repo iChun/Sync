@@ -42,6 +42,8 @@ public class TileEntityDualVertical extends TileEntity
 	
 	public int resyncPlayer;
 	
+	public int canSavePlayer;
+	
 	public NBTTagCompound playerNBT;
 
 	public ResourceLocation locationSkin;
@@ -60,6 +62,7 @@ public class TileEntityDualVertical extends TileEntity
 		name = "";
 		
 		resyncPlayer = 0;
+		canSavePlayer = 0;
 		
 		playerNBT = new NBTTagCompound();
 		
@@ -237,6 +240,14 @@ public class TileEntityDualVertical extends TileEntity
 					}
 				}
 			}
+			if(canSavePlayer > 0)
+			{
+				canSavePlayer--;
+			}
+			if(canSavePlayer < 0)
+			{
+				canSavePlayer = 60;
+			}
 		}
 		resync = false;
 	}
@@ -279,9 +290,9 @@ public class TileEntityDualVertical extends TileEntity
 		tag.setBoolean("top", top);
 		tag.setInteger("face", face);
 		tag.setBoolean("vacating", vacating);
-		tag.setString("playerName", playerName);
+		tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
 		tag.setString("name", name);
-		tag.setCompoundTag("playerNBT", playerNBT);
+		tag.setCompoundTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
     }
 	 
 	@Override

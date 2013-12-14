@@ -144,6 +144,7 @@ public class MapPacketHandler
 								}
 								
 								dv1.resyncPlayer = 120;
+								dv.canSavePlayer = -1;
 							}
 						}
 					}

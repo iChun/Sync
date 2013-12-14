@@ -146,7 +146,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
     {
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
-		tag.setBoolean("syncing", syncing);
+		tag.setBoolean("syncing", canSavePlayer > 0 ? false : syncing);
 		
 		tag.setInteger("occupationTime", occupationTime);
     }
