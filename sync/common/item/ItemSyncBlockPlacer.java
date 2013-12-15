@@ -14,6 +14,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import sync.common.Sync;
 import sync.common.tileentity.TileEntityDualVertical;
+import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -121,9 +122,22 @@ public class ItemSyncBlockPlacer extends Item
                 boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.isBlockOpaqueCube(ii, j - 1, kk) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, (Entity)null, is);
                 if(flag)
                 {
-                	if(world.setBlock(i, j, k, 20, is.getItemDamage(), 3) && world.setBlock(ii, j, kk, 20, is.getItemDamage(), 3))
+                	if(world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(ii, j, kk, block.blockID, is.getItemDamage(), 3))
                 	{
-                		
+	                	TileEntity te = world.getBlockTileEntity(i, j, k);
+	                	TileEntity te1 = world.getBlockTileEntity(ii, j, kk);
+
+	                	if(te instanceof TileEntityTreadmill && te1 instanceof TileEntityTreadmill)
+	                	{
+	                		TileEntityTreadmill sc = (TileEntityTreadmill)te;
+	                		TileEntityTreadmill sc1 = (TileEntityTreadmill)te1;
+	
+	                        sc.setup(sc1, false, face);
+	                        sc1.setup(sc, true, face);
+	                	}
+	                    world.playSoundEffect((double)((float)i + 0.5F), (double)((float)j + 0.5F), (double)((float)k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
+	                    --is.stackSize;
+	                	
                 	}
                 }
         	}

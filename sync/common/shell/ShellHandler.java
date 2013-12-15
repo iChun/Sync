@@ -81,4 +81,6 @@ public class ShellHandler
 			return;
 		PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)2, dv.createShellStateData()), (Player)player);
 	}
+	
+	public static ArrayList<String> deathRespawns = new ArrayList<String>();
 }

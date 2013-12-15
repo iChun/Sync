@@ -4,6 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
@@ -98,6 +99,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			{
 				if(vacating)
 				{
+					ShellHandler.deathRespawns.remove(playerName);
 					vacating = false;
 					occupied = false;
 					syncing = false;

@@ -23,6 +23,7 @@ import net.minecraftforge.common.FakePlayer;
 import sync.common.Sync;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 import sync.common.shell.TeleporterShell;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -102,7 +103,7 @@ public class TileEntityDualVertical extends TileEntity
 			if(resyncPlayer > -10)
 			{
 				resyncPlayer--;
-				if(resyncPlayer == 118)
+				if(resyncPlayer == 115)
 				{
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					if(player != null && player.isEntityInvulnerable())
@@ -252,6 +253,7 @@ public class TileEntityDualVertical extends TileEntity
 				}
 				if(resyncPlayer == 0)
 				{
+					ShellHandler.deathRespawns.remove(playerName);
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;

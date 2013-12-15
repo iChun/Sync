@@ -1,8 +1,6 @@
 package sync.common.core;
 
-import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import sync.client.core.TickHandlerClient;
 import sync.common.Sync;
@@ -10,6 +8,7 @@ import sync.common.block.BlockDualVertical;
 import sync.common.item.ItemSyncBlockPlacer;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
+import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
@@ -34,6 +33,7 @@ public class CommonProxy
 		
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
+		GameRegistry.registerTileEntity(TileEntityTreadmill.class, "Sync_TETreadmill");
 		
 		LanguageRegistry.instance().addName(Sync.blockDualVertical, "Shell Constructor");
 		

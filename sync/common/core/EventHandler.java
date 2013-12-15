@@ -16,6 +16,7 @@ import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import sync.common.Sync;
 import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
@@ -239,9 +240,23 @@ public class EventHandler
 							
 						}
 						player.setHealth(1);
+						
+						if(!ShellHandler.deathRespawns.contains(player.username))
+						{
+							ShellHandler.deathRespawns.add(player.username);
+						}
 					}
 				}
 			}
+		}
+	}
+
+	@ForgeSubscribe
+	public void onItemPickup(EntityItemPickupEvent event)
+	{
+		if(ShellHandler.deathRespawns.contains(event.entityPlayer.username))
+		{
+			event.setCanceled(true);
 		}
 	}
 	

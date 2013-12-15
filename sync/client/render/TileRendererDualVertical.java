@@ -105,14 +105,22 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				ss.playerInstance.getDataWatcher().updateObject(16, Byte.valueOf((byte)(ss.playerInstance.getDataWatcher().getWatchableObjectByte(16) | 1 << 1)));
 				
 				ss.playerInstance.ticksExisted = 35;
-				ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
 				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
-				ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
-				
-//				ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
-//				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
-//				ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
-//				faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 10F, 10F);
+
+				int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
+				ss.playerInstance.getRNG().setSeed(randSeed);
+					
+				if(Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") && ss.playerInstance.getRNG().nextFloat() < 0.5F)
+				{
+					ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
+					ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
+					faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 0.5F, 0.5F);
+				}
+				else
+				{
+					ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
+					ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
+				}
 				
 				ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
 				

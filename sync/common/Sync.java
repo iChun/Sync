@@ -17,6 +17,7 @@ import sync.common.core.CommonProxy;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -123,6 +124,7 @@ public class Sync
 	public void serverStopped(FMLServerStoppedEvent event)
 	{
 		ChunkLoadHandler.shellTickets.clear();
+		ShellHandler.deathRespawns.clear();
 	}
 	
 	public static int addCommentAndReturnBlockId(Configuration config, String cat, String s, String comment, int i)

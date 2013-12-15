@@ -38,6 +38,7 @@ import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
+import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -70,6 +71,10 @@ public class BlockDualVertical extends BlockContainer
 			case 1:
 			{
 				return new TileEntityShellStorage();
+			}
+			case 2:
+			{
+				return new TileEntityTreadmill();
 			}
 		}
         return createNewTileEntity(world);
@@ -277,6 +282,10 @@ public class BlockDualVertical extends BlockContainer
 				}
 			}
 		}
+		else if(te instanceof TileEntityTreadmill)
+		{
+			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.4F, 1.0F);
+		}
     }
 	
 	@SideOnly(Side.CLIENT)
@@ -453,7 +462,12 @@ public class BlockDualVertical extends BlockContainer
 				}
 			}
 		}
-        this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+		else if(te instanceof TileEntityTreadmill)
+		{
+			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.175F, 1.0F);
+			super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+		}
+		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
     }
 	
 	@SideOnly(Side.CLIENT)
@@ -470,6 +484,13 @@ public class BlockDualVertical extends BlockContainer
 		{
 			TileEntityDualVertical sc = (TileEntityDualVertical)te;
 			if(!sc.top && !world.isBlockOpaqueCube(i, j - 1, k))
+			{
+				world.setBlockToAir(i, j, k);
+			}
+		}
+		else if(te instanceof TileEntityTreadmill)
+		{
+			if(!world.isBlockOpaqueCube(i, j - 1, k))
 			{
 				world.setBlockToAir(i, j, k);
 			}
@@ -545,7 +566,45 @@ public class BlockDualVertical extends BlockContainer
                             }
                         }
 					}
+
+					if(dv.top)
+					{
+						float f = 0.5F;
+			            double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+			            double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+			            double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+			            EntityItem entityitem = new EntityItem(world, (double)i + d, (double)j + d1, (double)k + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(i, j, k)));
+			            entityitem.delayBeforeCanPickup = 10;
+			            world.spawnEntityInWorld(entityitem);
+					}
+					
 					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
+				}
+			}
+		}
+		else if(te instanceof TileEntityTreadmill)
+		{
+			TileEntityTreadmill tm = (TileEntityTreadmill)te;
+			TileEntity te1 = world.getBlockTileEntity(tm.back ? (tm.face == 1 ? i + 1 : tm.face == 3 ? i - 1 : i) : (tm.face == 1 ? i - 1 : tm.face == 3 ? i + 1 : i), j, tm.back ? (tm.face == 0 ? k - 1 : tm.face == 2 ? k + 1 : k) : (tm.face == 0 ? k + 1 : tm.face == 2 ? k - 1 : k));
+			
+			if(te1 instanceof TileEntityTreadmill)
+			{
+				TileEntityTreadmill tm1 = (TileEntityTreadmill)te1;
+				if(tm1.pair == tm)
+				{
+					world.playAuxSFX(2001, tm1.xCoord, tm1.yCoord, tm1.zCoord, Sync.blockDualVertical.blockID);
+					world.setBlockToAir(tm1.xCoord, tm1.yCoord, tm1.zCoord);
+				}
+				
+				if(!tm1.back && !world.isRemote)
+				{
+					float f = 0.5F;
+		            double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+		            double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+		            double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
+		            EntityItem entityitem = new EntityItem(world, (double)i + d, (double)j + d1, (double)k + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(i, j, k)));
+		            entityitem.delayBeforeCanPickup = 10;
+		            world.spawnEntityInWorld(entityitem);
 				}
 			}
 		}
