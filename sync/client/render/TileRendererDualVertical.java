@@ -24,8 +24,8 @@ import sync.common.tileentity.TileEntityShellStorage;
 public class TileRendererDualVertical extends TileEntitySpecialRenderer 
 {
 
-	public final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shellConstructor.png");
-	public final ResourceLocation txShellStorage = new ResourceLocation("sync", "textures/model/shellStorage.png");
+	public static final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shellConstructor.png");
+	public static final ResourceLocation txShellStorage = new ResourceLocation("sync", "textures/model/shellStorage.png");
 	
 	public ModelShellConstructor modelConstructor;
 	public ModelShellStorage modelStorage;

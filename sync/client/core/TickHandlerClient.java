@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +30,8 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import sync.client.model.ModelShellConstructor;
+import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellState;
@@ -126,6 +129,8 @@ public class TickHandlerClient implements ITickHandler {
 				}
 				
 				ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
+				
+				Collections.sort(selectedShells);
 				
 				for(int i = selectedShells.size() - 1; i >= 0; i--)
 				{
@@ -276,6 +281,10 @@ public class TickHandlerClient implements ITickHandler {
 			}
 			else if(zoomTimer > -10)
 			{
+				if(zoomTimer > 60 && zoomTimer < 70)
+				{
+					zoomTimer = 60;
+				}
 				zoomTimeout++;
 				if(zoomTimeout >= 100)
 				{
@@ -554,6 +563,8 @@ public class TickHandlerClient implements ITickHandler {
 			
 			ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
 			
+			Collections.sort(selectedShells);
+			
 			for(int i = selectedShells.size() - 1; i >= 0; i--)
 			{
 				ShellState state = selectedShells.get(i);
@@ -586,7 +597,7 @@ public class TickHandlerClient implements ITickHandler {
 	    			selected = selectedShells.get(i);
 	    		}
 	    		
-	    		drawEntityOnScreen(selectedShells.get(i), selectedShells.get(i).playerState, reso.getScaledWidth() / 2 + (int)(radius * Math.cos(angle)), (reso.getScaledHeight() + 32) / 2 + (int)(radius * Math.sin(angle)), 16 * prog + (float)(selectedState ? 6 * mag : 0), 2, 2, renderTick);
+	    		drawEntityOnScreen(selectedShells.get(i), selectedShells.get(i).playerState, reso.getScaledWidth() / 2 + (int)(radius * Math.cos(angle)), (reso.getScaledHeight() + 32) / 2 + (int)(radius * Math.sin(angle)), 16 * prog + (float)(selectedState ? 6 * mag : 0), 2, 2, renderTick, selectedState);
 			}
 			Sync.proxy.tickHandlerClient.forceRender = false;
 			
@@ -594,6 +605,55 @@ public class TickHandlerClient implements ITickHandler {
 			
 			GL11.glPopMatrix();
 		}
+	}
+	
+	private void drawShellInfo(ShellState state, boolean selected)
+	{
+		if(Sync.showAllShellInfoInGui <= 0)
+		{
+			return;
+		}
+    	if(radialShow)
+    	{
+	        GL11.glPushMatrix();
+
+	        GL11.glEnable(GL11.GL_BLEND);
+	        GL11.glBlendFunc(770, 771);
+
+        	GL11.glTranslatef(0F, 0F, 100F);
+        	
+        	if(state != null)
+    		{
+        		float scaleee = 0.75F;
+        		GL11.glScalef(scaleee, scaleee, scaleee);
+        		String prefix = (selected ? EnumChatFormatting.YELLOW.toString() : "");
+        		String string;
+        		if(!state.name.equalsIgnoreCase(""))
+        		{
+            		string = state.name;
+            		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
+        		}
+        		if(Sync.showAllShellInfoInGui == 2)
+        		{
+            		GL11.glScalef(scaleee, scaleee, scaleee);
+            		
+	        		string = Integer.toString(state.xCoord);
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.xCoord < 0 ? 2 : 8, -52, 16777215);
+	        		string = Integer.toString(state.yCoord);
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.yCoord < 0 ? 2 : 8, -42, 16777215);
+	        		string = Integer.toString(state.zCoord);
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.zCoord < 0 ? 2 : 8, -32, 16777215);
+	        		string = state.dimName;
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, 8, -22, 16777215);
+        		}
+    		}
+        	
+        	GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	        
+	        GL11.glDisable(GL11.GL_BLEND);
+
+	        GL11.glPopMatrix();
+     	}
 	}
 	
 	private void drawShellConstructionPercentage(ShellState state)
@@ -614,8 +674,18 @@ public class TickHandlerClient implements ITickHandler {
 	        		GL11.glPushMatrix();
 	        		float scaleee = 1.5F;
 	        		GL11.glScalef(scaleee, scaleee, scaleee);
-	        		String name = EnumChatFormatting.RED.toString() + (int)Math.round(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
+	        		String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
 	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
+	        		
+	        		GL11.glPopMatrix();
+	    		}
+	    		else if(state.isConstructor)
+	    		{
+	        		GL11.glPushMatrix();
+	        		float scaleee = 0.75F;
+	        		GL11.glScalef(scaleee, scaleee, scaleee);
+	        		String name = I18n.getString("gui.done");
+	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
 	        		
 	        		GL11.glPopMatrix();
 	    		}
@@ -679,7 +749,7 @@ public class TickHandlerClient implements ITickHandler {
      	}
 	}
 	
-	private void drawEntityOnScreen(ShellState state, EntityLivingBase ent, int posX, int posY, float scale, float par4, float par5, float renderTick) 
+	private void drawEntityOnScreen(ShellState state, EntityLivingBase ent, int posX, int posY, float scale, float par4, float par5, float renderTick, boolean isSelected) 
 	{
 		if(ent != null)
 		{
@@ -693,6 +763,11 @@ public class TickHandlerClient implements ITickHandler {
 	        GL11.glDisable(GL11.GL_ALPHA_TEST);
 
 	        GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+	        
+	        if(Sync.showAllShellInfoInGui == 2)
+	        {
+	        	GL11.glTranslatef(-8F, 0.0F, 0.0F);	
+	        }
 	        
 	        GL11.glScalef((float)(-scale), (float)scale, (float)scale);
 	        GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
@@ -718,7 +793,28 @@ public class TickHandlerClient implements ITickHandler {
 	        
 	        float viewY = RenderManager.instance.playerViewY;
 	        RenderManager.instance.playerViewY = 180.0F;
-	        RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        if(!(state.isConstructor && state.buildProgress < SessionState.shellConstructionPowerRequirement))
+	        {
+	        	RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+	        }
+	        else
+	        {
+	        	GL11.glPushMatrix();
+	        	
+	        	float bodyScale = 0.5F;
+	        	
+	        	GL11.glScalef(bodyScale, -bodyScale, -bodyScale);
+
+	        	GL11.glTranslatef(0.0F, -1.48F, 0.0F);
+	        	
+	        	Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
+	        	
+	        	modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.username.hashCode());
+	        	modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
+	        	modelShellConstructor.renderConstructionProgress(state.buildProgress / SessionState.shellConstructionPowerRequirement, 0.0625F, false);
+	        	
+	        	GL11.glPopMatrix();
+	        }
 	        
 	        GL11.glTranslatef(0.0F, -0.22F, 0.0F);
 	        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
@@ -737,6 +833,8 @@ public class TickHandlerClient implements ITickHandler {
 	        GL11.glPushMatrix();
 	        
 	        GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+	        
+	        drawShellInfo(state, isSelected);
 	        
 	        drawShellConstructionPercentage(state);
 
@@ -787,6 +885,8 @@ public class TickHandlerClient implements ITickHandler {
 	public int lockTime;
 	public TileEntityShellStorage lockedStorage = null;
 	public ArrayList<ShellState> shells = new ArrayList<ShellState>();
+	
+	public ModelShellConstructor modelShellConstructor = new ModelShellConstructor();
 	
 	public HashMap<String, Integer> refusePlayerRender = new HashMap<String, Integer>();
 	public boolean forceRender;

@@ -334,74 +334,82 @@ public class ModelShellConstructor extends ModelBase
 	
 	public void renderConstructionProgress(float prog, float f5)
 	{
+		this.renderConstructionProgress(prog, f5, true);
+	}
+	
+	public void renderConstructionProgress(float prog, float f5, boolean renderMachineParts)
+	{
 		float printProg = -54F;
 		
-		boolean renderSprayStand = false;
-		
-		if(prog <= 0.95F)
+		if(renderMachineParts)
 		{
-			if(prog >= 0.940F)
-			{
-				renderSprayStand = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;  
-			}
-		}
-		else
-		{
-			renderSprayStand = 22F + (-55F * (1.0F - prog) / 0.05F) < -8F;
-		}
-		if(renderSprayStand)
-		{
-			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = -8F;
+			boolean renderSprayStand = false;
 			
-			sprayGStand.render(f5);
-			sprayRStand.render(f5);
-			sprayBStand.render(f5);
-		}
-		if(prog <= 0.95F)
-		{
-			if(prog >= 0.75F)
+			if(prog <= 0.95F)
 			{
-				printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F) - (printProg * ((prog - 0.75F) / 0.3F));
-				
-				printerR.render(f5);
-				printerL.render(f5);
-			}
-			printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F);
-			
-			if(prog >= 0.940F)
-			{
-				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
-				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+				if(prog >= 0.940F)
+				{
+					renderSprayStand = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;  
+				}
 			}
 			else
 			{
-				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F;  
-				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F;
+				renderSprayStand = 22F + (-55F * (1.0F - prog) / 0.05F) < -8F;
 			}
-		}
-		else
-		{
-			printerL.rotationPointY = printerR.rotationPointY = 21.0F + ((printProg + 36F) * (1.0F - prog) / 0.05F);
+			if(renderSprayStand)
+			{
+				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = -8F;
+				
+				sprayGStand.render(f5);
+				sprayRStand.render(f5);
+				sprayBStand.render(f5);
+			}
+			if(prog <= 0.95F)
+			{
+				if(prog >= 0.75F)
+				{
+					printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F) - (printProg * ((prog - 0.75F) / 0.3F));
+					
+					printerR.render(f5);
+					printerL.render(f5);
+				}
+				printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * prog / 0.95F);
+				
+				if(prog >= 0.940F)
+				{
+					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
+					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+				}
+				else
+				{
+					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F;  
+					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F;
+				}
+			}
+			else
+			{
+				printerL.rotationPointY = printerR.rotationPointY = 21.0F + ((printProg + 36F) * (1.0F - prog) / 0.05F);
+				
+				printerR.render(f5);
+				printerL.render(f5);
+				
+				printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * (1.0F - prog) / 0.05F);
+				
+				sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * (1.0F - prog) / 0.05F);  
+				sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * (1.0F - prog) / 0.05F);
+			}
 			
 			printerR.render(f5);
 			printerL.render(f5);
 			
-			printerL.rotationPointY = printerR.rotationPointY = 21.0F + (printProg * (1.0F - prog) / 0.05F);
-			
-			sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * (1.0F - prog) / 0.05F);  
-			sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * (1.0F - prog) / 0.05F);
+			sprayGStand.render(f5); //-8
+			sprayRStand.render(f5);
+			sprayBStand.render(f5);
+	
+			sprayerG.render(f5); //-9
+			sprayerR.render(f5);
+			sprayerB.render(f5);
 		}
-		
-		printerR.render(f5);
-		printerL.render(f5);
-		
-		sprayGStand.render(f5); //-8
-		sprayRStand.render(f5);
-		sprayBStand.render(f5);
-
-		sprayerG.render(f5); //-9
-		sprayerR.render(f5);
-		sprayerB.render(f5);
 		
 		GL11.glPushMatrix();
 		

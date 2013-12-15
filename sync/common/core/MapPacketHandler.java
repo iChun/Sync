@@ -14,6 +14,7 @@ import net.minecraft.network.NetServerHandler;
 import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
@@ -59,6 +60,8 @@ public class MapPacketHandler
 				{
 					//Receive sync request from client;
 					
+					boolean valid = false;
+					
 					int oriX = stream.readInt();
 					int oriY = stream.readInt();
 					int oriZ = stream.readInt();
@@ -91,6 +94,7 @@ public class MapPacketHandler
 									TileEntityShellConstructor sc = (TileEntityShellConstructor)dv1;
 									if(sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
 									{
+										ShellHandler.updatePlayerOfShells(player, null, true);
 										break;
 									}
 								}
@@ -99,6 +103,7 @@ public class MapPacketHandler
 									TileEntityShellStorage ss = (TileEntityShellStorage)dv1;
 									if(!ss.syncing)
 									{
+										ShellHandler.updatePlayerOfShells(player, null, true);
 										break;
 									}
 								}
@@ -118,6 +123,8 @@ public class MapPacketHandler
 									NBTTagCompound tag = new NBTTagCompound();
 									
 									player.writeToNBT(tag);
+									
+									tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
 									
 									ss.playerNBT = tag;
 									
@@ -158,8 +165,14 @@ public class MapPacketHandler
 								catch(IOException e)
 								{
 								}
+								
+								valid = true;
 							}
 						}
+					}
+					if(!valid)
+					{
+						ShellHandler.updatePlayerOfShells(player, null, true);
 					}
 					break;
 				}
@@ -214,7 +227,7 @@ public class MapPacketHandler
 					
 					state.dimName = stream.readUTF();
 					
-					boolean isConstructor = stream.readBoolean();
+					state.isConstructor = stream.readBoolean();
 					
 					boolean add = true;
 					for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
@@ -238,7 +251,7 @@ public class MapPacketHandler
 					
 					state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.username);
 					
-					if(!isConstructor)
+					if(!state.isConstructor)
 					{
 						NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 						if(tag.hasKey("Inventory"))
@@ -328,6 +341,8 @@ public class MapPacketHandler
 				{
 					NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 					mc.thePlayer.readFromNBT(tag);
+					
+					mc.playerController.setGameType(EnumGameType.getByID(tag.getInteger("sync_playerGameMode")));
 					break;
 				}
 				case 7:

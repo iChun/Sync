@@ -4,6 +4,7 @@ import sync.common.core.SessionState;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class ShellState 
+	implements Comparable
 {
 
 	public final int xCoord;
@@ -21,6 +22,8 @@ public class ShellState
 	
 	public float powerReceived;
 	
+	public boolean isConstructor;
+	
 	public ShellState(int i, int j, int k, int dim)
 	{
 		xCoord = i;
@@ -29,6 +32,7 @@ public class ShellState
 		dimension = dim;
 		name = "";
 		dimName = "";
+		isConstructor = false;
 	}
 	
 	public void tick()
@@ -46,5 +50,15 @@ public class ShellState
 	public boolean matches(ShellState state)
 	{
 		return state.xCoord == xCoord && state.yCoord == yCoord && state.zCoord == zCoord && state.dimension == dimension;
+	}
+
+	@Override
+	public int compareTo(Object arg0) 
+	{
+		if(arg0 instanceof ShellState)
+		{
+			return dimName.compareTo(((ShellState)arg0).dimName);
+		}
+		return 0;
 	}
 }

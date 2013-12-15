@@ -17,6 +17,7 @@ import sync.common.core.CommonProxy;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -29,6 +30,7 @@ import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkModHandler;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version
@@ -60,6 +62,8 @@ public class Sync
 	
 	public static int allowCrossDimensional;
 	
+	public static int showAllShellInfoInGui;
+	
 	public static Block blockShellConstructor;
 	
 	public static Item itemBlockPlacer;
@@ -78,7 +82,12 @@ public class Sync
 		
 		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
 		
-		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?", 1); // Dogs power 4, Pigs power... 2?
+		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\n0 = No\n1 = Yes", 1);
+		
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			showAllShellInfoInGui = addCommentAndReturnInt(config, "clientOnly", "showAllShellInfoInGui", "Show info of all shells in the GUI?\n0 = No\n1 = Just the name will do\n2 = Yes, in all full blown glory!", 1);
+		}
 		
 		config.save();
 		

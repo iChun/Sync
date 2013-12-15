@@ -3,10 +3,13 @@ package sync.common.tileentity;
 import java.util.List;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -17,6 +20,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	public int doorTime;
 	
 	public boolean doorOpen;
+	
+	public float prevPower;
 
 	public TileEntityShellConstructor()
 	{
@@ -41,6 +46,18 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		}
 		if(isPowered())
 		{
+			if(prevPower != powerAmount())
+			{
+				prevPower = powerAmount();
+				if(!top && !worldObj.isRemote)
+				{
+					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+					if(player != null)
+					{
+						ShellHandler.updatePlayerOfShells(player, null, true);
+					}
+				}
+			}
 			constructionProgress += powerAmount();
 			if(constructionProgress > SessionState.shellConstructionPowerRequirement)
 			{
@@ -60,12 +77,15 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				{
 					doorTime++;
 				}
-				List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
-				if(list.isEmpty())
+				if(!worldObj.isRemote && doorTime == TileEntityShellStorage.animationTime)
 				{
-					doorOpen = false;
-					
-					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+					List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
+					if(list.isEmpty())
+					{
+						doorOpen = false;
+						
+						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+					}
 				}
 			}
 			else

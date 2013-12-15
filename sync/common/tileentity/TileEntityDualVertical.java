@@ -4,9 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
@@ -14,10 +15,9 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.FakePlayer;
 import sync.common.Sync;
 import sync.common.core.SessionState;
@@ -75,7 +75,7 @@ public class TileEntityDualVertical extends TileEntity
 		if(resync)
 		{
 			TileEntity te = worldObj.getBlockTileEntity(xCoord, yCoord + (top ? -1 : 1), zCoord);
-			if(te.getClass() == this.getClass())
+			if(te != null && te.getClass() == this.getClass())
 			{
 				TileEntityDualVertical sc = (TileEntityDualVertical)te;
 				sc.pair = this;
@@ -181,10 +181,12 @@ public class TileEntityDualVertical extends TileEntity
 				}
 				if(resyncPlayer == 30)
 				{
-					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					
 					if(player != null)
 					{
+						player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+						
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
@@ -193,23 +195,32 @@ public class TileEntityDualVertical extends TileEntity
 							{
 								NBTTagCompound tag = new NBTTagCompound();
 								
-								FakePlayer fake = new FakePlayer(worldObj, player.username);
-						        fake.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-//						        fake.clonePlayer(par1EntityPlayerMP, par3);
-						        fake.dimension = player.dimension;
-						        fake.entityId = player.entityId;
+						        EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+						        dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+						        
+						        dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+						        
+						        boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+						        
+						        worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+						        
+						        dummy.clonePlayer(player, false);
+						        dummy.dimension = player.dimension;
+						        dummy.entityId = player.entityId;
+
+						        worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 								
-								fake.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-								
-								fake.writeToNBT(tag);
-								
-								player.capabilities.writeCapabilitiesToNBT(tag);
+						        dummy.writeToNBT(tag);
+						        
+						        tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
 								
 								playerNBT = tag;
 							}
 							Sync.writeNBTTagCompound(playerNBT, stream1);
 							
 							player.readFromNBT(playerNBT);
+							
+							player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
 							
 							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)6, bytes.toByteArray()), (Player)player);
 						}
@@ -220,6 +231,12 @@ public class TileEntityDualVertical extends TileEntity
 				}
 				if(resyncPlayer == 0)
 				{
+					if(this.getClass() == TileEntityShellStorage.class)
+					{
+						TileEntityShellStorage ss = (TileEntityShellStorage)this;
+						
+						ss.occupied = true;
+					}
 					if(this.getClass() == TileEntityShellConstructor.class)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
@@ -229,6 +246,8 @@ public class TileEntityDualVertical extends TileEntity
 						sc.constructionProgress = 0.0F;
 						
 						sc.playerName = "";
+						
+						sc.playerNBT = new NBTTagCompound();
 						
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
@@ -351,4 +370,10 @@ public class TileEntityDualVertical extends TileEntity
 		}
 		return bytes.toByteArray();
 	}
+	
+	@Override
+    public Block getBlockType()
+    {
+        return Sync.blockShellConstructor;
+    }
 }

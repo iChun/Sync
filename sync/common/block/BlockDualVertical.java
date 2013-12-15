@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -29,6 +30,7 @@ import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -123,18 +125,25 @@ public class BlockDualVertical extends BlockContainer
 					{	
 						NBTTagCompound tag = new NBTTagCompound();
 						
-						FakePlayer fake = new FakePlayer(player.worldObj, player.username);
-				        fake.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-//				        fake.clonePlayer(par1EntityPlayerMP, par3);
-				        fake.dimension = player.dimension;
-				        fake.entityId = player.entityId;
+				        EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+				        dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+				        
+				        dummy.setLocationAndAngles(sc.xCoord + 0.5D, sc.yCoord, sc.zCoord + 0.5D, (sc.face - 2) * 90F, 0F);
+				        
+				        boolean keepInv = world.getGameRules().getGameRuleBooleanValue("keepInventory");
+				        
+				        world.getGameRules().setOrCreateGameRule("keepInventory", "false");
+				        
+				        dummy.clonePlayer(player, false);
+				        dummy.dimension = player.dimension;
+				        dummy.entityId = player.entityId;
+
+				        world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 						
-						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (sc.face - 2) * 90F, 0F);
-						
-						fake.writeToNBT(tag);
-						
-						player.capabilities.writeCapabilitiesToNBT(tag);
-						
+				        dummy.writeToNBT(tag);
+				        
+				        tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).theItemInWorldManager.getGameType().getID());
+				        
 						sc.playerNBT = tag;
 					}
 					
