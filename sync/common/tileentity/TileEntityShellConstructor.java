@@ -125,7 +125,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	@Override
 	public float powerAmount()
 	{
-		return 40F;
+		return 400F;
 	}
 
 	@Override

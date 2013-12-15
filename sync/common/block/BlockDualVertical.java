@@ -9,9 +9,13 @@ import java.util.Random;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBed;
 import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
@@ -19,11 +23,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.FakePlayer;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
 import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
@@ -98,6 +106,12 @@ public class BlockDualVertical extends BlockContainer
     }
 	
 	@Override
+    public void registerIcons(IconRegister par1IconRegister)
+    {
+        this.blockIcon = par1IconRegister.registerIcon("sync:dvBlockPlaceholder");
+    }
+	
+	@Override
     public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ)
     {
 		TileEntity te = world.getBlockTileEntity(i, j, k);
@@ -145,6 +159,15 @@ public class BlockDualVertical extends BlockContainer
 				        tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).theItemInWorldManager.getGameType().getID());
 				        
 						sc.playerNBT = tag;
+						
+						if(!player.capabilities.isCreativeMode)
+						{
+							String name = DamageSource.outOfWorld.damageType;
+							DamageSource.outOfWorld.damageType = "shellConstruct";
+							player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.damageGivenOnShellConstruction);
+							
+							DamageSource.outOfWorld.damageType = name;
+						}
 					}
 					
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
@@ -158,34 +181,58 @@ public class BlockDualVertical extends BlockContainer
 				
 				ItemStack is = player.getCurrentEquippedItem();
 				
-				if(is != null && is.getItem() instanceof ItemNameTag)
+				if(is != null)
 				{
-					if(!is.hasDisplayName())
+					if(is.getItem() instanceof ItemNameTag)
 					{
-						dv.name = "";
-					}
-					else
-					{
-						dv.name = is.getDisplayName();
-					}
-					
-					if(!player.capabilities.isCreativeMode)
-					{
-						is.stackSize--;
-						if(is.stackSize <= 0)
+						if(!is.hasDisplayName())
 						{
-							player.inventory.mainInventory[player.inventory.currentItem] = null;
+							dv.name = "";
 						}
+						else
+						{
+							dv.name = is.getDisplayName();
+						}
+						
+						if(!player.capabilities.isCreativeMode)
+						{
+							is.stackSize--;
+							if(is.stackSize <= 0)
+							{
+								player.inventory.mainInventory[player.inventory.currentItem] = null;
+							}
+						}
+						
+						world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+						world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+						
+						if(!world.isRemote)
+						{
+							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+							if(player1 != null)
+							{
+								ShellHandler.updatePlayerOfShells(player1, null, true);
+							}
+						}
+						return true;
 					}
-					
-					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
-					
-					if(!world.isRemote)
+					else if(is.getItem() instanceof ItemBed)
 					{
-						ShellHandler.updatePlayerOfShells(player, null, true);
+						ss.isHomeUnit = !ss.isHomeUnit;
+						
+						world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
+						world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+						
+						if(!world.isRemote)
+						{
+							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+							if(player1 != null)
+							{
+								ShellHandler.updatePlayerOfShells(player1, null, true);
+							}
+						}
+						return true;						
 					}
-					return true;
 				}
 				
 //				else if(!ss.playerName.equalsIgnoreCase("") && ss.occupied)
@@ -442,11 +489,62 @@ public class BlockDualVertical extends BlockContainer
 				TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
 				if(dv1.pair == dv)
 				{
-					world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockShellConstructor.blockID);
+					world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockDualVertical.blockID);
 					world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
 				}
+				TileEntityDualVertical bottom = dv1.top ? dv : dv1;
+				
 				if(!world.isRemote)
 				{
+					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
+					{
+						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+						if(player1 != null)
+						{
+							if(dv.playerNBT.hasKey("Inventory"))
+							{
+								player1.readFromNBT(dv.playerNBT);
+							}
+							String name = DamageSource.outOfWorld.damageType;
+							DamageSource.outOfWorld.damageType = "syncFail";
+							player1.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
+							
+							DamageSource.outOfWorld.damageType = name;
+						}
+					}
+					else if(bottom instanceof TileEntityShellStorage && bottom.resyncPlayer == -10 && ((TileEntityShellStorage)dv).syncing && dv.playerNBT.hasKey("Inventory"))
+					{
+                        FakePlayer fake = new FakePlayer(world, dv.playerName);
+                        fake.readFromNBT(dv.playerNBT);                        
+                        fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
+
+                        if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
+                        {
+	                        fake.captureDrops = true;
+	                        fake.capturedDrops.clear();
+	
+	                        if (fake.username.equals("Notch"))
+	                        {
+	                        	fake.dropPlayerItemWithRandomChoice(new ItemStack(Item.appleRed, 1), true);
+	                        }
+	
+	                        if (!fake.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory"))
+	                        {
+	                        	fake.inventory.dropAllItems();
+	                        }
+	
+	                        fake.captureDrops = false;
+	
+                            PlayerDropsEvent event = new PlayerDropsEvent(fake, DamageSource.outOfWorld, fake.capturedDrops, false);
+                            if (!MinecraftForge.EVENT_BUS.post(event))
+                            {
+                                for (EntityItem item : fake.capturedDrops)
+                                {
+                                	fake.joinEntityItemWithWorld(item);
+                                }
+                            }
+                        }
+					}
 					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 				}
 			}

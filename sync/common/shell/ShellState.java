@@ -24,6 +24,8 @@ public class ShellState
 	
 	public boolean isConstructor;
 	
+	public boolean isHome;
+	
 	public ShellState(int i, int j, int k, int dim)
 	{
 		xCoord = i;

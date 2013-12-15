@@ -102,6 +102,8 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				GL11.glScalef(-2.0F, -2.0F, 2.0F);
 				GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
 
+				ss.playerInstance.getDataWatcher().updateObject(16, Byte.valueOf((byte)(ss.playerInstance.getDataWatcher().getWatchableObjectByte(16) | 1 << 1)));
+				
 				ss.playerInstance.ticksExisted = 35;
 				ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
 				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
@@ -118,7 +120,6 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				
 				ss.playerInstance.setCurrentItemOrArmor(0, null);
 				
-				
 				Sync.proxy.tickHandlerClient.forceRender = true; 
 				RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
 				Sync.proxy.tickHandlerClient.forceRender = false;
@@ -134,6 +135,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
 
 			modelStorage.powered = ss.isPowered();
+			modelStorage.isHomeUnit = ss.isHomeUnit;
 			modelStorage.renderInternals(prog, 0.0625F);
 			
 			GL11.glDisable(GL11.GL_CULL_FACE);

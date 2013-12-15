@@ -61,10 +61,13 @@ public class Sync
 	public static int shellConstructionPowerRequirement;
 	
 	public static int allowCrossDimensional;
+	public static int damageGivenOnShellConstruction;
+	public static int overrideDeathIfThereAreAvailableShells;
+	public static int prioritizeHomeShellOnDeath;
 	
 	public static int showAllShellInfoInGui;
 	
-	public static Block blockShellConstructor;
+	public static Block blockDualVertical;
 	
 	public static Item itemBlockPlacer;
 	
@@ -82,7 +85,10 @@ public class Sync
 		
 		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
 		
-		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\n0 = No\n1 = Yes", 1);
+		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End", 1);
+		damageGivenOnShellConstruction = Math.max(addCommentAndReturnInt(config, "gameplay", "damageGivenOnShellConstruction", "Number of half hearts damage given to the player when a new shell is constructed.", 2), 0);
+		overrideDeathIfThereAreAvailableShells = addCommentAndReturnInt(config, "gameplay", "overrideDeathIfThereAreAvailableShells", "Allow overriding the death of a player if the player has other shells?\nThe player will resync to the nearest shell.\n0 = No\n1 = Yes, but only to storage units\n2 = Yes, to storage and construction units", 1);
+		prioritizeHomeShellOnDeath =  addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
 		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 		{
@@ -109,7 +115,8 @@ public class Sync
 	public void serverStarted(FMLServerStartedEvent event)
 	{
 		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
-		SessionState.allowCrossDimensional = allowCrossDimensional == 1;
+		SessionState.allowCrossDimensional = allowCrossDimensional;
+		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 	}
 	
 	@EventHandler

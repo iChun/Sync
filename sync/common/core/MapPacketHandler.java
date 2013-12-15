@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.NetClientHandler;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetServerHandler;
@@ -146,6 +147,8 @@ public class MapPacketHandler
 									
 									stream1.writeBoolean(false);
 									
+									stream1.writeBoolean(false);//isDeathZoom?
+									
 									PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
 								}
 								catch(IOException e)
@@ -160,6 +163,7 @@ public class MapPacketHandler
 								try
 								{
 									stream1.writeUTF(player.username);
+									stream1.writeBoolean(false);
 									PacketDispatcher.sendPacketToAllPlayers(new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray()));
 								}
 								catch(IOException e)
@@ -207,7 +211,8 @@ public class MapPacketHandler
 				case 0:
 				{
 					SessionState.shellConstructionPowerRequirement = stream.readInt();
-					SessionState.allowCrossDimensional = stream.readBoolean();
+					SessionState.allowCrossDimensional = stream.readInt();
+					SessionState.deathMode = stream.readInt();
 					break;
 				}
 				case 1:
@@ -228,6 +233,8 @@ public class MapPacketHandler
 					state.dimName = stream.readUTF();
 					
 					state.isConstructor = stream.readBoolean();
+					
+					state.isHome = stream.readBoolean();
 					
 					boolean add = true;
 					for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
@@ -330,6 +337,8 @@ public class MapPacketHandler
 					Sync.proxy.tickHandlerClient.zoom = stream.readBoolean();
 					
 					Sync.proxy.tickHandlerClient.zoomTimer = 60;
+					
+					Sync.proxy.tickHandlerClient.zoomDeath = stream.readBoolean();
 					break;
 				}
 				case 5:
@@ -341,13 +350,28 @@ public class MapPacketHandler
 				{
 					NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 					mc.thePlayer.readFromNBT(tag);
+					if(mc.thePlayer.isEntityAlive())
+					{
+						mc.thePlayer.deathTime = 0;
+					}
 					
 					mc.playerController.setGameType(EnumGameType.getByID(tag.getInteger("sync_playerGameMode")));
 					break;
 				}
 				case 7:
 				{
-					Sync.proxy.tickHandlerClient.refusePlayerRender.put(stream.readUTF(), 120);
+					String name = stream.readUTF();
+					Sync.proxy.tickHandlerClient.refusePlayerRender.put(name, 120);
+					if(stream.readBoolean())
+					{
+						EntityPlayer player = mc.theWorld.getPlayerEntityByName(name);
+						
+						if(player != null)
+						{
+							player.deathTime = 0;
+							player.setHealth(1);
+						}
+					}
 					break;
 				}
 			}

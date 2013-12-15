@@ -40,6 +40,17 @@ public class ItemSyncBlockPlacer extends Item
     {
         itemList.add(new ItemStack(par1, 1, 0));
         itemList.add(new ItemStack(par1, 1, 1));
+        itemList.add(new ItemStack(par1, 1, 2));
+    }
+    
+    @Override
+    public String getUnlocalizedName(ItemStack is)
+    {
+    	if(is.getItemDamage() == 1)
+    	{
+    		return "item.Sync_ShellStorage";
+    	}
+        return "item.Sync_ShellConstructor";
     }
     
 	@Override
@@ -94,34 +105,57 @@ public class ItemSyncBlockPlacer extends Item
         }
         else
         {
-        	Block block = Sync.blockShellConstructor;
-        	boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
-        	if(!flag)
+        	Block block = Sync.blockDualVertical;
+        	if(is.getItemDamage() == 2)
         	{
-        		j--;
-        		flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
-        	}
-            if (flag)
-            {
-                if (world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(i, j + 1, k, block.blockID, is.getItemDamage(), 3))
+                int face = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+
+                //0 = +Z
+                //1 = -X
+                //2 = -Z
+                //3 = +X
+                
+                int ii = face == 1 ? i - 1 : face == 3 ? i + 1 : i;
+                int kk = face == 0 ? k + 1 : face == 2 ? k - 1 : k;
+                
+                boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.isBlockOpaqueCube(ii, j - 1, kk) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, (Entity)null, is);
+                if(flag)
                 {
-                	TileEntity te = world.getBlockTileEntity(i, j, k);
-                	TileEntity te1 = world.getBlockTileEntity(i, j + 1, k);
-                	if(te instanceof TileEntityDualVertical && te1 instanceof TileEntityDualVertical)
+                	if(world.setBlock(i, j, k, 20, is.getItemDamage(), 3) && world.setBlock(ii, j, kk, 20, is.getItemDamage(), 3))
                 	{
-                		TileEntityDualVertical sc = (TileEntityDualVertical)te;
-                		TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
-
-                        int face = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-
-                        sc.setup(sc1, false, face);
-                        sc1.setup(sc, true, face);
+                		
                 	}
-                    world.playSoundEffect((double)((float)i + 0.5F), (double)((float)j + 0.5F), (double)((float)k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
-                    --is.stackSize;
                 }
-            }
-
+        	}
+        	else
+        	{
+	        	boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
+	        	if(!flag)
+	        	{
+	        		j--;
+	        		flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.canPlaceEntityOnSide(block.blockID, i, j + 1, k, false, side, (Entity)null, is);
+	        	}
+	            if (flag)
+	            {
+	                if (world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(i, j + 1, k, block.blockID, is.getItemDamage(), 3))
+	                {
+	                	TileEntity te = world.getBlockTileEntity(i, j, k);
+	                	TileEntity te1 = world.getBlockTileEntity(i, j + 1, k);
+	                	if(te instanceof TileEntityDualVertical && te1 instanceof TileEntityDualVertical)
+	                	{
+	                		TileEntityDualVertical sc = (TileEntityDualVertical)te;
+	                		TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
+	
+	                        int face = MathHelper.floor_double((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+	
+	                        sc.setup(sc1, false, face);
+	                        sc1.setup(sc, true, face);
+	                	}
+	                    world.playSoundEffect((double)((float)i + 0.5F), (double)((float)j + 0.5F), (double)((float)k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
+	                    --is.stackSize;
+	                }
+	            }
+        	}
             return true;
         }
     }

@@ -8,6 +8,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemInWorldManager;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
@@ -36,6 +37,7 @@ public class TileEntityDualVertical extends TileEntity
 	public boolean top;
 	public int face;
 	public boolean vacating;
+	public boolean isHomeUnit;
 	
 	public String playerName;
 	public String name;
@@ -57,6 +59,7 @@ public class TileEntityDualVertical extends TileEntity
 		pair = null;
 		top = false;
 		vacating = false;
+		isHomeUnit = false;
 		face = 0;
 		playerName = "";
 		name = "";
@@ -99,6 +102,17 @@ public class TileEntityDualVertical extends TileEntity
 			if(resyncPlayer > -10)
 			{
 				resyncPlayer--;
+				if(resyncPlayer == 118)
+				{
+					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+					if(player != null && player.isEntityInvulnerable())
+					{
+						for(int i = 0 ; i < player.inventory.mainInventory.length; i++)
+						{
+							player.inventory.mainInventory[i] = new ItemStack(Block.cobblestone, 1);
+						}
+					}					
+				}
 				if(resyncPlayer == 60)
 				{
 					if(this.getClass() == TileEntityShellStorage.class)
@@ -111,6 +125,10 @@ public class TileEntityDualVertical extends TileEntity
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					if(player != null)
 					{
+						if(!player.isEntityAlive())
+						{
+							player.setHealth(1);
+						}
 						int dim = player.dimension;
 						if(player.dimension != worldObj.provider.dimensionId)
 						{
@@ -118,6 +136,7 @@ public class TileEntityDualVertical extends TileEntity
 							
 							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 							
+							player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 							if (dim == 1)
 							{
 								if (player.isEntityAlive())
@@ -146,6 +165,8 @@ public class TileEntityDualVertical extends TileEntity
 							stream1.writeInt(face);
 							
 							stream1.writeBoolean(true);
+							
+							stream1.writeBoolean(false);
 							
 							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
 						}
@@ -183,7 +204,7 @@ public class TileEntityDualVertical extends TileEntity
 				{
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					
-					if(player != null)
+					if(player != null && player.isEntityAlive())
 					{
 						player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 						
@@ -313,6 +334,7 @@ public class TileEntityDualVertical extends TileEntity
 		tag.setBoolean("top", top);
 		tag.setInteger("face", face);
 		tag.setBoolean("vacating", vacating);
+		tag.setBoolean("isHomeUnit", isHomeUnit);
 		tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
 		tag.setString("name", name);
 		tag.setCompoundTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
@@ -325,6 +347,7 @@ public class TileEntityDualVertical extends TileEntity
 		top = tag.getBoolean("top");
 		face = tag.getInteger("face");
 		vacating = tag.getBoolean("vacating");
+		isHomeUnit = tag.getBoolean("isHomeUnit");
 		playerName = tag.getString("playerName");
 		name = tag.getString("name");
 		playerNBT = tag.getCompoundTag("playerNBT");
@@ -332,13 +355,6 @@ public class TileEntityDualVertical extends TileEntity
 		resync = true;
     }
 	
-	@Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
-    {
-        return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
-    }
-
 	public byte[] createShellStateData() 
 	{
 		if(top && pair != null)
@@ -363,6 +379,8 @@ public class TileEntityDualVertical extends TileEntity
 			
 			stream.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
 			
+			stream.writeBoolean(isHomeUnit);
+			
 			Sync.writeNBTTagCompound(playerNBT, stream);
 		}
 		catch(IOException e)
@@ -372,8 +390,15 @@ public class TileEntityDualVertical extends TileEntity
 	}
 	
 	@Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
+    }
+
+	@Override
     public Block getBlockType()
     {
-        return Sync.blockShellConstructor;
+        return Sync.blockDualVertical;
     }
 }

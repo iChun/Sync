@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -23,6 +24,7 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.MinecraftForgeClient;
 
@@ -136,7 +138,7 @@ public class TickHandlerClient implements ITickHandler {
 				{
 					ShellState state = selectedShells.get(i);
 					
-					if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && !SessionState.allowCrossDimensional)
+					if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (SessionState.allowCrossDimensional == 0 || SessionState.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
 					{
 						selectedShells.remove(i);
 					}
@@ -249,7 +251,7 @@ public class TickHandlerClient implements ITickHandler {
 						ss.occupied = true;
 					}
 				}
-				if(zoomTimer > -5)
+				if(zoomTimer > -5 && !zoomDeath)
 				{
 					mc.thePlayer.setLocationAndAngles(Sync.proxy.tickHandlerClient.zoomX + 0.5D, Sync.proxy.tickHandlerClient.zoomY, Sync.proxy.tickHandlerClient.zoomZ + 0.5D, (Sync.proxy.tickHandlerClient.zoomFace - 2) * 90F, 0F);
 				}
@@ -288,7 +290,7 @@ public class TickHandlerClient implements ITickHandler {
 				zoomTimeout++;
 				if(zoomTimeout >= 100)
 				{
-					zoomTimer = 0;
+					zoomTimer = -10;
 					zoomTimeout = 0;
 					zoom = false;
 				}
@@ -320,6 +322,13 @@ public class TickHandlerClient implements ITickHandler {
 			return;
 		}
 		
+		if(zoomDeath && Minecraft.getMinecraft().currentScreen instanceof GuiGameOver)
+		{
+			Minecraft.getMinecraft().thePlayer.setHealth(1);
+			Minecraft.getMinecraft().thePlayer.deathTime = 0;
+			Minecraft.getMinecraft().displayGuiScreen(null);
+		}
+		
 		float prog = MathHelper.clamp_float((60 - zoomTimer + f) / 60, 0.0F, 1.0F);
 		
 		if(zoom)
@@ -347,9 +356,8 @@ public class TickHandlerClient implements ITickHandler {
 			hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
 			Minecraft.getMinecraft().gameSettings.hideGUI = true;
 		}
-		
-		ent.prevRotationYawHead = ent.prevRotationYaw += (revert ? -1 : 1) * ((zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
-		ent.rotationYawHead = ent.rotationYaw += (revert ? -1 : 1) * ((zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
+		ent.prevRotationYawHead = ent.prevRotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : (zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
+		ent.rotationYawHead = ent.rotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : (zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
 
 		ent.prevRotationPitch += (revert ? -1 : 1) * (90F * pitchProg);
 		ent.rotationPitch += (revert ? -1 : 1) * (90F * pitchProg);
@@ -569,7 +577,7 @@ public class TickHandlerClient implements ITickHandler {
 			{
 				ShellState state = selectedShells.get(i);
 				
-				if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && !SessionState.allowCrossDimensional)
+				if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (SessionState.allowCrossDimensional == 0 || SessionState.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
 				{
 					selectedShells.remove(i);
 				}
@@ -645,6 +653,26 @@ public class TickHandlerClient implements ITickHandler {
 	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.zCoord < 0 ? 2 : 8, -32, 16777215);
 	        		string = state.dimName;
 	        		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, 8, -22, 16777215);
+        		}
+        		if(state.isHome)
+        		{
+        			Minecraft.getMinecraft().getTextureManager().bindTexture(txHome);
+        			
+        			double pX = 10.5D;
+        			double pY = -10.5D;
+					double size = 12D;
+        			
+        			GL11.glColor4f(0.95F, 0.95F, 0.95F, 1.0F);
+        			
+			        Tessellator tessellator = Tessellator.instance;
+					tessellator.setColorRGBA(240, 240, 240, 255);
+					
+			        tessellator.startDrawingQuads();
+			        tessellator.addVertexWithUV(pX, pY + size, 0.0D, 0.0D, 0.999D);
+			        tessellator.addVertexWithUV(pX + size, pY + size, 0.0D, 1.0D, 0.999D);
+			        tessellator.addVertexWithUV(pX + size, pY, 0.0D, 1.0D, 0.0D);
+			        tessellator.addVertexWithUV(pX, pY, 0.0D, 0.0D, 0.0D);
+			        tessellator.draw();
         		}
     		}
         	
@@ -811,7 +839,7 @@ public class TickHandlerClient implements ITickHandler {
 	        	
 	        	modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.username.hashCode());
 	        	modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-	        	modelShellConstructor.renderConstructionProgress(state.buildProgress / SessionState.shellConstructionPowerRequirement, 0.0625F, false);
+	        	modelShellConstructor.renderConstructionProgress(MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement, 0.0625F, false);
 	        	
 	        	GL11.glPopMatrix();
 	        }
@@ -879,6 +907,7 @@ public class TickHandlerClient implements ITickHandler {
 	public double zoomPrevX;
 	public double zoomPrevY;
 	public double zoomPrevZ;
+	public boolean zoomDeath;
 	
 	public boolean hideGui;
 	
@@ -890,6 +919,8 @@ public class TickHandlerClient implements ITickHandler {
 	
 	public HashMap<String, Integer> refusePlayerRender = new HashMap<String, Integer>();
 	public boolean forceRender;
+	
+	public ResourceLocation txHome = new ResourceLocation("sync", "textures/icon/home.png");
 	
 	public static boolean hasStencilBits = MinecraftForgeClient.getStencilBits() > 0;
 }

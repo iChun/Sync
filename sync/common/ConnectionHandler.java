@@ -67,7 +67,8 @@ public class ConnectionHandler
 		try
 		{
 			stream.writeInt(SessionState.shellConstructionPowerRequirement);
-			stream.writeBoolean(SessionState.allowCrossDimensional);
+			stream.writeInt(SessionState.allowCrossDimensional);
+			stream.writeInt(SessionState.deathMode);
 			
 			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray()), player);
 		}

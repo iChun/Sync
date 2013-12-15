@@ -61,6 +61,7 @@ public class ModelShellStorage extends ModelBase
 	public ResourceLocation txBiped;
 	
 	public boolean powered;
+	public boolean isHomeUnit;
 
 	public ModelShellStorage()
 	{
@@ -411,7 +412,14 @@ public class ModelShellStorage extends ModelBase
 		
 		if(powered)
 		{
-			GL11.glColor4f(0.0F, 1.0F, 0.0F, 1.0F);
+			if(isHomeUnit)
+			{
+				GL11.glColor4f(0.0F, 1.0F, 1.0F, 1.0F);
+			}
+			else
+			{
+				GL11.glColor4f(0.0F, 1.0F, 0.0F, 1.0F);				
+			}
 		}
 		else
 		{
