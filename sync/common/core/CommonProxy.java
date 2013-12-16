@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import sync.client.core.TickHandlerClient;
 import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
+import sync.common.creativetab.CreativeTabSync;
 import sync.common.item.ItemPlaceholder;
 import sync.common.item.ItemSyncBlockPlacer;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -22,10 +23,12 @@ public class CommonProxy
 	
 	public void initMod()
 	{
+		Sync.creativeTabSync = new CreativeTabSync("sync");
+		
 		Sync.blockDualVertical = (new BlockDualVertical(Sync.idBlockShellConstructor)).setLightValue(0.5F).setHardness(0.5F).setUnlocalizedName("Sync_ShellConstructor");
 		
-		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(CreativeTabs.tabTransport);
-		Sync.itemPlaceholder = (new ItemPlaceholder(Sync.idItemSyncCore)).setUnlocalizedName("Sync_SyncCore").setCreativeTab(CreativeTabs.tabMisc);
+		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync);
+		Sync.itemPlaceholder = (new ItemPlaceholder(Sync.idItemSyncCore)).setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
 		
 //		GameRegistry.addShapelessRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 0),
 //				new Object[] { new ItemStack(Block.dirt) });
@@ -47,6 +50,8 @@ public class CommonProxy
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
 		GameRegistry.registerTileEntity(TileEntityTreadmill.class, "Sync_TETreadmill");
+		
+		LanguageRegistry.instance().addStringLocalization("itemGroup.sync", "Sync");
 		
 		LanguageRegistry.instance().addName(Sync.blockDualVertical, "Shell Constructor");
 		

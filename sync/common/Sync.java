@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -61,6 +62,8 @@ public class Sync
 	private static Logger logger;
 	
 	private static Configuration config;
+	
+	public static CreativeTabs creativeTabSync;
 	
 	public static int idBlockShellConstructor;
 	public static int idItemBlockPlacer;
