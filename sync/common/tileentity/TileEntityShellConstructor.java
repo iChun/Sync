@@ -48,7 +48,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(isPowered())
 		{
 			float power = powerAmount();
-			if(prevPower != power)
+			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
 				if(!top && !worldObj.isRemote)

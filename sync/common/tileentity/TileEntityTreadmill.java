@@ -67,7 +67,7 @@ public class TileEntityTreadmill extends TileEntity
 				if(worldObj.isRemote)
 				{
 					Entity ent = worldObj.getEntityByID(latchedEntId);
-					if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 0.3D)
+					if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 7D)
 					{
 						latchedEnt = (EntityLiving)ent;
 						latchedHealth = latchedEnt.getHealth();

@@ -3,6 +3,7 @@ package sync.common.block;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -11,7 +12,11 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLeashKnot;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
@@ -249,6 +254,44 @@ public class BlockDualVertical extends BlockContainer
 //					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 //					return true;
 //				}
+			}
+		}
+		else if(te instanceof TileEntityTreadmill)
+		{
+			TileEntityTreadmill tm = (TileEntityTreadmill)te;
+			
+			if(tm.back)
+			{
+				tm = tm.pair;
+			}
+			
+			if(tm != null && tm.latchedEnt == null)
+			{
+		        double d0 = 7.0D;
+		        List list = world.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getAABBPool().getAABB((double)i - d0, (double)j - d0, (double)k - d0, (double)i + d0, (double)j + d0, (double)k + d0));
+	
+		        if (list != null)
+		        {
+		            Iterator iterator = list.iterator();
+	
+		            while (iterator.hasNext())
+		            {
+		                EntityLiving entityliving = (EntityLiving)iterator.next();
+	
+		                if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && !entityliving.isChild() && (entityliving instanceof EntityPig || entityliving instanceof EntityWolf && !((EntityWolf)entityliving).isSitting()))
+		                {
+		                	if(!world.isRemote)
+		                	{
+		                		tm.latchedEnt = entityliving;
+								tm.latchedHealth = entityliving.getHealth();
+								entityliving.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
+								world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+		                		entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
+		                	}
+		                    return true;
+		                }
+		            }
+		        }
 			}
 		}
 		return false;
