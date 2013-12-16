@@ -21,7 +21,7 @@ public class CommonProxy
 	{
 		Sync.blockDualVertical = (new BlockDualVertical(Sync.idBlockShellConstructor)).setLightValue(0.5F).setHardness(0.5F).setUnlocalizedName("Sync_ShellConstructor");
 		
-		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(CreativeTabs.tabTransport);
+		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(CreativeTabs.tabTransport);
 		
 //		GameRegistry.addShapelessRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 0),
 //				new Object[] { new ItemStack(Block.dirt) });
@@ -39,6 +39,7 @@ public class CommonProxy
 		
 		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 0), "Shell Constructor");
 		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 1), "Shell Storage");
+		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 2), "Treadmill");
 		
 		LanguageRegistry.instance().addStringLocalization("death.attack.syncFail", "%1$s synced into a dead shell");
 		LanguageRegistry.instance().addStringLocalization("death.attack.shellConstruct", "%1$s died trying to create a new shell");

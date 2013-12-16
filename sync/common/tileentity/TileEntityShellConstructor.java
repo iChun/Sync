@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
@@ -46,9 +47,10 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		}
 		if(isPowered())
 		{
-			if(prevPower != powerAmount())
+			float power = powerAmount();
+			if(prevPower != power)
 			{
-				prevPower = powerAmount();
+				prevPower = power;
 				if(!top && !worldObj.isRemote)
 				{
 					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
@@ -58,7 +60,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 					}
 				}
 			}
-			constructionProgress += powerAmount();
+			constructionProgress += power;
 			if(constructionProgress > SessionState.shellConstructionPowerRequirement)
 			{
 				constructionProgress = SessionState.shellConstructionPowerRequirement;
@@ -95,7 +97,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 					doorTime--;
 				}
 			}
-			if(!worldObj.isRemote && constructionProgress > 0.0F && !ChunkLoadHandler.shellTickets.containsKey(this))
+			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
 			{
 				ChunkLoadHandler.addShellAsChunkloader(this);
 			}
@@ -125,7 +127,22 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	@Override
 	public float powerAmount()
 	{
-		return 400F;
+		float power = 0.0F;
+		for(int i = xCoord - 1; i <= xCoord + 1; i++)
+		{
+			for(int k = zCoord - 1; k <= zCoord + 1; k++)
+			{
+				if(!(i == xCoord && k == zCoord))
+				{
+					TileEntity te = worldObj.getBlockTileEntity(i, yCoord, k);
+					if(te instanceof TileEntityTreadmill && !((TileEntityTreadmill)te).back)
+					{
+						power += ((TileEntityTreadmill)te).powerOutput();
+					}
+				}
+			}
+		}
+		return power;
 	}
 
 	@Override

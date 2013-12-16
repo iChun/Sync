@@ -51,6 +51,10 @@ public class ItemSyncBlockPlacer extends Item
     	{
     		return "item.Sync_ShellStorage";
     	}
+    	else if(is.getItemDamage() == 2)
+    	{
+    		return "item.Sync_Treadmill";
+    	}
         return "item.Sync_ShellConstructor";
     }
     

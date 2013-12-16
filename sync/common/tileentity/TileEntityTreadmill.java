@@ -3,8 +3,12 @@ package sync.common.tileentity;
 import java.util.List;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.EntityDiggingFX;
+import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +18,7 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import sync.common.Sync;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -108,6 +113,11 @@ public class TileEntityTreadmill extends TileEntity
 			{
 				timeRunning = 12000;
 			}
+			
+			if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+			{
+				spawnParticles();
+			}
 		}
 		if(!worldObj.isRemote && !back)
 		{
@@ -128,7 +138,7 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					Entity ent = (Entity)list.get(i);
 					
-					if(ent != latchedEnt && !(ent instanceof EntityPlayer))
+					if(ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer))
 					{
 						remove = true;
 						break;
@@ -175,6 +185,31 @@ public class TileEntityTreadmill extends TileEntity
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public void spawnParticles() 
+	{
+		if(latchedEnt != null && pair != null)
+		{
+			double xVelo = (face == 1 ? -30D : face == 3 ? 30.0D : 0.0D);
+			double zVelo = face == 0 ? 30D : face == 2 ? -30D : 0.0D;
+			if(worldObj.rand.nextFloat() < 0.5F)
+			{
+				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, pair.xCoord + worldObj.rand.nextFloat(), pair.yCoord + 0.4D, pair.zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
+			}
+			else
+			{
+				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, xCoord + worldObj.rand.nextFloat(), yCoord + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
+			}
+			
+			if(timeRunning == 12000 && worldObj.rand.nextFloat() < 0.2F)
+			{
+				xVelo *= 0.01D;
+				zVelo *= 0.01D;
+				Minecraft.getMinecraft().effectRenderer.addEffect(new EntitySmokeFX(worldObj, xCoord + worldObj.rand.nextFloat(), yCoord + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo));
+			}
+		}
+	}
+
 	public double getMidCoord(int i)
 	{
 		if(back && pair != null)
@@ -197,7 +232,21 @@ public class TileEntityTreadmill extends TileEntity
 		{
 			return pair.powerOutput();
 		}
-		return 0F;
+		float power = 0.0F;
+		if(latchedEnt != null)
+		{
+			if(latchedEnt instanceof EntityPig)
+			{
+				power = 2F;
+				power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F);
+			}
+			else if(latchedEnt instanceof EntityWolf)
+			{
+				power = 3F;
+				power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+			}
+		}
+		return power;
 	}
 	
 	public void setup(TileEntityTreadmill sc, boolean b, int face2) 
