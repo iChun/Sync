@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -28,10 +29,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.MinecraftForgeClient;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import sync.client.entity.EntityShellDestruction;
 import sync.client.model.ModelShellConstructor;
 import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
@@ -213,6 +216,14 @@ public class TickHandlerClient implements ITickHandler {
 		{
 			clock = world.getWorldTime();
 			
+//			if(clock % 20L == 0 && Keyboard.isKeyDown(Keyboard.KEY_GRAVE))
+//			{
+//				System.out.println("spawn");
+//				EntityShellDestruction sd = new EntityShellDestruction(world, mc.thePlayer.rotationYaw, mc.thePlayer.renderYawOffset, mc.thePlayer.rotationPitch, mc.thePlayer.limbSwing, mc.thePlayer.limbSwingAmount, AbstractClientPlayer.locationStevePng);
+//				sd.setLocationAndAngles(mc.thePlayer.posX + 2D, mc.thePlayer.posY - mc.thePlayer.yOffset, mc.thePlayer.posZ, 0.0F, 0.0F);
+//				world.spawnEntityInWorld(sd);
+//			}
+			
 			for(ShellState state : shells)
 			{
 				state.tick();
@@ -336,9 +347,9 @@ public class TickHandlerClient implements ITickHandler {
 			prog = 1.0F - prog;
 		}
 		
-		float rotProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / 0.333F, 0.0F, 1.0F), 4D), 0.0F, 1.0F);
+		float rotProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 4D), 0.0F, 1.0F);
 		
-		float disProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / 0.333F, 0.0F, 1.0F), 2D), 0.0F, 1.0F);
+		float disProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 2D), 0.0F, 1.0F);
 
 		float posYProg = (float)Math.pow(MathHelper.clamp_float((prog - 0.250F) / 0.750F, 0.0F, 1.0F), 2D);
 		
@@ -404,6 +415,19 @@ public class TickHandlerClient implements ITickHandler {
 			}
 		}
 
+		if(zoomDeath)
+		{
+	        double motionX = (double)(-MathHelper.sin(zoomPrevYaw / 180.0F * (float)Math.PI) * MathHelper.cos(zoomPrevPitch / 180.0F * (float)Math.PI));
+	        double motionZ = (double)(MathHelper.cos(zoomPrevYaw / 180.0F * (float)Math.PI) * MathHelper.cos(zoomPrevPitch / 180.0F * (float)Math.PI));
+
+			ent.lastTickPosX += (revert ? -1 : 1) * (motionX * 2D * disProg);
+			ent.prevPosX += (revert ? -1 : 1) * (motionX * 2D * disProg);
+			ent.posX += (revert ? -1 : 1) * (motionX * 2D * disProg);
+
+			ent.lastTickPosZ += (revert ? -1 : 1) * (motionZ * 2D * disProg);
+			ent.prevPosZ += (revert ? -1 : 1) * (motionZ * 2D * disProg);
+			ent.posZ += (revert ? -1 : 1) * (motionZ * 2D * disProg);
+		}
 	}
 	
 	public void preRenderTick(Minecraft mc, WorldClient world, float renderTick)

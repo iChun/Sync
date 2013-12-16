@@ -2,14 +2,13 @@ package sync.client.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import sync.client.model.ModelPixel;
 import sync.client.model.ModelTreadmill;
 import sync.common.tileentity.TileEntityTreadmill;
 

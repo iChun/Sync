@@ -38,6 +38,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
+import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -608,6 +609,44 @@ public class BlockDualVertical extends BlockContainer
                                 }
                             }
                         }
+                        
+						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+						DataOutputStream stream1 = new DataOutputStream(bytes);
+						try
+						{
+							stream1.writeInt(bottom.xCoord);
+							stream1.writeInt(bottom.yCoord);
+							stream1.writeInt(bottom.zCoord);
+							
+							stream1.writeInt(bottom.face);
+							
+							PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, new Packet131MapData((short)Sync.getNetId(), (short)8, bytes.toByteArray()));
+						}
+						catch(IOException e)
+						{
+						}
+					}
+					else if(bottom instanceof TileEntityShellConstructor)
+					{
+						TileEntityShellConstructor sc = (TileEntityShellConstructor)bottom;
+						if(!sc.playerName.equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
+						{
+							ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+							DataOutputStream stream1 = new DataOutputStream(bytes);
+							try
+							{
+								stream1.writeInt(bottom.xCoord);
+								stream1.writeInt(bottom.yCoord);
+								stream1.writeInt(bottom.zCoord);
+								
+								stream1.writeInt(bottom.face);
+								
+								PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, new Packet131MapData((short)Sync.getNetId(), (short)8, bytes.toByteArray()));
+							}
+							catch(IOException e)
+							{
+							}
+						}
 					}
 
 					if(dv.top)

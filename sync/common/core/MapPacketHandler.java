@@ -5,17 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetServerHandler;
 import net.minecraft.network.packet.NetHandler;
@@ -25,6 +20,7 @@ import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
+import sync.client.entity.EntityShellDestruction;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.shell.ShellState;
@@ -35,7 +31,6 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.ITinyPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -381,9 +376,28 @@ public class MapPacketHandler
 						{
 							player.deathTime = 0;
 							player.setHealth(1);
+							
+							EntityShellDestruction sd = new EntityShellDestruction(player.worldObj, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, AbstractClientPlayer.locationStevePng);
+							sd.setLocationAndAngles(player.posX, player.posY - player.yOffset, player.posZ, 0.0F, 0.0F);
+							player.worldObj.spawnEntityInWorld(sd);
+
 						}
 					}
 					break;
+				}
+				case 8:
+				{
+					//destruction of a completed shell.
+					
+					int x = stream.readInt();
+					int y = stream.readInt();
+					int z = stream.readInt();
+					
+					int face = stream.readInt();
+					
+					EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, AbstractClientPlayer.locationStevePng);
+					sd.setLocationAndAngles(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
+					mc.theWorld.spawnEntityInWorld(sd);
 				}
 			}
 		}
