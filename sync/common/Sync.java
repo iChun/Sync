@@ -3,13 +3,18 @@ package sync.common;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
@@ -31,6 +36,7 @@ import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkModHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "Sync", name = "Sync",
@@ -58,6 +64,7 @@ public class Sync
 	
 	public static int idBlockShellConstructor;
 	public static int idItemBlockPlacer;
+	public static int idItemSyncCore;
 	
 	public static int shellConstructionPowerRequirement;
 	
@@ -66,11 +73,14 @@ public class Sync
 	public static int overrideDeathIfThereAreAvailableShells;
 	public static int prioritizeHomeShellOnDeath;
 	
+	public static int hardcoreMode;
+	
 	public static int showAllShellInfoInGui;
 	
 	public static Block blockDualVertical;
 	
 	public static Item itemBlockPlacer;
+	public static Item itemPlaceholder;
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
@@ -83,13 +93,16 @@ public class Sync
 		
 		idBlockShellConstructor = addCommentAndReturnBlockId(config, "ids", "idBlockShellConstructor", "Block ID for the Shell Constructor", 1345);
 		idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
+		idItemSyncCore = addCommentAndReturnItemId(config, "ids", "idItemSyncCore", "Item ID for the Sync Core", 13331);
 		
 		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
 		
 		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End", 1);
 		damageGivenOnShellConstruction = Math.max(addCommentAndReturnInt(config, "gameplay", "damageGivenOnShellConstruction", "Number of half hearts damage given to the player when a new shell is constructed.", 2), 0);
 		overrideDeathIfThereAreAvailableShells = addCommentAndReturnInt(config, "gameplay", "overrideDeathIfThereAreAvailableShells", "Allow overriding the death of a player if the player has other shells?\nThe player will resync to the nearest shell.\n0 = No\n1 = Yes, but only to storage units\n2 = Yes, to storage and construction units", 1);
-		prioritizeHomeShellOnDeath =  addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
+		prioritizeHomeShellOnDeath = addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
+		
+		hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
 		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 		{
@@ -118,6 +131,9 @@ public class Sync
 		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
 		SessionState.allowCrossDimensional = allowCrossDimensional;
 		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
+		SessionState.hardMode = hardcoreMode == 1 || hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled();
+		
+		mapHardmodeRecipe();
 	}
 	
 	@EventHandler
@@ -183,4 +199,23 @@ public class Sync
             par1DataOutput.write(abyte);
         }
     }
+
+	public static void mapHardmodeRecipe() 
+	{
+		List recipes = CraftingManager.getInstance().getRecipeList();
+		for(int i = recipes.size() - 1; i >= 0 ; i--)
+		{
+			if(recipes.get(i) instanceof ShapedRecipes)
+			{
+				ShapedRecipes recipe = (ShapedRecipes)recipes.get(i);
+				if(recipe.getRecipeOutput().isItemEqual(new ItemStack(Sync.itemPlaceholder)))
+				{
+					recipes.remove(i);
+				}
+			}
+		}
+		
+		GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
+				new Object[] { "DLD", "QEQ", "MRM", Character.valueOf('D'), Block.daylightSensor, Character.valueOf('L'), Block.blockLapis, Character.valueOf('Q'), Item.netherQuartz, Character.valueOf('E'), (SessionState.hardMode ? Block.beacon : Item.enderPearl), Character.valueOf('M'), Item.emerald, Character.valueOf('R'), Block.blockRedstone});
+	}
 }
