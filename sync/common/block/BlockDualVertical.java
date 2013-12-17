@@ -684,7 +684,7 @@ public class BlockDualVertical extends BlockContainer
 		            double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 		            double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 		            double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-		            EntityItem entityitem = new EntityItem(world, (double)i + d, (double)j + d1, (double)k + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(i, j, k)));
+		            EntityItem entityitem = new EntityItem(world, (double)tm.xCoord + d, (double)tm.yCoord + d1, (double)tm.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(tm.xCoord, tm.yCoord, tm.zCoord)));
 		            entityitem.delayBeforeCanPickup = 10;
 		            world.spawnEntityInWorld(entityitem);
 				}
