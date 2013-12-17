@@ -42,7 +42,7 @@ Place a shell constructor down and right click it to provide a sample
 (warning, this hurts!). The shell constructor cannot work
 without power, so put a treadmill down next to it and lure 
 a Pig or a Wolf to the center of the treadmill to generate 
-Piggawatts. A lead will help out out with this (you will get
+Pigawatts. A lead will help out out with this (you will get
 it back). The shell constructor will begin building a shell.
 
 Once the shell is constructed, you need to place down a shell
