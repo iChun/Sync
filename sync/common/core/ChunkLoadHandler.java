@@ -1,4 +1,4 @@
-package sync.common.item;
+package sync.common.core;
 
 import java.util.HashMap;
 import java.util.List;

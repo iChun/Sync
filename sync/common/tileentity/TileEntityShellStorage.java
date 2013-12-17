@@ -2,8 +2,8 @@ package sync.common.tileentity;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
-import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
