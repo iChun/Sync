@@ -152,7 +152,7 @@ public class EventHandler
 								dist = dvDist;
 							}
 						}
-						else if(SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2)
+						else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
 						{
 							if(dv.isHomeUnit)
 							{
