@@ -20,6 +20,7 @@ import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
 import sync.common.core.CommonProxy;
+import sync.common.core.ConnectionHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.item.ChunkLoadHandler;

@@ -11,7 +11,7 @@ import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.network.packet.Packet1Login;
 import net.minecraft.server.MinecraftServer;
-import sync.common.core.SessionState;
+import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IConnectionHandler;
