@@ -1,4 +1,4 @@
-package sync.common;
+package sync.common.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
