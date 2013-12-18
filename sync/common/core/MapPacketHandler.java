@@ -20,6 +20,8 @@ import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import sync.api.SyncStartEvent;
 import sync.client.entity.EntityShellDestruction;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
@@ -159,6 +161,8 @@ public class MapPacketHandler
 								
 								dv1.resyncPlayer = 120;
 								dv.canSavePlayer = -1;
+								
+								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, dv.playerNBT, dv1.playerNBT, dv1.xCoord, dv1.yCoord, dv1.zCoord));
 								
 								bytes = new ByteArrayOutputStream();
 								stream1 = new DataOutputStream(bytes);

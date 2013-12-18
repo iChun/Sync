@@ -19,7 +19,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.FakePlayer;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
