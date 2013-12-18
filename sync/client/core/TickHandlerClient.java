@@ -863,7 +863,7 @@ public class TickHandlerClient implements ITickHandler {
 	        	
 	        	modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.username.hashCode());
 	        	modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-	        	modelShellConstructor.renderConstructionProgress(MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement, 0.0625F, false);
+	        	modelShellConstructor.renderConstructionProgress(SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
 	        	
 	        	GL11.glPopMatrix();
 	        }
