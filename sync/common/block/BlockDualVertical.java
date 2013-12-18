@@ -12,7 +12,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLeashKnot;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityPig;
@@ -40,6 +39,8 @@ import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
+import sync.common.network.FakeNetServerHandler;
+import sync.common.network.FakeNetworkManager;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -582,6 +583,7 @@ public class BlockDualVertical extends BlockContainer
                         FakePlayer fake = new FakePlayer(world, dv.playerName);
                         fake.readFromNBT(dv.playerNBT);                        
                         fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
+                        new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
 
                         if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
                         {
