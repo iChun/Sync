@@ -59,6 +59,7 @@ public class ShellHandler
 		}
 		else if(dv != null)
 		{
+			//This is never used due to issues synching to the point I gave up.
 			dvs.add(dv);
 		}
 		

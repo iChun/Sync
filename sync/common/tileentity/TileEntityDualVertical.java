@@ -6,10 +6,12 @@ import java.io.IOException;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet131MapData;
@@ -390,12 +392,80 @@ public class TileEntityDualVertical extends TileEntity
 			
 			stream.writeBoolean(isHomeUnit);
 			
-			Sync.writeNBTTagCompound(playerNBT, stream);
+			NBTTagCompound invTag = new NBTTagCompound();
+			
+			invTag.setTag("Inventory", generateShowableEquipTags(playerNBT));
+			
+			Sync.writeNBTTagCompound(invTag, stream);
 		}
 		catch(IOException e)
 		{
 		}
 		return bytes.toByteArray();
+	}
+	
+	public static NBTTagList generateShowableEquipTags(NBTTagCompound tag)
+	{
+		NBTTagList list = new NBTTagList();
+		
+        NBTTagList nbttaglist = tag.getTagList("Inventory");
+        
+        int currentItem = tag.getInteger("SelectedItemSlot");
+
+        ItemStack[] items = new ItemStack[5];
+        
+        for (int i = 0; i < nbttaglist.tagCount(); ++i)
+        {
+            NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+            int j = nbttagcompound.getByte("Slot") & 255;
+            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+
+            if (itemstack != null)
+            {
+                if (j == currentItem)
+                {
+                	items[0] = itemstack;
+                }
+
+                if (j >= 100 && j < 104)
+                {
+                	items[j - 100 + 1] = itemstack;
+                }
+            }
+        }
+		
+        int i;
+        NBTTagCompound nbttagcompound;
+
+        for (i = 0; i < items.length; ++i)
+        {
+            if (items[i] != null)
+            {
+                nbttagcompound = new NBTTagCompound();
+                nbttagcompound.setByte("Slot", (byte)i);
+                items[i].writeToNBT(nbttagcompound);
+                list.appendTag(nbttagcompound);
+            }
+        }
+		
+		return list;
+	}
+	
+	public static void addShowableEquipToPlayer(EntityPlayer player, NBTTagCompound tag)
+	{
+		NBTTagList nbttaglist = tag.getTagList("Inventory");
+		
+        for (int i = 0; i < nbttaglist.tagCount(); ++i)
+        {
+            NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+            int j = nbttagcompound.getByte("Slot") & 255;
+            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+
+            if (itemstack != null)
+            {
+            	player.setCurrentItemOrArmor(j, itemstack);
+            }
+        }
 	}
 	
 	@Override

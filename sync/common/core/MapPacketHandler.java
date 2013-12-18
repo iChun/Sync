@@ -273,7 +273,7 @@ public class MapPacketHandler
 						NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 						if(tag.hasKey("Inventory"))
 						{
-							state.playerState.readFromNBT(tag);
+							TileEntityDualVertical.addShowableEquipToPlayer(state.playerState, tag);
 						}
 					}
 					

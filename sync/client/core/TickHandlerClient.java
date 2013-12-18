@@ -357,6 +357,9 @@ public class TickHandlerClient implements ITickHandler {
 
 		if(!revert)
 		{
+			Mouse.getDX();
+			Mouse.getDY();
+
 			zoomPrevYaw = ent.rotationYaw;
 			zoomPrevPitch = ent.rotationPitch;
 			
