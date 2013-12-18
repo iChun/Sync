@@ -105,18 +105,30 @@ public class TileEntityTreadmill extends TileEntity
 		}
 		resync = false;
 		
-		if(worldObj.isRemote && !back && latchedEnt != null)
+		if(worldObj.isRemote && !back)
 		{
-			latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-			timeRunning++;
-			if(timeRunning > 12000)
+			if(latchedEnt == null && latchedEntId != -1 && worldObj.getWorldTime() % 27L == 0L)
 			{
-				timeRunning = 12000;
+				Entity ent = worldObj.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 3D)
+				{
+					latchedEnt = (EntityLiving)ent;
+					latchedHealth = latchedEnt.getHealth();
+				}
 			}
-			
-			if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+			if(latchedEnt != null)
 			{
-				spawnParticles();
+				latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+				timeRunning++;
+				if(timeRunning > 12000)
+				{
+					timeRunning = 12000;
+				}
+				
+				if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+				{
+					spawnParticles();
+				}
 			}
 		}
 		if(!worldObj.isRemote && !back)
