@@ -1,7 +1,6 @@
 package sync.common.core;
 
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import sync.client.core.TickHandlerClient;
@@ -46,6 +45,7 @@ public class CommonProxy
 		
 		GameRegistry.registerBlock(Sync.blockDualVertical, "Sync_ShellConstructor");
 		GameRegistry.registerItem(Sync.itemBlockPlacer, "Sync_BlockPlacer");
+		GameRegistry.registerItem(Sync.itemPlaceholder, "Sync_ItemPlaceholder");
 		
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
