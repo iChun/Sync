@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -543,6 +544,36 @@ public class BlockDualVertical extends BlockContainer
     }
 	
 	@Override
+    public boolean removeBlockByPlayer(World world, EntityPlayer player, int i, int j, int k)
+    {
+		if(!world.isRemote)
+		{
+			TileEntity te = world.getBlockTileEntity(i, j, k);
+			if(te instanceof TileEntityDualVertical)
+			{
+				TileEntityDualVertical dv = (TileEntityDualVertical)te;
+				TileEntity te1 = world.getBlockTileEntity(i, j + (dv.top ? -1 : 1), k);
+				if(te1 instanceof TileEntityDualVertical)
+				{
+					TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
+					if(dv1.pair == dv)
+					{
+						world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockDualVertical.blockID);
+						world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
+					}
+					TileEntityDualVertical bottom = dv1.top ? dv : dv1;
+					
+					if(!bottom.playerName.equalsIgnoreCase("") && !bottom.playerName.equalsIgnoreCase(player.username))
+					{
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromText(player.username + " destroyed a shell of " + bottom.playerName + "!"));
+					}
+				}
+			}
+		}
+        return super.removeBlockByPlayer(world, player, i, j, k);
+    }
+	
+	@Override
     public void breakBlock(World world, int i, int j, int k, int par5, int par6)
     {
 		TileEntity te = world.getBlockTileEntity(i, j, k);
@@ -627,6 +658,7 @@ public class BlockDualVertical extends BlockContainer
 						catch(IOException e)
 						{
 						}
+						
 					}
 					else if(bottom instanceof TileEntityShellConstructor)
 					{
