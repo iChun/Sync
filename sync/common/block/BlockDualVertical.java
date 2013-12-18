@@ -585,7 +585,7 @@ public class BlockDualVertical extends BlockContainer
                         fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
                         new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
 
-                        if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
+//                        if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
                         {
 	                        fake.captureDrops = true;
 	                        fake.capturedDrops.clear();
