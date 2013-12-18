@@ -431,30 +431,34 @@ public class ModelShellStorage extends ModelBase
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
-	public void render(float prog, float f5)
+	public void render(float prog, float f5, boolean alpha)
 	{
-		base.render(f5);
-		ceiling.render(f5);
-		baseSkirtBack.render(f5);
-		ceilingSkirtBack.render(f5);
-		baseSkirtLeft.render(f5);
-		baseSkirtRight.render(f5);
-		ceilingSkirtRight.render(f5);
-		ceilingSkirtLeft.render(f5);
+		if(!alpha)
+		{
+			base.render(f5);
+			ceiling.render(f5);
+			baseSkirtBack.render(f5);
+			ceilingSkirtBack.render(f5);
+			baseSkirtLeft.render(f5);
+			baseSkirtRight.render(f5);
+			ceilingSkirtRight.render(f5);
+			ceilingSkirtLeft.render(f5);
+			backSupport1.render(f5);
+			backSupport2.render(f5);
+			backSupport3.render(f5);
+			backSupport4.render(f5);
+			backPillarRight.render(f5);
+			backPillarLeft.render(f5);
+			baseSkirtFront.render(f5);
+			ceilingSkirtFront.render(f5);
+			frontPillarRight.render(f5);
+			frontPillarLeft.render(f5);
+		}
+
 		backWall.render(f5);
-		backSupport1.render(f5);
-		backSupport2.render(f5);
-		backSupport3.render(f5);
-		backSupport4.render(f5);
-		backPillarRight.render(f5);
-		backPillarLeft.render(f5);
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
-		baseSkirtFront.render(f5);
-		ceilingSkirtFront.render(f5);
-		frontPillarRight.render(f5);
-		frontPillarLeft.render(f5);
-		
+
 		float retractProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
 		float swingProg = MathHelper.clamp_float((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
 

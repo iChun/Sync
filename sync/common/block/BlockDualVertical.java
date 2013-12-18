@@ -56,6 +56,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class BlockDualVertical extends BlockContainer 
 {
 
+	public static int renderPass;
+	
 	public BlockDualVertical(int par1)
 	{
 		super(par1, Material.iron);

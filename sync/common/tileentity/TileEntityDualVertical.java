@@ -20,6 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
 import sync.common.Sync;
+import sync.common.block.BlockDualVertical;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
@@ -308,11 +309,18 @@ public class TileEntityDualVertical extends TileEntity
 	{
 		return 0F;
 	}
-
+	
 	public float getBuildProgress()
 	{
 		return SessionState.shellConstructionPowerRequirement;
 	}
+	
+	@Override
+    public boolean shouldRenderInPass(int pass)
+    {
+		BlockDualVertical.renderPass = pass;
+        return pass == 0 || pass == 1;
+    }
 	
 	@Override
 	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)

@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import sync.client.model.ModelShellConstructor;
 import sync.client.model.ModelShellStorage;
 import sync.common.Sync;
+import sync.common.block.BlockDualVertical;
 import sync.common.core.SessionState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -26,6 +27,9 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 
 	public static final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shellConstructor.png");
 	public static final ResourceLocation txShellStorage = new ResourceLocation("sync", "textures/model/shellStorage.png");
+	
+	public static final ResourceLocation txShellConstructorAlpha = new ResourceLocation("sync", "textures/model/shellConstructorAlpha.png");
+	public static final ResourceLocation txShellStorageAlpha = new ResourceLocation("sync", "textures/model/shellStorageAlpha.png");
 	
 	public ModelShellConstructor modelConstructor;
 	public ModelShellStorage modelStorage;
@@ -62,27 +66,33 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 		if(dv instanceof TileEntityShellConstructor)
 		{
 			TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-			Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
-			
-			float prog = SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F;
-			
 			float doorProg = MathHelper.clamp_float(TileEntityDualVertical.animationTime - sc.doorTime + (sc.doorOpen && sc.doorTime < TileEntityShellStorage.animationTime ? -f : !sc.doorOpen && sc.doorTime > 0 ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 			
-			modelConstructor.rand.setSeed(sc.playerName.hashCode());
-			modelConstructor.txBiped = rl;
-			modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.playerName.equalsIgnoreCase("")); //0.95F;
-			
-			GL11.glDisable(GL11.GL_CULL_FACE);
-			Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
-			modelConstructor.render(doorProg, 0.0625F);
-			GL11.glEnable(GL11.GL_CULL_FACE);
+			if(BlockDualVertical.renderPass == 0)
+			{
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
+				
+				float prog = SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F;
+				
+				
+				modelConstructor.rand.setSeed(sc.playerName.hashCode());
+				modelConstructor.txBiped = rl;
+				modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.playerName.equalsIgnoreCase("")); //0.95F;
+				
+				GL11.glDisable(GL11.GL_CULL_FACE);
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
+				modelConstructor.render(doorProg, 0.0625F, false);
+				GL11.glEnable(GL11.GL_CULL_FACE);
+			}
+			else
+			{
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructorAlpha);
+				modelConstructor.render(doorProg, 0.0625F, true);
+			}
 		}
 		else if(dv instanceof TileEntityShellStorage)
 		{
 			TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-			
-			modelStorage.txBiped = rl;
-//			modelStorage.renderPlayer(0.0625F);
 			
 			float prog = MathHelper.clamp_float(TileEntityDualVertical.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 			
@@ -95,61 +105,71 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				prog = 1.0F - prog;
 			}
 			
-			if(ss.playerInstance != null && ss.syncing)
+			if(BlockDualVertical.renderPass == 0)
 			{
-				GL11.glPushMatrix();
+				modelStorage.txBiped = rl;
 				
-				GL11.glScalef(-2.0F, -2.0F, 2.0F);
-				GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
-
-				ss.playerInstance.getDataWatcher().updateObject(16, Byte.valueOf((byte)(ss.playerInstance.getDataWatcher().getWatchableObjectByte(16) | 1 << 1)));
-				
-				ss.playerInstance.ticksExisted = 35;
-				ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
-
-				int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
-				ss.playerInstance.getRNG().setSeed(randSeed);
+				if(ss.playerInstance != null && ss.syncing)
+				{
+					GL11.glPushMatrix();
 					
-				if(Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") && ss.playerInstance.getRNG().nextFloat() < 0.5F)
-				{
-					ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
-					ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
-					faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 0.5F, 0.5F);
+					GL11.glScalef(-2.0F, -2.0F, 2.0F);
+					GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
+	
+					ss.playerInstance.getDataWatcher().updateObject(16, Byte.valueOf((byte)(ss.playerInstance.getDataWatcher().getWatchableObjectByte(16) | 1 << 1)));
+					
+					ss.playerInstance.ticksExisted = 35;
+					ss.playerInstance.prevRotationPitch = ss.playerInstance.rotationPitch;
+	
+					int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
+					ss.playerInstance.getRNG().setSeed(randSeed);
+						
+					if(Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") && ss.playerInstance.getRNG().nextFloat() < 0.5F)
+					{
+						ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
+						ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
+						faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 0.5F, 0.5F);
+					}
+					else
+					{
+						ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
+						ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
+					}
+					
+					ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
+					
+					ItemStack is = ss.playerInstance.getCurrentEquippedItem();
+					
+					ss.playerInstance.setCurrentItemOrArmor(0, null);
+					
+					Sync.proxy.tickHandlerClient.forceRender = true; 
+					RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
+					Sync.proxy.tickHandlerClient.forceRender = false;
+					
+					ss.playerInstance.setCurrentItemOrArmor(0, is);
+					
+					GL11.glPopMatrix();
 				}
-				else
-				{
-					ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
-					ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
-				}
 				
-				ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				
-				ItemStack is = ss.playerInstance.getCurrentEquippedItem();
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+	
+				modelStorage.powered = ss.isPowered();
+				modelStorage.isHomeUnit = ss.isHomeUnit;
+				modelStorage.renderInternals(prog, 0.0625F);
 				
-				ss.playerInstance.setCurrentItemOrArmor(0, null);
-				
-				Sync.proxy.tickHandlerClient.forceRender = true; 
-				RenderManager.instance.getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
-				Sync.proxy.tickHandlerClient.forceRender = false;
-				
-				ss.playerInstance.setCurrentItemOrArmor(0, is);
-				
-				GL11.glPopMatrix();
+				GL11.glDisable(GL11.GL_CULL_FACE);
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+				modelStorage.render(prog, 0.0625F, false);
+				GL11.glEnable(GL11.GL_CULL_FACE);
 			}
-			
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-			
-			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
-
-			modelStorage.powered = ss.isPowered();
-			modelStorage.isHomeUnit = ss.isHomeUnit;
-			modelStorage.renderInternals(prog, 0.0625F);
-			
-			GL11.glDisable(GL11.GL_CULL_FACE);
-			Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
-			modelStorage.render(prog, 0.0625F);
-			GL11.glEnable(GL11.GL_CULL_FACE);
+			else
+			{
+				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorageAlpha);
+				modelStorage.render(prog, 0.0625F, true);
+			}
 		}
 		
 		GL11.glDisable(GL11.GL_BLEND);

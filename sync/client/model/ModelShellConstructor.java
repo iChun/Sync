@@ -297,27 +297,31 @@ public class ModelShellConstructor extends ModelBase
 		setRotation(stencilBuffer, 0F, 0F, 0F);
 	}
 
-	public void render(float doorProg, float f5)
+	public void render(float doorProg, float f5, boolean alpha)
 	{
-		base.render(f5);
-		ceiling.render(f5);
+		if(!alpha)
+		{
+			base.render(f5);
+			ceiling.render(f5);
+			
+			baseSkirtBack.render(f5);
+			baseSkirtLeft.render(f5);
+			baseSkirtRight.render(f5);
+			baseSkirtFront.render(f5);
+			
+			ceilingSkirtBack.render(f5);
+			ceilingSkirtLeft.render(f5);
+			ceilingSkirtRight.render(f5);
+			ceilingSkirtFront.render(f5);
+			
+			backWall.render(f5);
+
+			backPillarRight.render(f5);
+			backPillarLeft.render(f5);
+			frontPillarRight.render(f5);
+			frontPillarLeft.render(f5);
+		}
 		
-		baseSkirtBack.render(f5);
-		baseSkirtLeft.render(f5);
-		baseSkirtRight.render(f5);
-		baseSkirtFront.render(f5);
-		
-		ceilingSkirtBack.render(f5);
-		ceilingSkirtLeft.render(f5);
-		ceilingSkirtRight.render(f5);
-		ceilingSkirtFront.render(f5);
-		
-		backPillarRight.render(f5);
-		backPillarLeft.render(f5);
-		frontPillarRight.render(f5);
-		frontPillarLeft.render(f5);
-		
-		backWall.render(f5);
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 		
