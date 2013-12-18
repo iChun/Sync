@@ -1,6 +1,7 @@
 package sync.common.core;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +15,7 @@ import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
 
 public class ChunkLoadHandler implements LoadingCallback {
 
@@ -68,10 +70,6 @@ public class ChunkLoadHandler implements LoadingCallback {
 			if(ticket == null)
 			{
 				ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.worldObj, ForgeChunkManager.Type.NORMAL);
-				if(ticket != null)
-				{
-					shellTickets.put(dv, ticket);
-				}
 			}
 			if(ticket != null)
 			{
@@ -79,7 +77,22 @@ public class ChunkLoadHandler implements LoadingCallback {
 				ticket.getModData().setInteger("shellY", dv.yCoord);
 				ticket.getModData().setInteger("shellZ", dv.zCoord);
 				ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
+				
+				if(Sync.allowChunkLoading == 0)
+				{
+					//Reflecting into Ticket to remove chunk! Sorry! :(
+					try
+					{
+						LinkedHashSet<ChunkCoordIntPair> requestedChunks = ObfuscationReflectionHelper.getPrivateValue(Ticket.class, ticket, "requestedChunks");
+						requestedChunks.clear();
+					}
+					catch(Exception e)
+					{
+					}
+				}
 			}
+			
+			shellTickets.put(dv, ticket);
 			
 			EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
 			

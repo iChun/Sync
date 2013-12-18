@@ -78,6 +78,8 @@ public class Sync
 	public static int prioritizeHomeShellOnDeath;
 	public static int crossDimensionalSyncingOnDeath;
 	
+	public static int allowChunkLoading;
+	
 	public static int hardcoreMode;
 	
 	public static int showAllShellInfoInGui;
@@ -107,6 +109,8 @@ public class Sync
 		overrideDeathIfThereAreAvailableShells = addCommentAndReturnInt(config, "gameplay", "overrideDeathIfThereAreAvailableShells", "Allow overriding the death of a player if the player has other shells?\nThe player will resync to the nearest shell.\n0 = No\n1 = Yes, but only to storage units\n2 = Yes, to storage and construction units", 1);
 		prioritizeHomeShellOnDeath = addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
 		crossDimensionalSyncingOnDeath = addCommentAndReturnInt(config, "gameplay", "crossDimensionalSyncingOnDeath", "Allow cross dimensional syncing when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
+		
+		allowChunkLoading = addCommentAndReturnInt(config, "gameplay", "allowChunkLoading", "Added by request, mod is made to chunkload shells. Untested.\nCould crash your world fatally.\nDisable at own risk.\n0 = No\n1 = Yes", 1);
 		
 		hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
 		

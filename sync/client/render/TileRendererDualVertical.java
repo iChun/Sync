@@ -124,7 +124,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
 					ss.playerInstance.getRNG().setSeed(randSeed);
 						
-					if(Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") && ss.playerInstance.getRNG().nextFloat() < 0.5F)
+					if((Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("soaryn")) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
 					{
 						ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
 						ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
