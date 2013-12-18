@@ -567,7 +567,7 @@ public class BlockDualVertical extends BlockContainer
 					
 					if(!bottom.playerName.equalsIgnoreCase("") && !bottom.playerName.equalsIgnoreCase(player.username))
 					{
-						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromText(player.username + " destroyed a shell of " + bottom.playerName + "!"));
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromText(player.username + " destroyed a shell of " + bottom.playerName));
 					}
 				}
 			}
