@@ -59,7 +59,16 @@ public class ShellState
 	{
 		if(arg0 instanceof ShellState)
 		{
-			return dimName.compareTo(((ShellState)arg0).dimName);
+			ShellState ss = (ShellState)arg0;
+			int dimCompare = dimName.compareTo(ss.dimName);
+			if(dimCompare >= 0)
+			{
+				if(isConstructor && !ss.isConstructor)
+				{
+					return -1;
+				}
+			}
+			return dimCompare;
 		}
 		return 0;
 	}
