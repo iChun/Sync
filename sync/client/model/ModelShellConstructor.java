@@ -11,6 +11,7 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 import org.lwjgl.opengl.GL11;
 
@@ -580,7 +581,9 @@ public class ModelShellConstructor extends ModelBase
 				GL11.glScalef(2.0F, 2.0F, 2.0F);
 				GL11.glTranslated(0.0D, -0.72D, 0.0D);
 				
-				if(Sync.proxy.tickHandlerClient.hasStencilBits && prog < 1.0F)
+				final int stencilBit = MinecraftForgeClient.reserveStencilBit();
+				
+				if(stencilBit >= 0 && prog < 1.0F)
 				{
 					
 					GL11.glDepthMask(false);
@@ -589,10 +592,11 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glColorMask(false, false, false, false);
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
-					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-					GL11.glStencilMask(0xFF);
+					final int stencilMask = 1 << stencilBit;
+					GL11.glStencilMask(stencilMask);
 					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
+					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 					
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	
@@ -603,7 +607,7 @@ public class ModelShellConstructor extends ModelBase
 					modelBiped.bipedRightLeg.render(f5);
 					modelBiped.bipedLeftLeg.render(f5);
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					
@@ -616,7 +620,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glPopMatrix();
 					
 					GL11.glStencilMask(0x00);
-					GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 	
 					GL11.glColorMask(true, true, true, true);
 	
@@ -637,9 +641,9 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glColorMask(false, false, false, false);
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-					GL11.glStencilMask(0xFF);
+					GL11.glStencilMask(stencilMask);
 					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 					
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -651,7 +655,7 @@ public class ModelShellConstructor extends ModelBase
 					modelBiped.bipedRightLeg.render(f5);
 					modelBiped.bipedLeftLeg.render(f5);
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 					
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					
@@ -664,7 +668,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glPopMatrix();
 					
 					GL11.glStencilMask(0x00);
-					GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 	
 					GL11.glColorMask(true, true, true, true);
 	
@@ -684,7 +688,9 @@ public class ModelShellConstructor extends ModelBase
 					modelBiped.bipedRightLeg.render(f5);
 					modelBiped.bipedLeftLeg.render(f5);
 	
+					GL11.glStencilMask(0);
 					GL11.glDisable(GL11.GL_STENCIL_TEST);
+					MinecraftForgeClient.releaseStencilBit(stencilBit);
 				}
 				else
 				{
