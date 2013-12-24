@@ -1,5 +1,7 @@
 package sync.common.core;
 
+import java.util.Calendar;
+
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -63,6 +65,15 @@ public class CommonProxy
 		
 		LanguageRegistry.instance().addStringLocalization("death.attack.syncFail", "%1$s synced into a dead shell");
 		LanguageRegistry.instance().addStringLocalization("death.attack.shellConstruct", "%1$s died trying to create a new shell");
+		
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(System.currentTimeMillis());
+		
+		if(calendar.get(2) + 1 == 12 && calendar.get(5) == 25 || calendar.get(2) + 1 == 1 && calendar.get(5) == 1)
+		{
+			Sync.isChristmasOrNewYear = true;
+		}
 	}
 
 	public void initTickHandlers() 

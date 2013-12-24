@@ -89,6 +89,8 @@ public class Sync
 	public static Item itemBlockPlacer;
 	public static Item itemPlaceholder;
 	
+	public static boolean isChristmasOrNewYear;
+	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
 	{

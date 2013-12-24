@@ -115,14 +115,14 @@ public class RenderShellDestruction extends Render
 							
 							imgId[j] = TextureUtil.uploadTextureImage(TextureUtil.glGenTextures(), tmp);
 							skins[j] = tmp;
-			                try
-			                {
-			                    ImageIO.write(tmp, "png", new File(Minecraft.getMinecraft().mcDataDir, "test"+j+".png"));
-			                }
-			                catch (IOException ioexception)
-			                {
-			                    ioexception.printStackTrace();
-			                }
+//			                try
+//			                {
+//			                    ImageIO.write(tmp, "png", new File(Minecraft.getMinecraft().mcDataDir, "test"+j+".png"));
+//			                }
+//			                catch (IOException ioexception)
+//			                {
+//			                    ioexception.printStackTrace();
+//			                }
 						}
 						
 						restitchedSkinsId.put(sd.txLocation, imgId);
