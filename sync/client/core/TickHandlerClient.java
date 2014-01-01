@@ -562,15 +562,19 @@ public class TickHandlerClient implements ITickHandler {
 				
 				double zLev = 0.05D;
 				
-				if(hasStencilBits)
+				final int stencilBit = MinecraftForgeClient.reserveStencilBit();
+				
+				if(stencilBit >= 0)
 				{
 					GL11.glEnable(GL11.GL_STENCIL_TEST);
 					
 					GL11.glColorMask(false, false, false, false);
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
+					final int stencilMask = 1 << stencilBit;
+					
+					GL11.glStencilMask(stencilMask);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-					GL11.glStencilMask(0xFF);
 					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 					
 					rad = (mag > magAcceptance ? 0.85F : 0.82F) * prog * (257F / (float)reso.getScaledHeight());
@@ -586,7 +590,7 @@ public class TickHandlerClient implements ITickHandler {
 					}
 					GL11.glEnd();
 					
-					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 					
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					
@@ -602,7 +606,7 @@ public class TickHandlerClient implements ITickHandler {
 					GL11.glEnd();
 					
 					GL11.glStencilMask(0x00);
-					GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
+					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 					
 					GL11.glColorMask(true, true, true, true);
 				}
@@ -620,10 +624,12 @@ public class TickHandlerClient implements ITickHandler {
 				}
 				GL11.glEnd();
 				
-				if(hasStencilBits)
+				if(stencilBit >= 0)
 				{
 					GL11.glDisable(GL11.GL_STENCIL_TEST);
 				}
+				
+				MinecraftForgeClient.releaseStencilBit(stencilBit);
 				
 				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 				
@@ -1025,6 +1031,4 @@ public class TickHandlerClient implements ITickHandler {
 	public boolean forceRender;
 	
 	public ResourceLocation txHome = new ResourceLocation("sync", "textures/icon/home.png");
-	
-	public static boolean hasStencilBits = MinecraftForgeClient.getStencilBits() > 0;
 }
