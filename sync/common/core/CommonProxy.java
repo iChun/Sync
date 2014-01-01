@@ -57,16 +57,6 @@ public class CommonProxy
 		
 		LanguageRegistry.instance().addName(Sync.blockDualVertical, "Shell Constructor");
 		
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 0), "Shell Constructor");
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 1), "Shell Storage");
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 2), "Treadmill");
-		
-		LanguageRegistry.instance().addName(Sync.itemPlaceholder, "Sync Core");
-		
-		LanguageRegistry.instance().addStringLocalization("death.attack.syncFail", "%1$s synced into a dead shell");
-		LanguageRegistry.instance().addStringLocalization("death.attack.shellConstruct", "%1$s died trying to create a new shell");
-		
-		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());
 		
