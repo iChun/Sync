@@ -1,0 +1,7 @@
+sync.breakShellUnit=%1$s ødelagde en skal af %2$s
+item.Sync_ShellConstructor.name=Skal Konstruktor
+item.Sync_ShellStorage.name=Skal Opbevaring
+item.Sync_Treadmill.name=Treadmill
+item.Sync_SyncCore.name=Sync Kerne
+death.attack.syncFail=%1$s synkroniserede sig til en død skal
+death.attack.shellConstruct=%1$s døde i forsøget på at lave en ny skal
