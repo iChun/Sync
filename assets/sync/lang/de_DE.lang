@@ -1,0 +1,7 @@
+sync.breakShellUnit=%1$s zerstörte eine Schale von %2$s
+item.Sync_ShellConstructor.name=Schalen-Erschaffer
+item.Sync_ShellStorage.name=Schalen-Lager
+item.Sync_Treadmill.name=Laufband
+item.Sync_SyncCore.name=Sync-Kern
+death.attack.syncFail=%1$s ist nun in einer neuen Schale.
+death.attack.shellConstruct=%1$s starb während er versuchte eine neue Schale zu erschaffen.
