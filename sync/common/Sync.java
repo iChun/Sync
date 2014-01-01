@@ -27,12 +27,14 @@ import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
@@ -91,6 +93,8 @@ public class Sync
 	
 	public static boolean isChristmasOrNewYear;
 	
+	public static boolean hasMorphMod;
+	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
 	{
@@ -135,14 +139,21 @@ public class Sync
 		proxy.initTickHandlers();
 		
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
+		
+		hasMorphMod = Loader.isModLoaded("Morph");
+	}
+	
+	@EventHandler
+	public void serverAboutToStart(FMLServerAboutToStartEvent event)
+	{
+		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
+		SessionState.allowCrossDimensional = allowCrossDimensional;
+		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 	}
 	
 	@EventHandler
 	public void serverStarted(FMLServerStartedEvent event)
 	{
-		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
-		SessionState.allowCrossDimensional = allowCrossDimensional;
-		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 		SessionState.hardMode = hardcoreMode == 1 || hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled();
 		
 		mapHardmodeRecipe();
