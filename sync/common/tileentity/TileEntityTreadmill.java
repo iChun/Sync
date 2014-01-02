@@ -138,26 +138,78 @@ public class TileEntityTreadmill extends TileEntity
 	
 			if(latchedEnt != null)
 			{
+				boolean remove = false;
 				if(latchedEnt instanceof EntityWolf && ((EntityWolf)latchedEnt).isSitting())
 				{
 					EntityWolf wolf = (EntityWolf)latchedEnt;
-					latchedEnt = null;
 					timeRunning = 0;
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+					
+					remove = true;
 				}
-				boolean remove = false;
 				for(int i = 0 ; i < list.size(); i++)
 				{
 					Entity ent = (Entity)list.get(i);
 					
 					if(ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer))
 					{
+						double velo = 0.9D;
+						switch(face)
+						{
+							case 0:
+							{
+								ent.motionZ = velo;
+								break;
+							}
+							case 1:
+							{
+								ent.motionX = -velo;
+								break;
+							}
+							case 2:
+							{
+								ent.motionZ = -velo;
+								break;
+							}
+							case 3:
+							{
+								ent.motionX = velo;
+								break;
+							}
+						}
+
 						remove = true;
-						break;
 					}
 				}
 				if(latchedEnt != null && (!list.contains(latchedEnt) || remove || latchedHealth > latchedEnt.getHealth()))
 				{
+					if(latchedHealth <= latchedEnt.getHealth())
+					{
+						double velo = 1.3D;
+						switch(face)
+						{
+							case 0:
+							{
+								latchedEnt.motionZ = velo;
+								break;
+							}
+							case 1:
+							{
+								latchedEnt.motionX = -velo;
+								break;
+							}
+							case 2:
+							{
+								latchedEnt.motionZ = -velo;
+								break;
+							}
+							case 3:
+							{
+								latchedEnt.motionX = velo;
+								break;
+							}
+						}
+					}
 					latchedEnt = null;
 					timeRunning = 0;
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
