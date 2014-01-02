@@ -18,7 +18,6 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import sync.api.SyncStartEvent;
@@ -326,8 +325,6 @@ public class MapPacketHandler
 						Sync.proxy.tickHandlerClient.radialPlayerPitch = mc.renderViewEntity.rotationPitch;
 						
 						Sync.proxy.tickHandlerClient.radialDeltaX = Sync.proxy.tickHandlerClient.radialDeltaY = 0;
-						
-						GuiIngameForge.renderCrosshairs = false;
 					}
 					
 					break;
