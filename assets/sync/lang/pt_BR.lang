@@ -1,0 +1,7 @@
+sync.breakShellUnit=%1$s destruiu uma copia de %2$s
+item.Sync_ShellConstructor.name=Construtor de copias
+item.Sync_ShellStorage.name=Armazenador de copias
+item.Sync_Treadmill.name=Esteira
+item.Sync_SyncCore.name=Nucleo de sincronizacao
+death.attack.syncFail=%1$s se sincronizou em uma copia morta
+death.attack.shellConstruct=%1$s morreu tentando criar uma nova copia
