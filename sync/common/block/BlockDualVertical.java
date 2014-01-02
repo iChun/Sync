@@ -200,7 +200,11 @@ public class BlockDualVertical extends BlockContainer
 				{
 					if(is.getItem() instanceof ItemNameTag)
 					{
-						if(!is.hasDisplayName())
+						if(!is.hasDisplayName() && dv.name.equalsIgnoreCase("") || is.hasDisplayName() && dv.name.equalsIgnoreCase(is.getDisplayName()))
+						{
+							return false;
+						}
+						if(!is.hasDisplayName() && !dv.name.equalsIgnoreCase(""))
 						{
 							dv.name = "";
 						}
