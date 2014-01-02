@@ -193,19 +193,11 @@ public class TickHandlerClient implements ITickHandler {
 				
 				radialShow = false;
 	        	lockedStorage = null;
-	        	if(!GuiIngameForge.renderCrosshairs)
-	        	{
-	        		GuiIngameForge.renderCrosshairs = renderCrosshair;
-	        	}
 			}
 			if(Mouse.isButtonDown(1) && !rmbDown)
 			{
 				radialShow = false;
 	        	lockedStorage = null;
-	        	if(!GuiIngameForge.renderCrosshairs)
-	        	{
-	        		GuiIngameForge.renderCrosshairs = renderCrosshair;
-	        	}
 			}
 			lmbDown = Mouse.isButtonDown(0);
 			rmbDown = Mouse.isButtonDown(1);
@@ -214,10 +206,6 @@ public class TickHandlerClient implements ITickHandler {
 		{
 			radialShow = false;
         	lockedStorage = null;
-        	if(!GuiIngameForge.renderCrosshairs)
-        	{
-        		GuiIngameForge.renderCrosshairs = renderCrosshair;
-        	}
 		}
 		
 		if(clock != world.getWorldTime() || !world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
@@ -392,10 +380,6 @@ public class TickHandlerClient implements ITickHandler {
 		        {
 		        	radialShow = false;
 		        	lockedStorage = null;
-		        	if(!GuiIngameForge.renderCrosshairs)
-		        	{
-		        		GuiIngameForge.renderCrosshairs = renderCrosshair;
-		        	}
 		        }
 			}
 		}
@@ -998,7 +982,6 @@ public class TickHandlerClient implements ITickHandler {
 	public double radialDeltaX;
 	public double radialDeltaY;
 	public int radialTime;
-	public boolean renderCrosshair;
 	
 	public long clock;
 	

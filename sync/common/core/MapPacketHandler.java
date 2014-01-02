@@ -327,7 +327,6 @@ public class MapPacketHandler
 						
 						Sync.proxy.tickHandlerClient.radialDeltaX = Sync.proxy.tickHandlerClient.radialDeltaY = 0;
 						
-						Sync.proxy.tickHandlerClient.renderCrosshair = GuiIngameForge.renderCrosshairs;
 						GuiIngameForge.renderCrosshairs = false;
 					}
 					

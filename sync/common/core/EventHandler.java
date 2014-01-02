@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
@@ -65,6 +66,16 @@ public class EventHandler
 			{
 				event.entityPlayer.setHealth(1);
 			}
+			event.setCanceled(true);
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event)
+	{
+		if(event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow)
+		{
 			event.setCanceled(true);
 		}
 	}
