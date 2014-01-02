@@ -45,7 +45,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "Sync", name = "Sync",
-			version = Sync.version
+			version = Sync.version,
+			dependencies = "required-after:Forge@[9.11.1.945,)"
 		 		)
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
