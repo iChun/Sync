@@ -1,7 +1,7 @@
-sync.breakShellUnit=%1$s разрушил оболочку %2$s
-item.Sync_ShellConstructor.name=Конструктор Оболочки
-item.Sync_ShellStorage.name=Хранитель Оболочки
-item.Sync_Treadmill.name=Беговая Дорожка
-item.Sync_SyncCore.name=Ядро Sync
-death.attack.syncFail=%1$s синхронизируется в мёртвую оболочку
-death.attack.shellConstruct=%1$s умер, пытаясь создать новую оболочку
+sync.breakShellUnit=%1 уничтожил оболочку %2.
+item.Sync_ShellConstructor.name=Конструктор оболочек
+item.Sync_ShellStorage.name=Капсула хранения
+item.Sync_Treadmill.name=Беговая дорожка
+item.Sync_SyncCore.name=Ядро синхронизации
+death.attack.syncFail=%1 синхронизировался с мёртвой оболочкой.
+death.attack.shellConstruct=%1 умер пытаясь создать новую оболочку.
