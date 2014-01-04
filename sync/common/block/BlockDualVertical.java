@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBed;
 import net.minecraft.item.ItemInWorldManager;
+import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,7 +35,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
@@ -184,6 +184,10 @@ public class BlockDualVertical extends BlockContainer
 							DamageSource.outOfWorld.damageType = name;
 						}
 					}
+					else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode)
+					{
+						sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
+					}
 					
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
@@ -301,6 +305,23 @@ public class BlockDualVertical extends BlockContainer
 		                }
 		            }
 		        }
+		        
+				ItemStack is = player.getCurrentEquippedItem();
+
+				if(is != null && is.getItem() instanceof ItemMonsterPlacer && (is.getItemDamage() == 90 || is.getItemDamage() == 95))
+				{
+                	if(!world.isRemote)
+                	{
+						Entity entity = ItemMonsterPlacer.spawnCreature(world, is.getItemDamage(), tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1));
+						if(entity instanceof EntityPig || entity instanceof EntityWolf)
+						{
+	                		tm.latchedEnt = (EntityLiving)entity;
+							tm.latchedHealth = ((EntityLiving)entity).getHealth();
+							((EntityLiving)entity).setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
+							world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+						}
+                	}
+				}
 			}
 		}
 		return false;
