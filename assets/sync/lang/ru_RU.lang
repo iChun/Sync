@@ -1,7 +1,8 @@
-sync.breakShellUnit=%1 уничтожил оболочку %2.
+sync.breakShellUnit=%1$s уничтожил оболочку %2$s.
 item.Sync_ShellConstructor.name=Конструктор оболочек
 item.Sync_ShellStorage.name=Капсула хранения
 item.Sync_Treadmill.name=Беговая дорожка
 item.Sync_SyncCore.name=Ядро синхронизации
-death.attack.syncFail=%1 синхронизировался с мёртвой оболочкой.
-death.attack.shellConstruct=%1 умер пытаясь создать новую оболочку.
+death.attack.syncFail=%1$s синхронизировался с мёртвой оболочкой.
+death.attack.shellConstruct=%1$s умер пытаясь создать новую оболочку.
+sync.isMorphed=Вы не можете использовать синхронизацию! Вы трансформированы!
