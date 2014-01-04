@@ -12,6 +12,8 @@ import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemInWorldManager;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.MouseEvent;
@@ -155,9 +157,13 @@ public class EventHandler
 					
 					for(TileEntityDualVertical dv : dvs)
 					{
-						if(SessionState.deathMode == 1 && dv instanceof TileEntityShellConstructor)
+						if(dv instanceof TileEntityShellConstructor)
 						{
-							continue;
+							TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+							if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+							{
+								continue;
+							}
 						}
 						
 						double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
@@ -243,6 +249,45 @@ public class EventHandler
 						}
 						
 						tpPosition.resyncPlayer = 120;
+						
+						EntityPlayer dvInstance = null;
+						
+						if(tpPosition instanceof TileEntityShellStorage)
+						{
+							dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
+						}
+						else if(tpPosition instanceof TileEntityShellConstructor)
+						{
+							dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
+							((EntityPlayerMP)dvInstance).playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+						}
+						
+						if(dvInstance != null)
+						{
+							NBTTagCompound tag = new NBTTagCompound();
+							
+							if(tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory"))
+							{
+								dvInstance.readFromNBT(tpPosition.playerNBT);
+							}
+							
+							dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
+					        
+					        boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+					        
+					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+					        
+					        dvInstance.clonePlayer(player, false);
+					        dvInstance.entityId = player.entityId;
+
+					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+							
+					        dvInstance.writeToNBT(tag);
+					        
+					        tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
+					        
+					        tpPosition.playerNBT = tag;
+						}
 						
 						bytes = new ByteArrayOutputStream();
 						stream = new DataOutputStream(bytes);
