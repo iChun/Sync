@@ -319,6 +319,7 @@ public class BlockDualVertical extends BlockContainer
 							tm.latchedHealth = ((EntityLiving)entity).getHealth();
 							((EntityLiving)entity).setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
 							world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+							return true;
 						}
                 	}
 				}

@@ -8,9 +8,12 @@ import java.util.Map.Entry;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet131MapData;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -18,11 +21,13 @@ import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -268,6 +273,56 @@ public class EventHandler
 		if(ShellHandler.deathRespawns.contains(event.entityPlayer.username))
 		{
 			event.setCanceled(true);
+		}
+	}
+	
+	@ForgeSubscribe
+	public void onEntityInteract(EntityInteractEvent event)
+	{
+		if(event.target instanceof EntityPig || event.target instanceof EntityWolf)
+		{
+			TileEntity te = event.target.worldObj.getBlockTileEntity((int)Math.floor(event.target.posX), (int)Math.floor(event.target.posY), (int)Math.floor(event.target.posZ));
+			if(te instanceof TileEntityTreadmill)
+			{
+				TileEntityTreadmill tm = (TileEntityTreadmill)te;
+				
+				if(tm.back)
+				{
+					tm = tm.pair;
+				}
+				if(tm != null && tm.latchedEnt == event.target)
+				{
+					double velo = 1.3D;
+					switch(tm.face)
+					{
+						case 0:
+						{
+							tm.latchedEnt.motionZ = velo;
+							break;
+						}
+						case 1:
+						{
+							tm.latchedEnt.motionX = -velo;
+							break;
+						}
+						case 2:
+						{
+							tm.latchedEnt.motionZ = -velo;
+							break;
+						}
+						case 3:
+						{
+							tm.latchedEnt.motionX = velo;
+							break;
+						}
+					}
+					tm.latchedEnt = null;
+					tm.timeRunning = 0;
+					tm.worldObj.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+					
+					event.setCanceled(true);
+				}
+			}
 		}
 	}
 	
