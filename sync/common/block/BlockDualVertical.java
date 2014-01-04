@@ -567,13 +567,6 @@ public class BlockDualVertical extends BlockContainer
 				world.setBlockToAir(i, j, k);
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
-		{
-			if(!world.isBlockOpaqueCube(i, j - 1, k))
-			{
-				world.setBlockToAir(i, j, k);
-			}
-		}
     }
 	
 	@Override
