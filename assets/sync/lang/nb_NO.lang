@@ -5,4 +5,4 @@ item.Sync_Treadmill.name=Tredemølle
 item.Sync_SyncCore.name=Synkroniserings kjerne
 death.attack.syncFail=%1$s synkroniserte inn i et dødt skall
 death.attack.shellConstruct=%1$s døde mens han prøvde å lage et nytt skall
-sync.isMorphed= Kan ikke brukes! du er morfet.
+sync.isMorphed= Kan ikke brukes! Du er morfet.
