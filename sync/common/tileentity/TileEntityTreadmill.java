@@ -2,6 +2,7 @@ package sync.common.tileentity;
 
 import java.util.List;
 
+import cofh.api.energy.IEnergyHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
@@ -20,6 +21,7 @@ import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
@@ -261,6 +263,36 @@ public class TileEntityTreadmill extends TileEntity
 					{
 						timeRunning = 12000;
 					}
+					
+					//Still running
+					int handlerCount = 0;
+					IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
+					for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
+					{
+						if(dir == ForgeDirection.UP)
+						{
+							continue;
+						}
+						TileEntity te = worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+						if(te !=null && te instanceof IEnergyHandler)
+						{
+							IEnergyHandler energy=(IEnergyHandler) te;
+							if(energy.canInterface(dir.getOpposite()))
+							{
+								handlerCount++;
+								handlers[dir.getOpposite().ordinal()] = energy;
+							}
+						}
+					}
+					float power = powerOutput();
+					for(int i = 0; i < handlers.length; i++)
+					{
+						IEnergyHandler handler = handlers[i];
+						if(handler != null)
+						{
+							handler.receiveEnergy(ForgeDirection.getOrientation(i), (int)Math.ceil(power / (float)handlerCount), false);
+						}
+					}
 				}
 			}
 			else
@@ -329,7 +361,7 @@ public class TileEntityTreadmill extends TileEntity
 	
 	public float powerOutput()
 	{
-		if(back)
+		if(back && pair != null)
 		{
 			return pair.powerOutput();
 		}
