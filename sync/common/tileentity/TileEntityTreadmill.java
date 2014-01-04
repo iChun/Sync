@@ -294,7 +294,7 @@ public class TileEntityTreadmill extends TileEntity
 						IEnergyHandler handler = handlers[i];
 						if(handler != null)
 						{
-							handler.receiveEnergy(ForgeDirection.getOrientation(i), (int)Math.ceil(power / (float)handlerCount), false);
+							handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max((int)Math.round(power / (float)handlerCount), 1), false);
 						}
 					}
 				}
