@@ -52,11 +52,11 @@ import cpw.mods.fml.relauncher.Side;
 			serverSideRequired = false,
 			tinyPacketHandler = MapPacketHandler.class,
 			connectionHandler = ConnectionHandler.class,
-			versionBounds = "[2.0.0,2.1.0)"
+			versionBounds = "[2.1.0,2.2.0)"
 				)
 public class Sync 
 {
-	public static final String version = "2.0.0";
+	public static final String version = "2.1.0";
 	
 	@Instance("Sync")
 	public static Sync instance;
