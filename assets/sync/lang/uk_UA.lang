@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s знищив оболонку %2$s.
+item.Sync_ShellConstructor.name=Конструктор оболонок
+item.Sync_ShellStorage.name=Капсула зберігання
+item.Sync_Treadmill.name=Бігова доріжка
+item.Sync_SyncCore.name=Ядро синхронізації
+death.attack.syncFail=%1$s синхронізувався з мертвою оболонкою.
+death.attack.shellConstruct=%1$s помер намагаючись створити нову оболонку.
+sync.isMorphed=Ви не можете використовувати синхронізацію! Ви трансформовані!
