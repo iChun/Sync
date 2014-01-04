@@ -16,10 +16,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import sync.common.Sync;
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -116,6 +118,15 @@ public class TileEntityTreadmill extends TileEntity
 					latchedHealth = latchedEnt.getHealth();
 				}
 			}
+			if(latchedEnt != null && latchedEnt.isDead)
+			{
+				Entity ent = worldObj.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 7D)
+				{
+					latchedEnt = (EntityLiving)ent;
+					latchedHealth = latchedEnt.getHealth();
+				}
+			}
 			if(latchedEnt != null)
 			{
 				latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
@@ -139,13 +150,36 @@ public class TileEntityTreadmill extends TileEntity
 			if(latchedEnt != null)
 			{
 				boolean remove = false;
-				if(latchedEnt instanceof EntityWolf && ((EntityWolf)latchedEnt).isSitting())
+				if(latchedEnt instanceof EntityWolf)
 				{
 					EntityWolf wolf = (EntityWolf)latchedEnt;
-					timeRunning = 0;
-					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-					
-					remove = true;
+					if(wolf.isSitting())
+					{
+						timeRunning = 0;
+						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+						
+						remove = true;
+					}
+					if(wolf.isTamed())
+					{
+						latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+						
+						aabb = latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D);
+						list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
+
+//						if(wolf.getNavigator().noPath())
+//						{
+//							wolf.getNavigator().tryMoveToXYZ(wolf.posX + (face == 1 ? 3D : face == 3 ? -3D : 0D), wolf.posY, wolf.posZ + (face == 0 ? -3D : face == 2 ? 3D : 0D), 0.2D);
+//						}
+//						else
+//						{
+//							ObfuscationReflectionHelper.setPrivateValue(PathNavigate.class, wolf.getNavigator(), (Integer)ObfuscationReflectionHelper.getPrivateValue(PathNavigate.class, wolf.getNavigator(), "field_75520_h", "ticksAtLastPos", "h"), "field_75510_g", "totalTicks", "g");
+//						}
+					}
+					else
+					{
+						wolf.ticksExisted = 1200; //anti despawn methods
+					}
 				}
 				for(int i = 0 ; i < list.size(); i++)
 				{
@@ -218,7 +252,10 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-					latchedEnt.getNavigator().clearPathEntity();
+					if(!(latchedEnt instanceof EntityWolf))
+					{
+						latchedEnt.getNavigator().clearPathEntity();
+					}
 					timeRunning++;
 					if(timeRunning > 12000)
 					{
