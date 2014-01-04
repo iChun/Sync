@@ -314,13 +314,13 @@ public class ModelShellConstructor extends ModelBase
 			ceilingSkirtRight.render(f5);
 			ceilingSkirtFront.render(f5);
 			
-			backWall.render(f5);
-
 			backPillarRight.render(f5);
 			backPillarLeft.render(f5);
 			frontPillarRight.render(f5);
 			frontPillarLeft.render(f5);
 		}
+		
+		backWall.render(f5);
 		
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
