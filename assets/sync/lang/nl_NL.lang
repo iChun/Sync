@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s vernietigde een shell van %2$s
+item.Sync_ShellConstructor.name=Shell Maker
+item.Sync_ShellStorage.name=Shell Opslag
+item.Sync_Treadmill.name=Loopband
+item.Sync_SyncCore.name=Sync Kern
+death.attack.syncFail=%1$s synchroniseerde in een dode shell
+death.attack.shellConstruct=%1$s is omgekomen door een poging om een nieuwe shell te maken
+sync.isMorphed=Kan niet worden gebruikt! Je bent gemorphed.
