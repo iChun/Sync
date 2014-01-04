@@ -579,6 +579,13 @@ public class BlockDualVertical extends BlockContainer
 				world.setBlockToAir(i, j, k);
 			}
 		}
+		if(te instanceof TileEntityTreadmill)
+		{
+			if(world.getBlockTileEntity(i, j - 1, k) instanceof TileEntityTreadmill)
+			{
+				world.setBlockToAir(i, j, k);
+			}
+		}
     }
 	
 	@Override
