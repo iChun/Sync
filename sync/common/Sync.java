@@ -88,6 +88,8 @@ public class Sync
 	
 	public static int showAllShellInfoInGui;
 	
+	public static int ratioRF;
+	
 	public static Block blockDualVertical;
 	
 	public static Item itemBlockPlacer;
@@ -121,6 +123,8 @@ public class Sync
 		allowChunkLoading = addCommentAndReturnInt(config, "gameplay", "allowChunkLoading", "Added by request, mod is made to chunkload shells. Untested.\nCould crash your world fatally.\nDisable at own risk.\n0 = No\n1 = Yes", 1);
 		
 		hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
+
+		ratioRF = addCommentAndReturnInt(config, "gameplay", "ratioRF", "Redstone Flux : Piggawatt ratio.", 2);
 		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 		{

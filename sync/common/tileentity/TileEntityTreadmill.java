@@ -28,6 +28,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityTreadmill extends TileEntity 
+	implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;
 	
@@ -265,6 +266,7 @@ public class TileEntityTreadmill extends TileEntity
 					}
 					
 					//Still running
+					float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
 					int handlerCount = 0;
 					IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
 					for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
@@ -280,11 +282,13 @@ public class TileEntityTreadmill extends TileEntity
 							if(energy.canInterface(dir.getOpposite()))
 							{
 								handlerCount++;
-								handlers[dir.getOpposite().ordinal()] = energy;
+								if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
+								{
+									handlers[dir.getOpposite().ordinal()] = energy;
+								}
 							}
 						}
 					}
-					float power = powerOutput();
 					for(int i = 0; i < handlers.length; i++)
 					{
 						IEnergyHandler handler = handlers[i];
@@ -437,4 +441,35 @@ public class TileEntityTreadmill extends TileEntity
     {
         return Sync.blockDualVertical;
     }
+	
+    // TE methods
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
+	{
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
+	{
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from)
+	{
+		return !back;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
 }
