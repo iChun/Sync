@@ -184,15 +184,20 @@ public class BlockDualVertical extends BlockContainer
 							DamageSource.outOfWorld.damageType = name;
 						}
 					}
-					else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode)
-					{
-						sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
-					}
 					
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					return true;
 				}
+				else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
+				{
+					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
+					
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					return true;
+				}
+
 			}
 			else if(dv instanceof TileEntityShellStorage)
 			{

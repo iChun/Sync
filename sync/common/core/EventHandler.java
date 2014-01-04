@@ -23,10 +23,12 @@ import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -42,16 +44,23 @@ public class EventHandler
 	@ForgeSubscribe
 	public void onMouseEvent(MouseEvent event)
 	{
-		if(Sync.proxy.tickHandlerClient.radialShow && !Sync.proxy.tickHandlerClient.shells.isEmpty())
+		if(Sync.proxy.tickHandlerClient.radialShow)
 		{
-			Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
-			Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
-			
-			double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
-			if(mag > 1.0D)
+			if(!Sync.proxy.tickHandlerClient.shells.isEmpty())
 			{
-				Sync.proxy.tickHandlerClient.radialDeltaX /= mag;
-				Sync.proxy.tickHandlerClient.radialDeltaY /= mag;
+				Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
+				Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
+				
+				double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
+				if(mag > 1.0D)
+				{
+					Sync.proxy.tickHandlerClient.radialDeltaX /= mag;
+					Sync.proxy.tickHandlerClient.radialDeltaY /= mag;
+				}
+			}
+			if(event.button == 0 || event.button == 1)
+			{
+				event.setCanceled(true);
 			}
 		}
 	}
@@ -325,5 +334,4 @@ public class EventHandler
 			}
 		}
 	}
-	
 }
