@@ -148,6 +148,11 @@ public class BlockDualVertical extends BlockContainer
 				
 				if(sc.playerName.equalsIgnoreCase(""))
 				{
+					if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
+					{
+						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+						return true;
+					}
 					sc.playerName = player.username;
 
 					if(!world.isRemote)
@@ -419,21 +424,28 @@ public class BlockDualVertical extends BlockContainer
 				        {
 				        	EntityPlayer player = (EntityPlayer)ent;
 				        	
-				    		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-				    		DataOutputStream stream = new DataOutputStream(bytes);
-				    		try
-				    		{
-				    			stream.writeInt(i);
-				    			stream.writeInt(j);
-				    			stream.writeInt(k);
-				    			
-				    			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray()), (Player)player);
-				    		}
-				    		catch(IOException e)
-				    		{
-				    		}
-				    		
-				    		player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
+							if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
+							{
+								player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+							}
+							else
+							{
+					    		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+					    		DataOutputStream stream = new DataOutputStream(bytes);
+					    		try
+					    		{
+					    			stream.writeInt(i);
+					    			stream.writeInt(j);
+					    			stream.writeInt(k);
+					    			
+					    			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray()), (Player)player);
+					    		}
+					    		catch(IOException e)
+					    		{
+					    		}
+					    		
+					    		player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
+							}
 				    		
 				    		ss.playerName = player.username;
 				    		

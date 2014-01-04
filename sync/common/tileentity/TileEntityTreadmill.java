@@ -379,8 +379,16 @@ public class TileEntityTreadmill extends TileEntity
 			}
 			else if(latchedEnt instanceof EntityWolf)
 			{
-				power = 3F;
-				power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				if(((EntityWolf)latchedEnt).isTamed())
+				{
+					power = 4F;
+					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				}
+				else
+				{
+					power = 3F;
+					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				}
 			}
 		}
 		return power;

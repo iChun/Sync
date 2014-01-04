@@ -193,9 +193,13 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
-		int powReq = (int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress);
+		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
 		int pow = powReq;
-		if(powReq > maxReceive)
+		if(powReq > 1000)
+		{
+			pow = 1000;
+		}
+		else if(powReq > maxReceive)
 		{
 			pow = maxReceive;
 		}
