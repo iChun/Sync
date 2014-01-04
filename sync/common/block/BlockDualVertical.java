@@ -626,6 +626,7 @@ public class BlockDualVertical extends BlockContainer
 				
 				if(!world.isRemote)
 				{
+					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
 					{
 						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
@@ -726,8 +727,6 @@ public class BlockDualVertical extends BlockContainer
 			            entityitem.delayBeforeCanPickup = 10;
 			            world.spawnEntityInWorld(entityitem);
 					}
-					
-					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 				}
 			}
 		}
