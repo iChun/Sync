@@ -2,6 +2,8 @@ package sync.client.render;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.Entity;
@@ -172,6 +174,39 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			{
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorageAlpha);
 				modelStorage.render(prog, 0.0625F, true);
+				
+				if(!ss.name.equalsIgnoreCase(""))
+				{
+		            FontRenderer fontrenderer = this.getFontRenderer();
+		            float ff = 1.6F;
+		            float f1 = 0.016666668F * ff;
+		            GL11.glPushMatrix();
+		            GL11.glTranslatef(0.0F, -2.475F, -1.01F);
+		            GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+		            GL11.glScalef(f1, f1, f1);
+		            GL11.glDisable(GL11.GL_LIGHTING);
+		            GL11.glDepthMask(false);
+		            GL11.glEnable(GL11.GL_BLEND);
+		            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		            Tessellator tessellator = Tessellator.instance;
+		            byte b0 = 0;
+		            GL11.glDisable(GL11.GL_TEXTURE_2D);
+		            tessellator.startDrawingQuads();
+		            int j = fontrenderer.getStringWidth(ss.name) / 2;
+		            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
+		            tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
+		            tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
+		            tessellator.addVertex((double)(j + 1), (double)(8 + b0), 0.0D);
+		            tessellator.addVertex((double)(j + 1), (double)(-1 + b0), 0.0D);
+		            tessellator.draw();
+		            GL11.glEnable(GL11.GL_TEXTURE_2D);
+		            GL11.glDepthMask(true);
+		            fontrenderer.drawString(ss.name, -fontrenderer.getStringWidth(ss.name) / 2, b0, -1);
+		            GL11.glEnable(GL11.GL_LIGHTING);
+		            GL11.glDisable(GL11.GL_BLEND);
+		            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		            GL11.glPopMatrix();
+				}
 			}
 		}
 		
