@@ -46,7 +46,7 @@ import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version,
-			dependencies = "required-after:Forge@[9.11.1.945,)"
+			dependencies = "required-after:Forge@[9.11.1.945,);after:ThermalExpansion"
 		 		)
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
