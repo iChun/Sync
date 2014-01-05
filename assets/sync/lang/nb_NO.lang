@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s ødelagte et av skallene til %2$s
+item.Sync_ShellConstructor.name=Skall Maskin
+item.Sync_ShellStorage.name=Skal Lager
+item.Sync_Treadmill.name=Tredemølle
+item.Sync_SyncCore.name=Synkroniserings kjerne
+death.attack.syncFail=%1$s synkroniserte inn i et dødt skall
+death.attack.shellConstruct=%1$s døde mens han prøvde å lage et nytt skall
+sync.isMorphed= Kan ikke brukes! Du er morfet.
