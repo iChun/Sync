@@ -2,7 +2,6 @@ package sync.common.tileentity;
 
 import java.util.List;
 
-import cofh.api.energy.IEnergyHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
@@ -17,13 +16,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.Packet132TileEntityData;
-import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -276,7 +274,7 @@ public class TileEntityTreadmill extends TileEntity
 							continue;
 						}
 						TileEntity te = worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
-						if(te !=null && te instanceof IEnergyHandler)
+						if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
 						{
 							IEnergyHandler energy=(IEnergyHandler) te;
 							if(energy.canInterface(dir.getOpposite()))

@@ -54,6 +54,10 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(isPowered())
 		{
 			float power = powerAmount();
+			if(playerName.equalsIgnoreCase("ohaiiChun"))
+			{
+				System.out.println(power);
+			}
 			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
@@ -194,19 +198,22 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
-		int pow = powReq;
-		if(powReq > 1000)
+		if(powReq == 0)
+		{
+			return 0;
+		}
+		int pow = maxReceive;
+		if(pow > 1000)
 		{
 			pow = 1000;
 		}
-		else if(powReq > maxReceive)
+		if(pow > powReq)
 		{
-			pow = maxReceive;
+			pow = powReq;
 		}
 		if(!simulate)
 		{
 			powReceived += (float)pow * (float)Sync.ratioRF;
-			constructionProgress += (float)pow * (float)Sync.ratioRF;
 		}
 		return pow;
 	}
