@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s 破壞了一個 %2$s 的殼！
+item.Sync_ShellConstructor.name=殼製造器
+item.Sync_ShellStorage.name=殼保存艙
+item.Sync_Treadmill.name=跑步發電機
+item.Sync_SyncCore.name=同步核心
+death.attack.syncFail=%1$s 同步到了已死亡的殼！
+death.attack.shellConstruct=%1$s 寧死都要做一個殼！
+sync.isMorphed=變形狀態無法使用！
