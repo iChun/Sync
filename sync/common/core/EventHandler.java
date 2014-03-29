@@ -16,12 +16,15 @@ import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -301,14 +304,6 @@ public class EventHandler
 						{
 						}
 						
-						try
-						{
-							ObfuscationReflectionHelper.setPrivateValue(Entity.class, player, true, "field_83001_bt", "i", "invulnerable");
-						}
-						catch(Exception e)
-						{
-							
-						}
 						player.setHealth(1);
 						
 						if(!ShellHandler.deathRespawns.contains(player.username))
@@ -317,6 +312,18 @@ public class EventHandler
 						}
 					}
 				}
+			}
+		}
+	}
+	
+	@ForgeSubscribe(priority = EventPriority.HIGHEST)
+	public void onEntityAttacked(LivingAttackEvent event)
+	{
+		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
+		{
+			if(ShellHandler.deathRespawns.contains(((EntityPlayer)event.entityLiving).username))
+			{
+				event.setCanceled(true);
 			}
 		}
 	}

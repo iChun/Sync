@@ -195,22 +195,6 @@ public class TileEntityDualVertical extends TileEntity
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					}
-					
-					if(ShellHandler.deathRespawns.contains(playerName))
-					{
-						EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
-						if(player != null)
-						{
-							try
-							{
-								ObfuscationReflectionHelper.setPrivateValue(Entity.class, player, false, "field_83001_bt", "i", "invulnerable");
-							}
-							catch(Exception e)
-							{
-								
-							}
-						}
-					}
 				}
 				if(resyncPlayer == 30)
 				{
