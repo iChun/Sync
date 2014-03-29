@@ -1,7 +1,9 @@
 package sync.common.tileentity;
 
-import java.util.List;
-
+import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,10 +14,8 @@ import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
-import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class TileEntityShellConstructor extends TileEntityDualVertical 
 	implements IEnergyHandler
@@ -217,9 +217,9 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 			return 0;
 		}
 		int pow = maxReceive;
-		if(pow > 1000)
+		if(pow > 24)
 		{
-			pow = 1000;
+			pow = 24;
 		}
 		if(pow > powReq)
 		{
