@@ -1,12 +1,12 @@
 package sync.common.tileentity;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemInWorldManager;
@@ -28,12 +28,10 @@ import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
 import sync.common.shell.TeleporterShell;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 public class TileEntityDualVertical extends TileEntity 
 {
@@ -107,6 +105,7 @@ public class TileEntityDualVertical extends TileEntity
 			if(resyncPlayer > -10)
 			{
 				resyncPlayer--;
+                //Start of syncing player to this place
 				if(resyncPlayer == 60)
 				{
 					if(this.getClass() == TileEntityShellStorage.class)
@@ -124,6 +123,7 @@ public class TileEntityDualVertical extends TileEntity
 							player.setHealth(1);
 						}
 						int dim = player.dimension;
+                        //If player is in different dimension, bring them here
 						if(player.dimension != worldObj.provider.dimensionId)
 						{
 							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
@@ -163,7 +163,8 @@ public class TileEntityDualVertical extends TileEntity
 							stream1.writeBoolean(true);
 							
 							stream1.writeBoolean(false);
-							
+
+                            //Zoom back in to this location
 							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
 						}
 						catch(IOException e)
@@ -171,6 +172,7 @@ public class TileEntityDualVertical extends TileEntity
 						}
 					}
 				}
+                //Beginning of kicking the player out
 				if(resyncPlayer == 40)
 				{
 					vacating = true;
@@ -196,43 +198,41 @@ public class TileEntityDualVertical extends TileEntity
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					}
 				}
+                //This is where we begin to sync the data
 				if(resyncPlayer == 30)
 				{
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					
 					if(player != null && player.isEntityAlive())
 					{
-						player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+						player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F); //Is this needed? We set it earlier
 						
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
-						{
-							if(!playerNBT.hasKey("Inventory"))
-							{
-								NBTTagCompound tag = new NBTTagCompound();
-								
-						        EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-						        dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-						        
-						        dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-						        
-						        boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
-						        
-						        worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
-						        
-						        dummy.clonePlayer(player, false);
-						        dummy.dimension = player.dimension;
-						        dummy.entityId = player.entityId;
+                        {
+                            NBTTagCompound tag = new NBTTagCompound();
 
-						        worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-								
-						        dummy.writeToNBT(tag);
-						        
-						        tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-								
-								playerNBT = tag;
-							}
+                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+                            dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+
+                            dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+
+                            boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+
+                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+
+                            dummy.clonePlayer(player, false);
+                            dummy.dimension = player.dimension;
+                            dummy.entityId = player.entityId;
+
+                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+
+                            dummy.writeToNBT(tag);
+
+                            tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+
+                            playerNBT = tag;
 							Sync.writeNBTTagCompound(playerNBT, stream1);
 							
 							player.readFromNBT(playerNBT);
