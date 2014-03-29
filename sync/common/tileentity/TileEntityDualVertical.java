@@ -211,28 +211,36 @@ public class TileEntityDualVertical extends TileEntity
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
                         {
-                            NBTTagCompound tag = new NBTTagCompound();
+                            //Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
+                            if (!playerNBT.hasKey("Inventory")) {
+                                NBTTagCompound tag = new NBTTagCompound();
+                                boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
 
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-                            dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+                                EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+                                dummy.playerNetServerHandler = player.playerNetServerHandler;
+                                dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+                                worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-                            dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+                                dummy.clonePlayer(player, false);
+                                dummy.dimension = player.dimension;
+                                dummy.entityId = player.entityId;
 
-                            boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+                                worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+                                dummy.writeToNBT(tag);
+                                tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+                                playerNBT = tag;
+                            }
+                            //Sync Forge persistent data as it's supposed to carry over on death
+                            NBTTagCompound persistentData = player.getEntityData();
+                            if (persistentData != null) {
+                                NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
+                                forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+                                playerNBT.setCompoundTag("ForgeData", forgeData);
+                            }
+                            //Also sync ender chest.
+                            playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
-                            dummy.clonePlayer(player, false);
-                            dummy.dimension = player.dimension;
-                            dummy.entityId = player.entityId;
-
-                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-
-                            dummy.writeToNBT(tag);
-
-                            tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-
-                            playerNBT = tag;
 							Sync.writeNBTTagCompound(playerNBT, stream1);
 							
 							player.readFromNBT(playerNBT);
