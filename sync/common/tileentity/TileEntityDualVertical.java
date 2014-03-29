@@ -186,19 +186,15 @@ public class TileEntityDualVertical extends TileEntity
 						ss.occupied = true;
 						
 						ss.occupationTime = TileEntityShellStorage.animationTime;
-						
-						worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-						worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 					}
 					else if(this.getClass() == TileEntityShellConstructor.class)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
 						
 						sc.doorOpen = true;
-						
-						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
-						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					}
+                    worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+                    worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
 				}
                 //This is where we begin to sync the data
 				if(resyncPlayer == 30)
@@ -317,7 +313,7 @@ public class TileEntityDualVertical extends TileEntity
 	
 	public float getBuildProgress()
 	{
-		return SessionState.shellConstructionPowerRequirement;
+		return this.playerName.equals("") ? 0 : SessionState.shellConstructionPowerRequirement; //Using this for comparator output calculation
 	}
 	
 	@Override

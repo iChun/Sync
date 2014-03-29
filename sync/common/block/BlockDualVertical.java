@@ -767,4 +767,17 @@ public class BlockDualVertical extends BlockContainer
     {
         return new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(x, y, z));
     }
+
+    public boolean hasComparatorInputOverride()
+    {
+        return true;
+    }
+
+    public int getComparatorInputOverride(World par1World, int par2, int par3, int par4, int par5) {
+        if (par1World.getBlockTileEntity(par2, par3, par4) instanceof TileEntityDualVertical) {
+            TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) par1World.getBlockTileEntity(par2, par3, par4);
+            return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (SessionState.shellConstructionPowerRequirement / 15));
+        }
+        else return 0;
+    }
 }

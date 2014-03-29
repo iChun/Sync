@@ -2,16 +2,13 @@ package sync.common.tileentity;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import sync.common.core.ChunkLoadHandler;
-import sync.common.core.SessionState;
-import sync.common.shell.ShellHandler;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import sync.common.core.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 
 public class TileEntityShellStorage extends TileEntityDualVertical 
 {
@@ -51,6 +48,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				{
 					playerInstance.readFromNBT(playerNBT);
 				}
+                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 		if(top && pair != null)
@@ -82,6 +80,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					playerName = "";
 					
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                    worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 		        }
 			}
 			else
@@ -90,6 +89,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				playerName = "";
 				
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 		if(syncing && occupationTime > 0)
@@ -108,12 +108,14 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					if(!worldObj.isRemote && !top )
 					{
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                        worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 						ChunkLoadHandler.removeShellAsChunkloader(this);
 					}
 				}
 				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ChunkLoadHandler.shellTickets.containsKey(this))
 				{
 					ChunkLoadHandler.addShellAsChunkloader(this);
+                    worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 				}
 			}
 		}
@@ -122,10 +124,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			if(!isPowered() && ChunkLoadHandler.shellTickets.containsKey(this))
 			{
 				ChunkLoadHandler.removeShellAsChunkloader(this);
+                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
 			{
 				ChunkLoadHandler.addShellAsChunkloader(this);
+                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 	}
@@ -150,7 +154,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
     {
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
-		tag.setBoolean("syncing", canSavePlayer > 0 ? false : syncing);
+		tag.setBoolean("syncing", canSavePlayer <= 0 && syncing);
 		
 		tag.setInteger("occupationTime", occupationTime);
     }

@@ -83,6 +83,9 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 			{
 				spawnParticles();
 			}
+
+            //Notifies neighbours of block update, used for comparator
+            if (worldObj.getWorldTime() % 40L == 0) worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 		}
 		if(!top)
 		{
