@@ -39,7 +39,6 @@ public class ConnectionHandler
 	{
 		Sync.proxy.tickHandlerClient.radialShow = false;
 		Sync.proxy.tickHandlerClient.zoom = false;
-		Sync.proxy.tickHandlerClient.renderCrosshair = true;
 		Sync.proxy.tickHandlerClient.lockTime = 0;
 		Sync.proxy.tickHandlerClient.zoomTimer = -10;
 		Sync.proxy.tickHandlerClient.zoomTimeout = 0;

@@ -128,14 +128,23 @@ public class RenderBlockPlacerItem implements IItemRenderer
 		            {
 			            Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererDualVertical.txShellConstructor);
 			            
-			            modelConstructor.render(1.0F, 0.0625F);
+			            modelConstructor.render(1.0F, 0.0625F, false);
+
+			            Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererDualVertical.txShellConstructorAlpha);
+			            
+			            modelConstructor.render(1.0F, 0.0625F, true);
 			            break;
 		            }
 		            case 1:
 		            {
 			            Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererDualVertical.txShellStorage);
 			            
-			            modelStorage.render(1.0F, 0.0625F);
+			            modelStorage.render(1.0F, 0.0625F, false);
+			            
+			            Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererDualVertical.txShellStorageAlpha);
+			            
+			            modelStorage.render(1.0F, 0.0625F, true);
+			            
 			            break;
 		            }
 		            case 2:

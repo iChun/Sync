@@ -7,18 +7,23 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.ForgeDirection;
+import sync.common.Sync;
+import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
-import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
+import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityShellConstructor extends TileEntityDualVertical 
+	implements IEnergyHandler
 {
 	public float constructionProgress;
 	
 	public int doorTime;
+	public int powReceived;
 	
 	public boolean doorOpen;
 	
@@ -33,6 +38,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		doorTime = 0;
 		
 		doorOpen = false;
+		powReceived = 0;
 	}
 	
 	@Override
@@ -48,6 +54,10 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(isPowered())
 		{
 			float power = powerAmount();
+			if(playerName.equalsIgnoreCase("ohaiiChun"))
+			{
+				System.out.println(power);
+			}
 			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
@@ -102,6 +112,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				ChunkLoadHandler.addShellAsChunkloader(this);
 			}
 		}
+		powReceived = 0;
 	}
 	
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
@@ -142,7 +153,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				}
 			}
 		}
-		return power;
+		return power + powReceived;
 	}
 
 	@Override
@@ -181,5 +192,54 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		
 		resync = true;
     }
+	
+    // TE methods
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
+	{
+		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
+		if(powReq == 0)
+		{
+			return 0;
+		}
+		int pow = maxReceive;
+		if(pow > 1000)
+		{
+			pow = 1000;
+		}
+		if(pow > powReq)
+		{
+			pow = powReq;
+		}
+		if(!simulate)
+		{
+			powReceived += (float)pow * (float)Sync.ratioRF;
+		}
+		return pow;
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
+	{
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from)
+	{
+		return !top;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
 	
 }

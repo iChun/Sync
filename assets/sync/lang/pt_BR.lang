@@ -1,0 +1,7 @@
+sync.breakShellUnit=%1$s destruiu uma Shell de %2$s
+item.Sync_ShellConstructor.name=Construtor de Shell
+item.Sync_ShellStorage.name=Armanezamento de Shell
+item.Sync_Treadmill.name=Esteira
+item.Sync_SyncCore.name=Núcleo do Sync
+death.attack.syncFail=%1$s sincronizou para uma Shell morta
+death.attack.shellConstruct=%1$s morreu tentando criar uma Shell

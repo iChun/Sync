@@ -12,7 +12,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLeashKnot;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityPig;
@@ -22,24 +21,27 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBed;
 import net.minecraft.item.ItemInWorldManager;
+import net.minecraft.item.ItemMonsterPlacer;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatMessageComponent;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
+import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
-import sync.common.item.ChunkLoadHandler;
+import sync.common.network.FakeNetServerHandler;
+import sync.common.network.FakeNetworkManager;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -54,6 +56,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class BlockDualVertical extends BlockContainer 
 {
 
+	public static int renderPass;
+	
 	public BlockDualVertical(int par1)
 	{
 		super(par1, Material.iron);
@@ -144,6 +148,11 @@ public class BlockDualVertical extends BlockContainer
 				
 				if(sc.playerName.equalsIgnoreCase(""))
 				{
+					if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
+					{
+						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+						return true;
+					}
 					sc.playerName = player.username;
 
 					if(!world.isRemote)
@@ -185,6 +194,15 @@ public class BlockDualVertical extends BlockContainer
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					return true;
 				}
+				else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
+				{
+					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
+					
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					return true;
+				}
+
 			}
 			else if(dv instanceof TileEntityShellStorage)
 			{
@@ -196,7 +214,11 @@ public class BlockDualVertical extends BlockContainer
 				{
 					if(is.getItem() instanceof ItemNameTag)
 					{
-						if(!is.hasDisplayName())
+						if(!is.hasDisplayName() && dv.name.equalsIgnoreCase("") || is.hasDisplayName() && dv.name.equalsIgnoreCase(is.getDisplayName()))
+						{
+							return false;
+						}
+						if(!is.hasDisplayName() && !dv.name.equalsIgnoreCase(""))
 						{
 							dv.name = "";
 						}
@@ -293,6 +315,24 @@ public class BlockDualVertical extends BlockContainer
 		                }
 		            }
 		        }
+		        
+				ItemStack is = player.getCurrentEquippedItem();
+
+				if(is != null && is.getItem() instanceof ItemMonsterPlacer && (is.getItemDamage() == 90 || is.getItemDamage() == 95))
+				{
+                	if(!world.isRemote)
+                	{
+						Entity entity = ItemMonsterPlacer.spawnCreature(world, is.getItemDamage(), tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1));
+						if(entity instanceof EntityPig || entity instanceof EntityWolf)
+						{
+	                		tm.latchedEnt = (EntityLiving)entity;
+							tm.latchedHealth = ((EntityLiving)entity).getHealth();
+							((EntityLiving)entity).setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
+							world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+							return true;
+						}
+                	}
+				}
 			}
 		}
 		return false;
@@ -384,21 +424,28 @@ public class BlockDualVertical extends BlockContainer
 				        {
 				        	EntityPlayer player = (EntityPlayer)ent;
 				        	
-				    		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-				    		DataOutputStream stream = new DataOutputStream(bytes);
-				    		try
-				    		{
-				    			stream.writeInt(i);
-				    			stream.writeInt(j);
-				    			stream.writeInt(k);
-				    			
-				    			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray()), (Player)player);
-				    		}
-				    		catch(IOException e)
-				    		{
-				    		}
-				    		
-				    		player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
+							if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
+							{
+								player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+							}
+							else
+							{
+					    		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+					    		DataOutputStream stream = new DataOutputStream(bytes);
+					    		try
+					    		{
+					    			stream.writeInt(i);
+					    			stream.writeInt(j);
+					    			stream.writeInt(k);
+					    			
+					    			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray()), (Player)player);
+					    		}
+					    		catch(IOException e)
+					    		{
+					    		}
+					    		
+					    		player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
+							}
 				    		
 				    		ss.playerName = player.username;
 				    		
@@ -532,13 +579,43 @@ public class BlockDualVertical extends BlockContainer
 				world.setBlockToAir(i, j, k);
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
+		if(te instanceof TileEntityTreadmill)
 		{
-			if(!world.isBlockOpaqueCube(i, j - 1, k))
+			if(world.getBlockTileEntity(i, j - 1, k) instanceof TileEntityTreadmill)
 			{
 				world.setBlockToAir(i, j, k);
 			}
 		}
+    }
+	
+	@Override
+    public boolean removeBlockByPlayer(World world, EntityPlayer player, int i, int j, int k)
+    {
+		if(!world.isRemote)
+		{
+			TileEntity te = world.getBlockTileEntity(i, j, k);
+			if(te instanceof TileEntityDualVertical)
+			{
+				TileEntityDualVertical dv = (TileEntityDualVertical)te;
+				TileEntity te1 = world.getBlockTileEntity(i, j + (dv.top ? -1 : 1), k);
+				if(te1 instanceof TileEntityDualVertical)
+				{
+					TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
+					if(dv1.pair == dv)
+					{
+						world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockDualVertical.blockID);
+						world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
+					}
+					TileEntityDualVertical bottom = dv1.top ? dv : dv1;
+					
+					if(!bottom.playerName.equalsIgnoreCase("") && !bottom.playerName.equalsIgnoreCase(player.username))
+					{
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", new Object[] { player.username, bottom.playerName }));
+					}
+				}
+			}
+		}
+        return super.removeBlockByPlayer(world, player, i, j, k);
     }
 	
 	@Override
@@ -561,6 +638,7 @@ public class BlockDualVertical extends BlockContainer
 				
 				if(!world.isRemote)
 				{
+					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
 					{
 						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
@@ -582,8 +660,9 @@ public class BlockDualVertical extends BlockContainer
                         FakePlayer fake = new FakePlayer(world, dv.playerName);
                         fake.readFromNBT(dv.playerNBT);                        
                         fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
+                        new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
 
-                        if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
+//                        if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
                         {
 	                        fake.captureDrops = true;
 	                        fake.capturedDrops.clear();
@@ -625,6 +704,7 @@ public class BlockDualVertical extends BlockContainer
 						catch(IOException e)
 						{
 						}
+						
 					}
 					else if(bottom instanceof TileEntityShellConstructor)
 					{
@@ -655,12 +735,10 @@ public class BlockDualVertical extends BlockContainer
 			            double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 			            double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 			            double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-			            EntityItem entityitem = new EntityItem(world, (double)i + d, (double)j + d1, (double)k + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(i, j, k)));
+			            EntityItem entityitem = new EntityItem(world, (double)dv.xCoord + d, (double)dv.yCoord + d1, (double)dv.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, dv instanceof TileEntityShellConstructor ? 0 : 1));
 			            entityitem.delayBeforeCanPickup = 10;
 			            world.spawnEntityInWorld(entityitem);
 					}
-					
-					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 				}
 			}
 		}
@@ -684,7 +762,7 @@ public class BlockDualVertical extends BlockContainer
 		            double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 		            double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 		            double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-		            EntityItem entityitem = new EntityItem(world, (double)i + d, (double)j + d1, (double)k + d2, new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(i, j, k)));
+		            EntityItem entityitem = new EntityItem(world, (double)tm.xCoord + d, (double)tm.yCoord + d1, (double)tm.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, 2));
 		            entityitem.delayBeforeCanPickup = 10;
 		            world.spawnEntityInWorld(entityitem);
 				}

@@ -6,22 +6,32 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemInWorldManager;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import sync.common.Sync;
-import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
+import sync.common.tileentity.TileEntityShellStorage;
+import sync.common.tileentity.TileEntityTreadmill;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -36,16 +46,23 @@ public class EventHandler
 	@ForgeSubscribe
 	public void onMouseEvent(MouseEvent event)
 	{
-		if(Sync.proxy.tickHandlerClient.radialShow && !Sync.proxy.tickHandlerClient.shells.isEmpty())
+		if(Sync.proxy.tickHandlerClient.radialShow)
 		{
-			Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
-			Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
-			
-			double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
-			if(mag > 1.0D)
+			if(!Sync.proxy.tickHandlerClient.shells.isEmpty())
 			{
-				Sync.proxy.tickHandlerClient.radialDeltaX /= mag;
-				Sync.proxy.tickHandlerClient.radialDeltaY /= mag;
+				Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
+				Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
+				
+				double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
+				if(mag > 1.0D)
+				{
+					Sync.proxy.tickHandlerClient.radialDeltaX /= mag;
+					Sync.proxy.tickHandlerClient.radialDeltaY /= mag;
+				}
+			}
+			if(event.button == 0 || event.button == 1)
+			{
+				event.setCanceled(true);
 			}
 		}
 	}
@@ -57,7 +74,7 @@ public class EventHandler
 		if(Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.username) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) < 118)
 		{
 			event.entityPlayer.lastTickPosX = event.entityPlayer.prevPosX = event.entityPlayer.posX;
-			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer.posY;
+			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer != Minecraft.getMinecraft().thePlayer && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) > 60 ? 500D : event.entityPlayer.posY;
 			event.entityPlayer.lastTickPosZ = event.entityPlayer.prevPosZ = event.entityPlayer.posZ;
 			event.entityPlayer.renderYawOffset = event.entityPlayer.rotationYaw;
 			event.entityPlayer.deathTime = 0;
@@ -65,6 +82,16 @@ public class EventHandler
 			{
 				event.entityPlayer.setHealth(1);
 			}
+			event.setCanceled(true);
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@ForgeSubscribe
+	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event)
+	{
+		if(event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow)
+		{
 			event.setCanceled(true);
 		}
 	}
@@ -130,9 +157,13 @@ public class EventHandler
 					
 					for(TileEntityDualVertical dv : dvs)
 					{
-						if(SessionState.deathMode == 1 && dv instanceof TileEntityShellConstructor)
+						if(dv instanceof TileEntityShellConstructor)
 						{
-							continue;
+							TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+							if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+							{
+								continue;
+							}
 						}
 						
 						double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
@@ -219,6 +250,45 @@ public class EventHandler
 						
 						tpPosition.resyncPlayer = 120;
 						
+						EntityPlayer dvInstance = null;
+						
+						if(tpPosition instanceof TileEntityShellStorage)
+						{
+							dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
+						}
+						else if(tpPosition instanceof TileEntityShellConstructor)
+						{
+							dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
+							((EntityPlayerMP)dvInstance).playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+						}
+						
+						if(dvInstance != null)
+						{
+							NBTTagCompound tag = new NBTTagCompound();
+							
+							if(tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory"))
+							{
+								dvInstance.readFromNBT(tpPosition.playerNBT);
+							}
+							
+							dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
+					        
+					        boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+					        
+					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+					        
+					        dvInstance.clonePlayer(player, false);
+					        dvInstance.entityId = player.entityId;
+
+					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+							
+					        dvInstance.writeToNBT(tag);
+					        
+					        tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
+					        
+					        tpPosition.playerNBT = tag;
+						}
+						
 						bytes = new ByteArrayOutputStream();
 						stream = new DataOutputStream(bytes);
 						try
@@ -260,4 +330,53 @@ public class EventHandler
 		}
 	}
 	
+	@ForgeSubscribe
+	public void onEntityInteract(EntityInteractEvent event)
+	{
+		if(event.target instanceof EntityPig || event.target instanceof EntityWolf)
+		{
+			TileEntity te = event.target.worldObj.getBlockTileEntity((int)Math.floor(event.target.posX), (int)Math.floor(event.target.posY), (int)Math.floor(event.target.posZ));
+			if(te instanceof TileEntityTreadmill)
+			{
+				TileEntityTreadmill tm = (TileEntityTreadmill)te;
+				
+				if(tm.back)
+				{
+					tm = tm.pair;
+				}
+				if(tm != null && tm.latchedEnt == event.target)
+				{
+					double velo = 1.3D;
+					switch(tm.face)
+					{
+						case 0:
+						{
+							tm.latchedEnt.motionZ = velo;
+							break;
+						}
+						case 1:
+						{
+							tm.latchedEnt.motionX = -velo;
+							break;
+						}
+						case 2:
+						{
+							tm.latchedEnt.motionZ = -velo;
+							break;
+						}
+						case 3:
+						{
+							tm.latchedEnt.motionX = velo;
+							break;
+						}
+					}
+					tm.latchedEnt = null;
+					tm.timeRunning = 0;
+					tm.worldObj.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+					
+					event.setCanceled(true);
+				}
+			}
+		}
+	}
 }

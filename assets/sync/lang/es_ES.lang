@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s ha destruido una vaina de %2$s
+item.Sync_ShellConstructor.name=Constructor de Vainas
+item.Sync_ShellStorage.name=Almacenador de Vainas
+item.Sync_Treadmill.name=Noria
+item.Sync_SyncCore.name=Núcleo de Sincronización
+death.attack.syncFail=%1$s ha sido sincronizado en una vaina de muerte
+death.attack.shellConstruct=%1$s ha muerto intentando crear una nueva vaina
+sync.isMorphed=No puedes usar! Estaís transformado.

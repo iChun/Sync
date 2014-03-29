@@ -8,9 +8,9 @@ import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 import org.lwjgl.opengl.GL11;
 
@@ -297,27 +297,31 @@ public class ModelShellConstructor extends ModelBase
 		setRotation(stencilBuffer, 0F, 0F, 0F);
 	}
 
-	public void render(float doorProg, float f5)
+	public void render(float doorProg, float f5, boolean alpha)
 	{
-		base.render(f5);
-		ceiling.render(f5);
-		
-		baseSkirtBack.render(f5);
-		baseSkirtLeft.render(f5);
-		baseSkirtRight.render(f5);
-		baseSkirtFront.render(f5);
-		
-		ceilingSkirtBack.render(f5);
-		ceilingSkirtLeft.render(f5);
-		ceilingSkirtRight.render(f5);
-		ceilingSkirtFront.render(f5);
-		
-		backPillarRight.render(f5);
-		backPillarLeft.render(f5);
-		frontPillarRight.render(f5);
-		frontPillarLeft.render(f5);
+		if(!alpha)
+		{
+			base.render(f5);
+			ceiling.render(f5);
+			
+			baseSkirtBack.render(f5);
+			baseSkirtLeft.render(f5);
+			baseSkirtRight.render(f5);
+			baseSkirtFront.render(f5);
+			
+			ceilingSkirtBack.render(f5);
+			ceilingSkirtLeft.render(f5);
+			ceilingSkirtRight.render(f5);
+			ceilingSkirtFront.render(f5);
+			
+			backPillarRight.render(f5);
+			backPillarLeft.render(f5);
+			frontPillarRight.render(f5);
+			frontPillarLeft.render(f5);
+		}
 		
 		backWall.render(f5);
+		
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 		
@@ -332,12 +336,7 @@ public class ModelShellConstructor extends ModelBase
 		doorLeft.render(f5);
 	}
 	
-	public void renderConstructionProgress(float prog, float f5)
-	{
-		this.renderConstructionProgress(prog, f5, true);
-	}
-	
-	public void renderConstructionProgress(float prog, float f5, boolean renderMachineParts)
+	public void renderConstructionProgress(float prog, float f5, boolean renderMachineParts, boolean renderPlayer)
 	{
 		float printProg = -54F;
 		
@@ -411,284 +410,305 @@ public class ModelShellConstructor extends ModelBase
 			sprayerB.render(f5);
 		}
 		
-		GL11.glPushMatrix();
-		
-		float scale = 0.9375F;
-		GL11.glScalef(scale, scale, scale);
-		
-		float brightness = 0.7F;
-		GL11.glColor4f(brightness, brightness, brightness, 1.0F);
-		
-		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		
-		bodyLayer.rotationPointX = armLayer.rotationPointX = headLayer.rotationPointX = 0.0F;
-		
-		if(prog < 0.75F)
+		if(renderPlayer)
 		{
-			ArrayList<int[]> bodyPix = new ArrayList<int[]>(bodyPixelCoords);
+			GL11.glPushMatrix();
 			
-			float progPerLayer = (0.75F * (1F/24F));
+			float scale = 0.9375F;
+			GL11.glScalef(scale, scale, scale);
 			
-			float pixProg = prog % progPerLayer;
+			float brightness = 0.7F;
+			GL11.glColor4f(brightness, brightness, brightness, 1.0F);
 			
-			int pixelCount = 0;
+			GL11.glDisable(GL11.GL_TEXTURE_2D);
 			
-			int level = 0;
-			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
+			bodyLayer.rotationPointX = armLayer.rotationPointX = headLayer.rotationPointX = 0.0F;
+			
+			if(prog < 0.75F)
 			{
-				rand.nextInt();
-				level++;
-			}
-			
-			for(float f = 0; f < pixProg; f += progPerLayer / 32F)
-			{
-				pixelCount++;
-			}
-			
-			while(bodyPix.size() > pixelCount)
-			{
-				bodyPix.remove(rand.nextInt(bodyPix.size()));
-			}
-			
-			for(int i = 0; i < bodyPix.size(); i++)
-			{
-				int[] coord = bodyPix.get(i);
-				bodyPixel.rotationPointX = coord[0];
-				bodyPixel.rotationPointZ = coord[1];
-				bodyPixel.rotationPointY = 24.0F + (-2 * level);
-				bodyPixel.render(f5);
-			}
-		}
-		else if(prog < 0.95F)
-		{
-			ArrayList<int[]> armPix = new ArrayList<int[]>(armPixelCoords);
-			
-			float progPerArmLayer = (0.20F * (1F/12F));
-			
-			float pixArmProg = (prog - 0.75F) % progPerArmLayer;
-			
-			int pixelArmCount = 0;
-			
-			for(float f = 0; f < pixArmProg; f += progPerArmLayer / 16F)
-			{
-				pixelArmCount++;
-			}
-			
-			int armLevel = 0;
-			for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
-			{
-				rand.nextInt();
-				armLevel++;
-			}
-			
-			while(armPix.size() > pixelArmCount)
-			{
-				armPix.remove(armLevel == 0 ? armPix.size() - 1 : rand.nextInt(armPix.size()));
-			}
-			
-			for(int i = 0; i < armPix.size(); i++)
-			{
-				int[] coord = armPix.get(i);
-				bodyPixel.rotationPointX = coord[0];
-				bodyPixel.rotationPointZ = coord[1];
-				bodyPixel.rotationPointY = -22.0F + (2 * armLevel);
-				bodyPixel.render(f5);
+				ArrayList<int[]> bodyPix = new ArrayList<int[]>(bodyPixelCoords);
 				
-				bodyPixel.rotationPointX = -coord[0];
-				bodyPixel.rotationPointZ = -coord[1];
-				bodyPixel.render(f5);
-			}
-			
-			rand.setSeed("headConstructor".hashCode());
-			
-			ArrayList<int[]> headPix = new ArrayList<int[]>(headPixelCoords);
-			
-			float progPerHeadLayer = (0.20F * (1F/8F));
-			
-			float pixHeadProg = (prog - 0.75F) % progPerHeadLayer;
-			
-			int pixelHeadCount = 0;
-			
-			for(float f = 0; f < pixHeadProg; f += progPerHeadLayer / 64F)
-			{
-				pixelHeadCount++;
-			}
-			
-			int headLevel = 0;
-			for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
-			{
-				headLevel++;
-			}
-			
-			while(headPix.size() > pixelHeadCount)
-			{
-				headPix.remove(headLevel == 0 ? headPix.size() - 1 : rand.nextInt(headPix.size()));
-			}
-			
-			for(int i = 0; i < headPix.size(); i++)
-			{
-				int[] coord = headPix.get(i);
-				bodyPixel.rotationPointX = coord[0];
-				bodyPixel.rotationPointZ = coord[1];
-				bodyPixel.rotationPointY = -24.0F + (-2 * headLevel);
-				bodyPixel.render(f5);
-			}
-		}
-		
-		if(prog < 0.95F)
-		{
-			for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
-			{
-				if(f > 0.75F)
+				float progPerLayer = (0.75F * (1F/24F));
+				
+				float pixProg = prog % progPerLayer;
+				
+				int pixelCount = 0;
+				
+				int level = 0;
+				for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
 				{
-					break;
-				}
-				bodyLayer.rotationPointY = 26.0F + (-2 * f / (1F/24F * 0.75F)); 
-				bodyLayer.render(f5);
-			}
-			
-			for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
-			{
-				if(f > 0.95F)
-				{
-					break;
-				}
-				headLayer.rotationPointY = 38.0F + (-2 * f / (1F/8F * 0.20F)); 
-				headLayer.render(f5);
-			}
-			
-			for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
-			{
-				if(f > 0.95F)
-				{
-					break;
-				}
-				armLayer.rotationPointX = 12F;
-				armLayer.rotationPointY = -24F + (2 * (f - 0.75F) / (1F/12F * 0.20F)); 
-				armLayer.render(f5);
-				
-				armLayer.rotationPointX = -12F;
-				armLayer.render(f5);
-			}
-			
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-		}
-		else
-		{
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			GL11.glScalef(2.0F, 2.0F, 2.0F);
-			GL11.glTranslated(0.0D, -0.72D, 0.0D);
-			
-			if(Sync.proxy.tickHandlerClient.hasStencilBits && prog < 1.0F)
-			{
-				
-				GL11.glDepthMask(false);
-				
-				GL11.glEnable(GL11.GL_STENCIL_TEST);
-				
-				GL11.glColorMask(false, false, false, false);
-				
-				GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
-				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-				GL11.glStencilMask(0xFF);
-				GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
-				
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-				modelBiped.bipedHead.render(f5);
-				modelBiped.bipedBody.render(f5);
-				modelBiped.bipedRightArm.render(f5);
-				modelBiped.bipedLeftArm.render(f5);
-				modelBiped.bipedRightLeg.render(f5);
-				modelBiped.bipedLeftLeg.render(f5);
-				
-				GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-				
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				
-				GL11.glPushMatrix();
-				
-				GL11.glScalef(0.5F, 0.5F, 0.5F);
-				stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
-				stencilBuffer.render(f5);
-				
-				GL11.glPopMatrix();
-				
-				GL11.glStencilMask(0x00);
-				GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
-
-				GL11.glColorMask(true, true, true, true);
-
-				GL11.glDepthMask(true);
-
-				
-				if(prog < 1.0F)
-				{
-					modelBiped.bipedHead.render(f5);
-					modelBiped.bipedBody.render(f5);
-					modelBiped.bipedRightArm.render(f5);
-					modelBiped.bipedLeftArm.render(f5);
-					modelBiped.bipedRightLeg.render(f5);
-					modelBiped.bipedLeftLeg.render(f5);
+					rand.nextInt();
+					level++;
 				}
 				
-				GL11.glDepthMask(false);
+				for(float f = 0; f < pixProg; f += progPerLayer / 32F)
+				{
+					pixelCount++;
+				}
 				
-				GL11.glColorMask(false, false, false, false);
+				while(bodyPix.size() > pixelCount)
+				{
+					bodyPix.remove(rand.nextInt(bodyPix.size()));
+				}
 				
-				GL11.glStencilFunc(GL11.GL_ALWAYS, 1, 0xFF);
-				GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-				GL11.glStencilMask(0xFF);
-				GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+				for(int i = 0; i < bodyPix.size(); i++)
+				{
+					int[] coord = bodyPix.get(i);
+					bodyPixel.rotationPointX = coord[0];
+					bodyPixel.rotationPointZ = coord[1];
+					bodyPixel.rotationPointY = 24.0F + (-2 * level);
+					bodyPixel.render(f5);
+				}
+			}
+			else if(prog < 0.95F)
+			{
+				ArrayList<int[]> armPix = new ArrayList<int[]>(armPixelCoords);
 				
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-				modelBiped.bipedHead.render(f5);
-				modelBiped.bipedBody.render(f5);
-				modelBiped.bipedRightArm.render(f5);
-				modelBiped.bipedLeftArm.render(f5);
-				modelBiped.bipedRightLeg.render(f5);
-				modelBiped.bipedLeftLeg.render(f5);
+				float progPerArmLayer = (0.20F * (1F/12F));
 				
-				GL11.glStencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
+				float pixArmProg = (prog - 0.75F) % progPerArmLayer;
 				
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				int pixelArmCount = 0;
 				
-				GL11.glPushMatrix();
+				for(float f = 0; f < pixArmProg; f += progPerArmLayer / 16F)
+				{
+					pixelArmCount++;
+				}
 				
-				GL11.glScalef(0.5F, 0.5F, 0.5F);
-				stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
-				stencilBuffer.render(f5);
+				int armLevel = 0;
+				for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
+				{
+					rand.nextInt();
+					armLevel++;
+				}
 				
-				GL11.glPopMatrix();
+				while(armPix.size() > pixelArmCount)
+				{
+					armPix.remove(armLevel == 0 ? armPix.size() - 1 : rand.nextInt(armPix.size()));
+				}
 				
-				GL11.glStencilMask(0x00);
-				GL11.glStencilFunc(GL11.GL_EQUAL, 1, 0xFF);
-
-				GL11.glColorMask(true, true, true, true);
-
-				GL11.glDepthMask(true);
-
+				for(int i = 0; i < armPix.size(); i++)
+				{
+					int[] coord = armPix.get(i);
+					bodyPixel.rotationPointX = coord[0];
+					bodyPixel.rotationPointZ = coord[1];
+					bodyPixel.rotationPointY = -22.0F + (2 * armLevel);
+					bodyPixel.render(f5);
+					
+					bodyPixel.rotationPointX = -coord[0];
+					bodyPixel.rotationPointZ = -coord[1];
+					bodyPixel.render(f5);
+				}
+				
+				rand.setSeed("headConstructor".hashCode());
+				
+				ArrayList<int[]> headPix = new ArrayList<int[]>(headPixelCoords);
+				
+				float progPerHeadLayer = (0.20F * (1F/8F));
+				
+				float pixHeadProg = (prog - 0.75F) % progPerHeadLayer;
+				
+				int pixelHeadCount = 0;
+				
+				for(float f = 0; f < pixHeadProg; f += progPerHeadLayer / 64F)
+				{
+					pixelHeadCount++;
+				}
+				
+				int headLevel = 0;
+				for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
+				{
+					headLevel++;
+				}
+				
+				while(headPix.size() > pixelHeadCount)
+				{
+					headPix.remove(headLevel == 0 ? headPix.size() - 1 : rand.nextInt(headPix.size()));
+				}
+				
+				for(int i = 0; i < headPix.size(); i++)
+				{
+					int[] coord = headPix.get(i);
+					bodyPixel.rotationPointX = coord[0];
+					bodyPixel.rotationPointZ = coord[1];
+					bodyPixel.rotationPointY = -24.0F + (-2 * headLevel);
+					bodyPixel.render(f5);
+				}
+			}
+			
+			if(prog < 0.95F)
+			{
+				for(float f = 1F/24F * 0.75F; f < prog; f += 1F/24F * 0.75F)
+				{
+					if(f > 0.75F)
+					{
+						break;
+					}
+					bodyLayer.rotationPointY = 26.0F + (-2 * f / (1F/24F * 0.75F)); 
+					bodyLayer.render(f5);
+				}
+				
+				for(float f = 0.75F + 1F/8F * 0.20F; f < prog; f += 1F/8F * 0.20F)
+				{
+					if(f > 0.95F)
+					{
+						break;
+					}
+					headLayer.rotationPointY = 38.0F + (-2 * f / (1F/8F * 0.20F)); 
+					headLayer.render(f5);
+				}
+				
+				for(float f = 0.75F + 1F/12F * 0.20F; f < prog; f += 1F/12F * 0.20F)
+				{
+					if(f > 0.95F)
+					{
+						break;
+					}
+					armLayer.rotationPointX = 12F;
+					armLayer.rotationPointY = -24F + (2 * (f - 0.75F) / (1F/12F * 0.20F)); 
+					armLayer.render(f5);
+					
+					armLayer.rotationPointX = -12F;
+					armLayer.render(f5);
+				}
+				
 				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
-				
-				GL11.glScalef(1.001F, 1.001F, 1.001F);
-				GL11.glTranslated(0.0D, -0.00005D, 0.0D);
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				
-				modelBiped.bipedHead.render(f5);
-				modelBiped.bipedBody.render(f5);
-				modelBiped.bipedRightArm.render(f5);
-				modelBiped.bipedLeftArm.render(f5);
-				modelBiped.bipedRightLeg.render(f5);
-				modelBiped.bipedLeftLeg.render(f5);
-
-				GL11.glDisable(GL11.GL_STENCIL_TEST);
 			}
 			else
 			{
-				if(prog < 1.0F)
+				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				GL11.glScalef(2.0F, 2.0F, 2.0F);
+				GL11.glTranslated(0.0D, -0.72D, 0.0D);
+				
+				final int stencilBit = MinecraftForgeClient.reserveStencilBit();
+				
+				if(stencilBit >= 0 && prog < 1.0F)
 				{
+					GL11.glDepthMask(false);
+					
+					GL11.glEnable(GL11.GL_STENCIL_TEST);
+					
+					GL11.glColorMask(false, false, false, false);
+					
+					final int stencilMask = 1 << stencilBit;
+					
+					GL11.glStencilMask(stencilMask);
+					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
+					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+					
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	
+					modelBiped.bipedHead.render(f5);
+					modelBiped.bipedBody.render(f5);
+					modelBiped.bipedRightArm.render(f5);
+					modelBiped.bipedLeftArm.render(f5);
+					modelBiped.bipedRightLeg.render(f5);
+					modelBiped.bipedLeftLeg.render(f5);
+					
+					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
+					
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					
+					GL11.glPushMatrix();
+					
+					GL11.glScalef(0.5F, 0.5F, 0.5F);
+					stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
+					stencilBuffer.render(f5);
+					
+					GL11.glPopMatrix();
+					
+					GL11.glStencilMask(0x00);
+					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
+	
+					GL11.glColorMask(true, true, true, true);
+	
+					GL11.glDepthMask(true);
+	
+					
+					if(prog < 1.0F)
+					{
+						modelBiped.bipedHead.render(f5);
+						modelBiped.bipedBody.render(f5);
+						modelBiped.bipedRightArm.render(f5);
+						modelBiped.bipedLeftArm.render(f5);
+						modelBiped.bipedRightLeg.render(f5);
+						modelBiped.bipedLeftLeg.render(f5);
+					}
+					
+					GL11.glDepthMask(false);
+					
+					GL11.glColorMask(false, false, false, false);
+					
+					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
+					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+					GL11.glStencilMask(stencilMask);
+					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
+					
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	
+					modelBiped.bipedHead.render(f5);
+					modelBiped.bipedBody.render(f5);
+					modelBiped.bipedRightArm.render(f5);
+					modelBiped.bipedLeftArm.render(f5);
+					modelBiped.bipedRightLeg.render(f5);
+					modelBiped.bipedLeftLeg.render(f5);
+					
+					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
+					
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					
+					GL11.glPushMatrix();
+					
+					GL11.glScalef(0.5F, 0.5F, 0.5F);
+					stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
+					stencilBuffer.render(f5);
+					
+					GL11.glPopMatrix();
+					
+					GL11.glStencilMask(0x00);
+					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
+	
+					GL11.glColorMask(true, true, true, true);
+	
+					GL11.glDepthMask(true);
+	
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
+					
+					GL11.glScalef(1.001F, 1.001F, 1.001F);
+					GL11.glTranslated(0.0D, -0.00005D, 0.0D);
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					
+					modelBiped.bipedHead.render(f5);
+					modelBiped.bipedBody.render(f5);
+					modelBiped.bipedRightArm.render(f5);
+					modelBiped.bipedLeftArm.render(f5);
+					modelBiped.bipedRightLeg.render(f5);
+					modelBiped.bipedLeftLeg.render(f5);
+	
+					GL11.glStencilMask(0);
+					GL11.glDisable(GL11.GL_STENCIL_TEST);
+				}
+				else
+				{
+					if(prog < 1.0F)
+					{
+						modelBiped.bipedHead.render(f5);
+						modelBiped.bipedBody.render(f5);
+						modelBiped.bipedRightArm.render(f5);
+						modelBiped.bipedLeftArm.render(f5);
+						modelBiped.bipedRightLeg.render(f5);
+						modelBiped.bipedLeftLeg.render(f5);
+					}
+	
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
+					
+					GL11.glScalef(1.001F, 1.001F, 1.001F);
+					GL11.glTranslated(0.0D, -0.00005D, 0.0D);
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
+					
 					modelBiped.bipedHead.render(f5);
 					modelBiped.bipedBody.render(f5);
 					modelBiped.bipedRightArm.render(f5);
@@ -696,25 +716,13 @@ public class ModelShellConstructor extends ModelBase
 					modelBiped.bipedRightLeg.render(f5);
 					modelBiped.bipedLeftLeg.render(f5);
 				}
-
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
-				Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
 				
-				GL11.glScalef(1.001F, 1.001F, 1.001F);
-				GL11.glTranslated(0.0D, -0.00005D, 0.0D);
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
-				
-				modelBiped.bipedHead.render(f5);
-				modelBiped.bipedBody.render(f5);
-				modelBiped.bipedRightArm.render(f5);
-				modelBiped.bipedLeftArm.render(f5);
-				modelBiped.bipedRightLeg.render(f5);
-				modelBiped.bipedLeftLeg.render(f5);
+				MinecraftForgeClient.releaseStencilBit(stencilBit);
 			}
+			
+			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+			GL11.glPopMatrix();
 		}
-		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glPopMatrix();
 	}
 
 	private void setRotation(ModelRenderer model, float x, float y, float z)

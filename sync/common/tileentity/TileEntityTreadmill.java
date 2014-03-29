@@ -19,11 +19,14 @@ import net.minecraft.network.packet.Packet132TileEntityData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
+import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public class TileEntityTreadmill extends TileEntity 
+	implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;
 	
@@ -105,18 +108,39 @@ public class TileEntityTreadmill extends TileEntity
 		}
 		resync = false;
 		
-		if(worldObj.isRemote && !back && latchedEnt != null)
+		if(worldObj.isRemote && !back)
 		{
-			latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-			timeRunning++;
-			if(timeRunning > 12000)
+			if(latchedEnt == null && latchedEntId != -1 && worldObj.getWorldTime() % 27L == 0L)
 			{
-				timeRunning = 12000;
+				Entity ent = worldObj.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 3D)
+				{
+					latchedEnt = (EntityLiving)ent;
+					latchedHealth = latchedEnt.getHealth();
+				}
 			}
-			
-			if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+			if(latchedEnt != null && latchedEnt.isDead)
 			{
-				spawnParticles();
+				Entity ent = worldObj.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 7D)
+				{
+					latchedEnt = (EntityLiving)ent;
+					latchedHealth = latchedEnt.getHealth();
+				}
+			}
+			if(latchedEnt != null)
+			{
+				latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+				timeRunning++;
+				if(timeRunning > 12000)
+				{
+					timeRunning = 12000;
+				}
+				
+				if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+				{
+					spawnParticles();
+				}
 			}
 		}
 		if(!worldObj.isRemote && !back)
@@ -126,26 +150,101 @@ public class TileEntityTreadmill extends TileEntity
 	
 			if(latchedEnt != null)
 			{
-				if(latchedEnt instanceof EntityWolf && ((EntityWolf)latchedEnt).isSitting())
+				boolean remove = false;
+				if(latchedEnt instanceof EntityWolf)
 				{
 					EntityWolf wolf = (EntityWolf)latchedEnt;
-					latchedEnt = null;
-					timeRunning = 0;
-					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+					if(wolf.isSitting())
+					{
+						timeRunning = 0;
+						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+						
+						remove = true;
+					}
+					if(wolf.isTamed())
+					{
+						latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+						
+						aabb = latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D);
+						list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
+
+//						if(wolf.getNavigator().noPath())
+//						{
+//							wolf.getNavigator().tryMoveToXYZ(wolf.posX + (face == 1 ? 3D : face == 3 ? -3D : 0D), wolf.posY, wolf.posZ + (face == 0 ? -3D : face == 2 ? 3D : 0D), 0.2D);
+//						}
+//						else
+//						{
+//							ObfuscationReflectionHelper.setPrivateValue(PathNavigate.class, wolf.getNavigator(), (Integer)ObfuscationReflectionHelper.getPrivateValue(PathNavigate.class, wolf.getNavigator(), "field_75520_h", "ticksAtLastPos", "h"), "field_75510_g", "totalTicks", "g");
+//						}
+					}
+					else
+					{
+						wolf.ticksExisted = 1200; //anti despawn methods
+					}
 				}
-				boolean remove = false;
 				for(int i = 0 ; i < list.size(); i++)
 				{
 					Entity ent = (Entity)list.get(i);
 					
 					if(ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer))
 					{
+						double velo = 0.9D;
+						switch(face)
+						{
+							case 0:
+							{
+								ent.motionZ = velo;
+								break;
+							}
+							case 1:
+							{
+								ent.motionX = -velo;
+								break;
+							}
+							case 2:
+							{
+								ent.motionZ = -velo;
+								break;
+							}
+							case 3:
+							{
+								ent.motionX = velo;
+								break;
+							}
+						}
+
 						remove = true;
-						break;
 					}
 				}
 				if(latchedEnt != null && (!list.contains(latchedEnt) || remove || latchedHealth > latchedEnt.getHealth()))
 				{
+					if(latchedHealth <= latchedEnt.getHealth())
+					{
+						double velo = 1.3D;
+						switch(face)
+						{
+							case 0:
+							{
+								latchedEnt.motionZ = velo;
+								break;
+							}
+							case 1:
+							{
+								latchedEnt.motionX = -velo;
+								break;
+							}
+							case 2:
+							{
+								latchedEnt.motionZ = -velo;
+								break;
+							}
+							case 3:
+							{
+								latchedEnt.motionX = velo;
+								break;
+							}
+						}
+					}
 					latchedEnt = null;
 					timeRunning = 0;
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -154,11 +253,47 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-					latchedEnt.getNavigator().clearPathEntity();
+					if(!(latchedEnt instanceof EntityWolf))
+					{
+						latchedEnt.getNavigator().clearPathEntity();
+					}
 					timeRunning++;
 					if(timeRunning > 12000)
 					{
 						timeRunning = 12000;
+					}
+					
+					//Still running
+					float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
+					int handlerCount = 0;
+					IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
+					for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
+					{
+						if(dir == ForgeDirection.UP)
+						{
+							continue;
+						}
+						TileEntity te = worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+						if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
+						{
+							IEnergyHandler energy=(IEnergyHandler) te;
+							if(energy.canInterface(dir.getOpposite()))
+							{
+								handlerCount++;
+								if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
+								{
+									handlers[dir.getOpposite().ordinal()] = energy;
+								}
+							}
+						}
+					}
+					for(int i = 0; i < handlers.length; i++)
+					{
+						IEnergyHandler handler = handlers[i];
+						if(handler != null)
+						{
+							handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max((int)Math.round(power / (float)handlerCount), 1), false);
+						}
 					}
 				}
 			}
@@ -228,7 +363,7 @@ public class TileEntityTreadmill extends TileEntity
 	
 	public float powerOutput()
 	{
-		if(back)
+		if(back && pair != null)
 		{
 			return pair.powerOutput();
 		}
@@ -242,8 +377,16 @@ public class TileEntityTreadmill extends TileEntity
 			}
 			else if(latchedEnt instanceof EntityWolf)
 			{
-				power = 3F;
-				power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				if(((EntityWolf)latchedEnt).isTamed())
+				{
+					power = 4F;
+					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				}
+				else
+				{
+					power = 3F;
+					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+				}
 			}
 		}
 		return power;
@@ -304,4 +447,35 @@ public class TileEntityTreadmill extends TileEntity
     {
         return Sync.blockDualVertical;
     }
+	
+    // TE methods
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
+	{
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
+	{
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from)
+	{
+		return !back;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from)
+	{
+		return 0;
+	}
 }

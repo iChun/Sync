@@ -18,8 +18,9 @@ import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import sync.api.SyncStartEvent;
 import sync.client.entity.EntityShellDestruction;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
@@ -160,6 +161,8 @@ public class MapPacketHandler
 								dv1.resyncPlayer = 120;
 								dv.canSavePlayer = -1;
 								
+								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, dv.playerNBT, dv1.playerNBT, dv1.xCoord, dv1.yCoord, dv1.zCoord));
+								
 								bytes = new ByteArrayOutputStream();
 								stream1 = new DataOutputStream(bytes);
 								try
@@ -269,7 +272,7 @@ public class MapPacketHandler
 						NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 						if(tag.hasKey("Inventory"))
 						{
-							state.playerState.readFromNBT(tag);
+							TileEntityDualVertical.addShowableEquipToPlayer(state.playerState, tag);
 						}
 					}
 					
@@ -322,9 +325,6 @@ public class MapPacketHandler
 						Sync.proxy.tickHandlerClient.radialPlayerPitch = mc.renderViewEntity.rotationPitch;
 						
 						Sync.proxy.tickHandlerClient.radialDeltaX = Sync.proxy.tickHandlerClient.radialDeltaY = 0;
-						
-						Sync.proxy.tickHandlerClient.renderCrosshair = GuiIngameForge.renderCrosshairs;
-						GuiIngameForge.renderCrosshairs = false;
 					}
 					
 					break;
@@ -377,7 +377,7 @@ public class MapPacketHandler
 							player.deathTime = 0;
 							player.setHealth(1);
 							
-							EntityShellDestruction sd = new EntityShellDestruction(player.worldObj, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, AbstractClientPlayer.locationStevePng);
+							EntityShellDestruction sd = new EntityShellDestruction(player.worldObj, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, ((AbstractClientPlayer)player).getLocationSkin());
 							sd.setLocationAndAngles(player.posX, player.posY - player.yOffset, player.posZ, 0.0F, 0.0F);
 							player.worldObj.spawnEntityInWorld(sd);
 
@@ -395,9 +395,17 @@ public class MapPacketHandler
 					
 					int face = stream.readInt();
 					
-					EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, AbstractClientPlayer.locationStevePng);
-					sd.setLocationAndAngles(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
-					mc.theWorld.spawnEntityInWorld(sd);
+					
+					if(mc.theWorld.blockExists(x, y, z))
+					{
+						TileEntity te = mc.theWorld.getBlockTileEntity(x, y, z);
+						if(te instanceof TileEntityDualVertical)
+						{
+							EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
+							sd.setLocationAndAngles(x + 0.5D, y, z + 0.5D, 0.0F, 0.0F);
+							mc.theWorld.spawnEntityInWorld(sd);
+						}
+					}
 				}
 			}
 		}

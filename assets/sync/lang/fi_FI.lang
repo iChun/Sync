@@ -1,0 +1,8 @@
+sync.breakShellUnit=%1$s rikkoi %2$s:n säiliön
+item.Sync_ShellConstructor.name=Säilön rakentaja
+item.Sync_ShellStorage.name=Säiliö
+item.Sync_Treadmill.name=Juoksumatto
+item.Sync_SyncCore.name=Sync Ydin
+death.attack.syncFail=%1$s synkkasi kuolleeseen säiliöön
+death.attack.shellConstruct=%1$s kuoli kun yritti tehdä säiliötä
+sync.isMorphed=Et voi käyttää! olet muuttanut muotoasi.

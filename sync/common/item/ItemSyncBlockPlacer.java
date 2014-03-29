@@ -123,7 +123,7 @@ public class ItemSyncBlockPlacer extends Item
                 int ii = face == 1 ? i - 1 : face == 3 ? i + 1 : i;
                 int kk = face == 0 ? k + 1 : face == 2 ? k - 1 : k;
                 
-                boolean flag = world.isBlockOpaqueCube(i, j - 1, k) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && world.isBlockOpaqueCube(ii, j - 1, kk) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, (Entity)null, is);
+                boolean flag = !(world.getBlockTileEntity(i, j - 1, k) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, (Entity)null, is) && !(world.getBlockTileEntity(ii, j - 1, kk) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, (Entity)null, is);
                 if(flag)
                 {
                 	if(world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(ii, j, kk, block.blockID, is.getItemDamage(), 3))
@@ -141,7 +141,6 @@ public class ItemSyncBlockPlacer extends Item
 	                	}
 	                    world.playSoundEffect((double)((float)i + 0.5F), (double)((float)j + 0.5F), (double)((float)k + 0.5F), block.stepSound.getPlaceSound(), (block.stepSound.getVolume() + 1.0F) / 2.0F, block.stepSound.getPitch() * 0.8F);
 	                    --is.stackSize;
-	                	
                 	}
                 }
         	}

@@ -6,8 +6,10 @@
 *.ear
 
 # MC/Forge Directories #
+cofh/
 cpw/
 ibxm/
+morph/
 net/
 paulscode/
 assets/forge/

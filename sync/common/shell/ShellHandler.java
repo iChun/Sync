@@ -12,8 +12,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import sync.common.Sync;
+import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
-import sync.common.item.ChunkLoadHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 
 public class ShellHandler 
@@ -59,6 +59,7 @@ public class ShellHandler
 		}
 		else if(dv != null)
 		{
+			//This is never used due to issues synching to the point I gave up.
 			dvs.add(dv);
 		}
 		

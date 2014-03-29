@@ -19,20 +19,23 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Property;
+import sync.common.core.ChunkLoadHandler;
 import sync.common.core.CommonProxy;
 import sync.common.core.ConnectionHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
-import sync.common.item.ChunkLoadHandler;
 import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
@@ -42,17 +45,18 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = "Sync", name = "Sync",
-			version = Sync.version
+			version = Sync.version,
+			dependencies = "required-after:Forge@[9.11.1.945,);after:ThermalExpansion"
 		 		)
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
 			tinyPacketHandler = MapPacketHandler.class,
 			connectionHandler = ConnectionHandler.class,
-			versionBounds = "[1.0.0,1.1.0)"
+			versionBounds = "[2.1.0,2.2.0)"
 				)
 public class Sync 
 {
-	public static final String version = "1.0.0";
+	public static final String version = "2.1.1";
 	
 	@Instance("Sync")
 	public static Sync instance;
@@ -78,14 +82,22 @@ public class Sync
 	public static int prioritizeHomeShellOnDeath;
 	public static int crossDimensionalSyncingOnDeath;
 	
+	public static int allowChunkLoading;
+	
 	public static int hardcoreMode;
 	
 	public static int showAllShellInfoInGui;
+	
+	public static int ratioRF;
 	
 	public static Block blockDualVertical;
 	
 	public static Item itemBlockPlacer;
 	public static Item itemPlaceholder;
+	
+	public static boolean isChristmasOrNewYear;
+	
+	public static boolean hasMorphMod;
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
@@ -100,7 +112,7 @@ public class Sync
 		idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
 		idItemSyncCore = addCommentAndReturnItemId(config, "ids", "idItemSyncCore", "Item ID for the Sync Core", 13331);
 		
-		shellConstructionPowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000); // Dogs power 4, Pigs power... 2?
+		shellConstructionPowerRequirement = Math.max(addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000), 0); // Dogs power 4, Pigs power... 2?
 		
 		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End", 1);
 		damageGivenOnShellConstruction = Math.max(addCommentAndReturnInt(config, "gameplay", "damageGivenOnShellConstruction", "Number of half hearts damage given to the player when a new shell is constructed.", 2), 0);
@@ -108,7 +120,11 @@ public class Sync
 		prioritizeHomeShellOnDeath = addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
 		crossDimensionalSyncingOnDeath = addCommentAndReturnInt(config, "gameplay", "crossDimensionalSyncingOnDeath", "Allow cross dimensional syncing when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
 		
+		allowChunkLoading = addCommentAndReturnInt(config, "gameplay", "allowChunkLoading", "Added by request, mod is made to chunkload shells. Untested.\nCould crash your world fatally.\nDisable at own risk.\n0 = No\n1 = Yes", 1);
+		
 		hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
+
+		ratioRF = addCommentAndReturnInt(config, "gameplay", "ratioRF", "Redstone Flux : Piggawatt ratio.", 2);
 		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 		{
@@ -129,14 +145,24 @@ public class Sync
 		proxy.initTickHandlers();
 		
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
+		
+		hasMorphMod = Loader.isModLoaded("Morph");
+		
+		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" ); 
+		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
+	}
+	
+	@EventHandler
+	public void serverAboutToStart(FMLServerAboutToStartEvent event)
+	{
+		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
+		SessionState.allowCrossDimensional = allowCrossDimensional;
+		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 	}
 	
 	@EventHandler
 	public void serverStarted(FMLServerStartedEvent event)
 	{
-		SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
-		SessionState.allowCrossDimensional = allowCrossDimensional;
-		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 		SessionState.hardMode = hardcoreMode == 1 || hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled();
 		
 		mapHardmodeRecipe();

@@ -1,7 +1,8 @@
 package sync.common.core;
 
+import java.util.Calendar;
+
 import net.minecraft.block.Block;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import sync.client.core.TickHandlerClient;
@@ -25,7 +26,7 @@ public class CommonProxy
 	{
 		Sync.creativeTabSync = new CreativeTabSync("sync");
 		
-		Sync.blockDualVertical = (new BlockDualVertical(Sync.idBlockShellConstructor)).setLightValue(0.5F).setHardness(0.5F).setUnlocalizedName("Sync_ShellConstructor");
+		Sync.blockDualVertical = (new BlockDualVertical(Sync.idBlockShellConstructor)).setLightValue(0.5F).setHardness(2.0F).setUnlocalizedName("Sync_ShellConstructor");
 		
 		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync);
 		Sync.itemPlaceholder = (new ItemPlaceholder(Sync.idItemSyncCore)).setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
@@ -46,6 +47,7 @@ public class CommonProxy
 		
 		GameRegistry.registerBlock(Sync.blockDualVertical, "Sync_ShellConstructor");
 		GameRegistry.registerItem(Sync.itemBlockPlacer, "Sync_BlockPlacer");
+		GameRegistry.registerItem(Sync.itemPlaceholder, "Sync_ItemPlaceholder");
 		
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
@@ -55,14 +57,13 @@ public class CommonProxy
 		
 		LanguageRegistry.instance().addName(Sync.blockDualVertical, "Shell Constructor");
 		
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 0), "Shell Constructor");
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 1), "Shell Storage");
-		LanguageRegistry.instance().addName(new ItemStack(Sync.itemBlockPlacer, 1, 2), "Treadmill");
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTimeInMillis(System.currentTimeMillis());
 		
-		LanguageRegistry.instance().addName(Sync.itemPlaceholder, "Sync Core");
-		
-		LanguageRegistry.instance().addStringLocalization("death.attack.syncFail", "%1$s synced into a dead shell");
-		LanguageRegistry.instance().addStringLocalization("death.attack.shellConstruct", "%1$s died trying to create a new shell");
+		if(calendar.get(2) + 1 == 12 && calendar.get(5) == 25 || calendar.get(2) + 1 == 1 && calendar.get(5) == 1)
+		{
+			Sync.isChristmasOrNewYear = true;
+		}
 	}
 
 	public void initTickHandlers() 
