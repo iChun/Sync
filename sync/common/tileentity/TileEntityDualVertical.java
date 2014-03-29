@@ -120,8 +120,10 @@ public class TileEntityDualVertical extends TileEntity
 					{
 						if(!player.isEntityAlive())
 						{
-							player.setHealth(1);
+							player.setHealth(20);
 						}
+                        player.setFire(0); //Remove fire
+
 						int dim = player.dimension;
                         //If player is in different dimension, bring them here
 						if(player.dimension != worldObj.provider.dimensionId)
