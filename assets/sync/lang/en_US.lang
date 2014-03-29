@@ -6,3 +6,6 @@ item.Sync_SyncCore.name=Sync Core
 death.attack.syncFail=%1$s synced into a dead shell
 death.attack.shellConstruct=%1$s died trying to create a new shell
 sync.isMorphed=Cannot use! You are morphed.
+sync.waila.owner=Shell Owner
+sync.waila.progress=Build Progress
+sync.waila.entity=Entity Name

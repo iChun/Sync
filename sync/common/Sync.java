@@ -1,11 +1,14 @@
 package sync.common;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Logger;
-
+import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.network.FMLNetworkHandler;
+import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkModHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -14,35 +17,15 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.Configuration;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.Property;
-import sync.common.core.ChunkLoadHandler;
-import sync.common.core.CommonProxy;
-import sync.common.core.ConnectionHandler;
-import sync.common.core.MapPacketHandler;
-import sync.common.core.SessionState;
+import net.minecraftforge.common.*;
+import sync.common.core.*;
 import sync.common.shell.ShellHandler;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
-import cpw.mods.fml.common.event.FMLServerStartedEvent;
-import cpw.mods.fml.common.event.FMLServerStoppedEvent;
-import cpw.mods.fml.common.network.FMLNetworkHandler;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkModHandler;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Logger;
 
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version,
@@ -150,6 +133,7 @@ public class Sync
 		
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" ); 
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
+        FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
 	}
 	
 	@EventHandler
