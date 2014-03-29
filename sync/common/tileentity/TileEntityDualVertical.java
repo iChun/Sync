@@ -131,23 +131,22 @@ public class TileEntityDualVertical extends TileEntity
 							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
 							
 							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
-							
-							player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+
 							if (dim == 1)
 							{
 								if (player.isEntityAlive())
 								{
 									worldObj.spawnEntityInWorld(player);
-									player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 									player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 									worldObj.updateEntityWithOptionalForce(player, false);
+                                    player.fallDistance = 0F;
 								}
 							}
 						}
 						else
 						{
-							player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 							player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+                            player.fallDistance = 0F;
 						}
 							
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -203,8 +202,6 @@ public class TileEntityDualVertical extends TileEntity
 					
 					if(player != null && player.isEntityAlive())
 					{
-						player.playerNetServerHandler.setPlayerLocation(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F); //Is this needed? We set it earlier
-						
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
@@ -217,6 +214,7 @@ public class TileEntityDualVertical extends TileEntity
                                 EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
                                 dummy.playerNetServerHandler = player.playerNetServerHandler;
                                 dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+                                dummy.fallDistance = 0F;
                                 worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
                                 dummy.clonePlayer(player, false);
