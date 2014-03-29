@@ -1,6 +1,7 @@
 package sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
+import cofh.api.tileentity.IEnergyInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -18,7 +19,7 @@ import sync.common.shell.ShellHandler;
 import java.util.List;
 
 public class TileEntityShellConstructor extends TileEntityDualVertical 
-	implements IEnergyHandler
+	implements IEnergyHandler, IEnergyInfo
 {
 	public float constructionProgress;
 	
@@ -255,5 +256,24 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	{
 		return 0;
 	}
-	
+
+    @Override
+    public int getEnergyPerTick() {
+        return powReceived;
+    }
+
+    @Override
+    public int getMaxEnergyPerTick() {
+        return 24;
+    }
+
+    @Override
+    public int getEnergy() {
+        return 0;
+    }
+
+    @Override
+    public int getMaxEnergy() {
+        return 0;
+    }
 }
