@@ -12,9 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-
 import org.lwjgl.opengl.GL11;
-
 import sync.client.model.ModelShellConstructor;
 import sync.client.model.ModelShellStorage;
 import sync.common.Sync;
@@ -110,10 +108,6 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			if(BlockDualVertical.renderPass == 0)
 			{
 				modelStorage.txBiped = rl;
-				if(Sync.hasMorphMod)
-				{
-					morph.api.Api.allowNextPlayerRender();
-				}
 				if(ss.playerInstance != null && ss.syncing)
 				{
 					GL11.glPushMatrix();
