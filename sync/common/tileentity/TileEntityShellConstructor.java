@@ -25,6 +25,10 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	public int doorTime;
 	public int powReceived;
 	
+	public int rfIntake;
+	
+	public int rfBuffer;
+	
 	public boolean doorOpen;
 	
 	public float prevPower;
@@ -39,6 +43,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		
 		doorOpen = false;
 		powReceived = 0;
+
+		rfIntake = 0;
 	}
 	
 	@Override
@@ -54,10 +60,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(isPowered())
 		{
 			float power = powerAmount();
-			if(playerName.equalsIgnoreCase("ohaiiChun"))
-			{
-				System.out.println(power);
-			}
 			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
@@ -112,6 +114,16 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				ChunkLoadHandler.addShellAsChunkloader(this);
 			}
 		}
+		if(!top && !worldObj.isRemote) 
+		{
+			rfBuffer += Math.abs(powReceived - rfIntake);
+			if((float)rfBuffer / (float)SessionState.shellConstructionPowerRequirement > 0.05F || Math.abs((float)(powReceived - rfIntake) / (float)powReceived) > 0.1F) // If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
+			{
+				rfIntake = powReceived;
+				rfBuffer = 0;
+				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			}
+		}
 		powReceived = 0;
 	}
 	
@@ -153,7 +165,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				}
 			}
 		}
-		return power + powReceived;
+		return power + (worldObj.isRemote ? rfIntake : powReceived);
 	}
 
 	@Override
@@ -181,6 +193,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
+		tag.setInteger("rfIntake", rfIntake);
     }
 	 
 	@Override
@@ -189,6 +202,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		super.readFromNBT(tag);
 		constructionProgress = tag.getFloat("constructionProgress");
 		doorOpen = tag.getBoolean("doorOpen");
+		rfIntake = tag.getInteger("rfIntake");
 		
 		resync = true;
     }
