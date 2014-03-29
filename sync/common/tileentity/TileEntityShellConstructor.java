@@ -212,7 +212,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
-		if(powReq == 0)
+		if(powReq == 0 || playerName.equalsIgnoreCase(""))
 		{
 			return 0;
 		}
