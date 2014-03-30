@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version,
-			dependencies = "required-after:Forge@[9.11.1.945,);after:ThermalExpansion"
+			dependencies = "required-after:Forge@[9.11.1.945,);after:ThermalExpansion;after:Waila"
 		 		)
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 				)
 public class Sync 
 {
-	public static final String version = "2.1.1";
+	public static final String version = "2.1.2";
 	
 	@Instance("Sync")
 	public static Sync instance;
@@ -142,7 +142,6 @@ public class Sync
 
         treadmillEntityHashMap.put(EntityWolf.class, 4);
         treadmillEntityHashMap.put(EntityPig.class, 2);
-
 	}
 	
 	@EventHandler

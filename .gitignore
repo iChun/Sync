@@ -7,6 +7,8 @@
 *.ear
 
 # MC/Forge Directories #
+au/
+mcp/
 cofh/
 cpw/
 ibxm/

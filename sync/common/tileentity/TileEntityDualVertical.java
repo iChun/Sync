@@ -41,22 +41,22 @@ public class TileEntityDualVertical extends TileEntity
 	public int face;
 	public boolean vacating;
 	public boolean isHomeUnit;
-	
+
 	public String playerName;
 	public String name;
-	
+
 	public int resyncPlayer;
-	
+
 	public int canSavePlayer;
-	
+
 	public NBTTagCompound playerNBT;
 
 	public ResourceLocation locationSkin;
-	
+
 	public boolean resync;
-	
+
 	public final static int animationTime = 40;
-	
+
 	public TileEntityDualVertical()
 	{
 		pair = null;
@@ -66,15 +66,15 @@ public class TileEntityDualVertical extends TileEntity
 		face = 0;
 		playerName = "";
 		name = "";
-		
+
 		resyncPlayer = 0;
 		canSavePlayer = 0;
-		
+
 		playerNBT = new NBTTagCompound();
-		
+
 		resync = false;
 	}
-	
+
 	@Override
 	public void updateEntity()
 	{
@@ -87,11 +87,11 @@ public class TileEntityDualVertical extends TileEntity
 				sc.pair = this;
 				pair = sc;
 			}
-			
+
 			if(worldObj.isRemote)
 			{
-	            locationSkin = AbstractClientPlayer.getLocationSkin(playerName);
-	            AbstractClientPlayer.getDownloadImageSkin(this.locationSkin, playerName);
+				locationSkin = AbstractClientPlayer.getLocationSkin(playerName);
+				AbstractClientPlayer.getDownloadImageSkin(this.locationSkin, playerName);
 			}
 		}
 		if(top && pair != null)
@@ -105,16 +105,16 @@ public class TileEntityDualVertical extends TileEntity
 			if(resyncPlayer > -10)
 			{
 				resyncPlayer--;
-                //Start of syncing player to this place
+				//Start of syncing player to this place
 				if(resyncPlayer == 60)
 				{
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-						
+
 						ss.occupied = true;
 					}
-					
+
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 					if(player != null)
 					{
@@ -122,14 +122,14 @@ public class TileEntityDualVertical extends TileEntity
 						{
 							player.setHealth(20);
 						}
-                        player.setFire(0); //Remove fire
+						player.setFire(0); //Remove fire
 
 						int dim = player.dimension;
-                        //If player is in different dimension, bring them here
+						//If player is in different dimension, bring them here
 						if(player.dimension != worldObj.provider.dimensionId)
 						{
 							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
-							
+
 							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 
 							if (dim == 1)
@@ -139,16 +139,16 @@ public class TileEntityDualVertical extends TileEntity
 									worldObj.spawnEntityInWorld(player);
 									player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
 									worldObj.updateEntityWithOptionalForce(player, false);
-                                    player.fallDistance = 0F;
+									player.fallDistance = 0F;
 								}
 							}
 						}
 						else
 						{
 							player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-                            player.fallDistance = 0F;
+							player.fallDistance = 0F;
 						}
-							
+
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
@@ -156,16 +156,16 @@ public class TileEntityDualVertical extends TileEntity
 							stream1.writeInt(xCoord);
 							stream1.writeInt(yCoord);
 							stream1.writeInt(zCoord);
-							
+
 							stream1.writeInt(worldObj.provider.dimensionId);
-							
+
 							stream1.writeInt(face);
-							
+
 							stream1.writeBoolean(true);
-							
+
 							stream1.writeBoolean(false);
 
-                            //Zoom back in to this location
+							//Zoom back in to this location
 							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
 						}
 						catch(IOException e)
@@ -173,76 +173,76 @@ public class TileEntityDualVertical extends TileEntity
 						}
 					}
 				}
-                //Beginning of kicking the player out
+				//Beginning of kicking the player out
 				if(resyncPlayer == 40)
 				{
 					vacating = true;
-					
+
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-						
+
 						ss.occupied = true;
-						
+
 						ss.occupationTime = TileEntityShellStorage.animationTime;
 					}
 					else if(this.getClass() == TileEntityShellConstructor.class)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
-						
+
 						sc.doorOpen = true;
 					}
-                    worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-                    worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
+					worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+					worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
 				}
-                //This is where we begin to sync the data
+				//This is where we begin to sync the data
 				if(resyncPlayer == 30)
 				{
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
-					
+
 					if(player != null && player.isEntityAlive())
 					{
 						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
-                        {
-                            //Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
-                            if (!playerNBT.hasKey("Inventory")) {
-                                NBTTagCompound tag = new NBTTagCompound();
-                                boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+						{
+							//Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
+							if (!playerNBT.hasKey("Inventory")) {
+								NBTTagCompound tag = new NBTTagCompound();
+								boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
 
-                                EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-                                dummy.playerNetServerHandler = player.playerNetServerHandler;
-                                dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-                                dummy.fallDistance = 0F;
-                                worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+								EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+								dummy.playerNetServerHandler = player.playerNetServerHandler;
+								dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+								dummy.fallDistance = 0F;
+								worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-                                dummy.clonePlayer(player, false);
-                                dummy.dimension = player.dimension;
-                                dummy.entityId = player.entityId;
+								dummy.clonePlayer(player, false);
+								dummy.dimension = player.dimension;
+								dummy.entityId = player.entityId;
 
-                                worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+								worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-                                dummy.writeToNBT(tag);
-                                tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-                                playerNBT = tag;
-                            }
-                            //Sync Forge persistent data as it's supposed to carry over on death
-                            NBTTagCompound persistentData = player.getEntityData();
-                            if (persistentData != null) {
-                                NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
-                                forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
-                                playerNBT.setCompoundTag("ForgeData", forgeData);
-                            }
-                            //Also sync ender chest.
-                            playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
+								dummy.writeToNBT(tag);
+								tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+								playerNBT = tag;
+							}
+							//Sync Forge persistent data as it's supposed to carry over on death
+							NBTTagCompound persistentData = player.getEntityData();
+							if (persistentData != null) {
+								NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
+								forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+								playerNBT.setCompoundTag("ForgeData", forgeData);
+							}
+							//Also sync ender chest.
+							playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
 							Sync.writeNBTTagCompound(playerNBT, stream1);
-							
+
 							player.readFromNBT(playerNBT);
-							
+
 							player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
-							
+
 							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)6, bytes.toByteArray()), (Player)player);
 						}
 						catch(IOException e)
@@ -256,21 +256,21 @@ public class TileEntityDualVertical extends TileEntity
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-						
+
 						ss.occupied = true;
 					}
 					if(this.getClass() == TileEntityShellConstructor.class)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
-						
+
 						ChunkLoadHandler.removeShellAsChunkloader(sc);
-						
+
 						sc.constructionProgress = 0.0F;
-						
+
 						sc.playerName = "";
-						
+
 						sc.playerNBT = new NBTTagCompound();
-						
+
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					}
@@ -280,7 +280,7 @@ public class TileEntityDualVertical extends TileEntity
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-						
+
 						ss.occupied = true;
 					}
 				}
@@ -296,37 +296,37 @@ public class TileEntityDualVertical extends TileEntity
 		}
 		resync = false;
 	}
-	
+
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
 	{
 		pair = scPair;
 		top = isTop;
 		face = placeYaw;
 	}
-	
+
 	public float powerAmount()
 	{
 		return 0F;
 	}
-	
+
 	public float getBuildProgress()
 	{
 		return this.playerName.equals("") ? 0 : SessionState.shellConstructionPowerRequirement; //Using this for comparator output calculation
 	}
-	
+
 	@Override
-    public boolean shouldRenderInPass(int pass)
-    {
+	public boolean shouldRenderInPass(int pass)
+	{
 		BlockDualVertical.renderPass = pass;
-        return pass == 0 || pass == 1;
-    }
-	
+		return pass == 0 || pass == 1;
+	}
+
 	@Override
 	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)
 	{
 		readFromNBT(pkt.data);
 	}
-	
+
 	@Override
 	public Packet getDescriptionPacket()
 	{
@@ -334,10 +334,10 @@ public class TileEntityDualVertical extends TileEntity
 		writeToNBT(tag);
 		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 0, tag);
 	}
-	
+
 	@Override
-    public void writeToNBT(NBTTagCompound tag)
-    {
+	public void writeToNBT(NBTTagCompound tag)
+	{
 		super.writeToNBT(tag);
 		tag.setBoolean("top", top);
 		tag.setInteger("face", face);
@@ -346,11 +346,11 @@ public class TileEntityDualVertical extends TileEntity
 		tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
 		tag.setString("name", name);
 		tag.setCompoundTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
-    }
-	 
+	}
+
 	@Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
+	public void readFromNBT(NBTTagCompound tag)
+	{
 		super.readFromNBT(tag);
 		top = tag.getBoolean("top");
 		face = tag.getInteger("face");
@@ -359,17 +359,17 @@ public class TileEntityDualVertical extends TileEntity
 		playerName = tag.getString("playerName");
 		name = tag.getString("name");
 		playerNBT = tag.getCompoundTag("playerNBT");
-		
+
 		resync = true;
-    }
-	
+	}
+
 	public byte[] createShellStateData() 
 	{
 		if(top && pair != null)
 		{
 			return pair.createShellStateData();
 		}
-			
+
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream stream = new DataOutputStream(bytes);
 		try
@@ -378,21 +378,21 @@ public class TileEntityDualVertical extends TileEntity
 			stream.writeInt(yCoord);
 			stream.writeInt(zCoord);
 			stream.writeInt(worldObj.provider.dimensionId);
-			
+
 			stream.writeFloat(getBuildProgress());
 			stream.writeFloat(powerAmount());
-			
+
 			stream.writeUTF(name);
 			stream.writeUTF(worldObj.provider.getDimensionName());
-			
+
 			stream.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
-			
+
 			stream.writeBoolean(isHomeUnit);
-			
+
 			NBTTagCompound invTag = new NBTTagCompound();
-			
+
 			invTag.setTag("Inventory", generateShowableEquipTags(playerNBT));
-			
+
 			Sync.writeNBTTagCompound(invTag, stream);
 		}
 		catch(IOException e)
@@ -400,81 +400,81 @@ public class TileEntityDualVertical extends TileEntity
 		}
 		return bytes.toByteArray();
 	}
-	
+
 	public static NBTTagList generateShowableEquipTags(NBTTagCompound tag)
 	{
 		NBTTagList list = new NBTTagList();
-		
-        NBTTagList nbttaglist = tag.getTagList("Inventory");
-        
-        int currentItem = tag.getInteger("SelectedItemSlot");
 
-        ItemStack[] items = new ItemStack[5];
-        
-        for (int i = 0; i < nbttaglist.tagCount(); ++i)
-        {
-            NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
-            int j = nbttagcompound.getByte("Slot") & 255;
-            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+		NBTTagList nbttaglist = tag.getTagList("Inventory");
 
-            if (itemstack != null)
-            {
-                if (j == currentItem)
-                {
-                	items[0] = itemstack;
-                }
+		int currentItem = tag.getInteger("SelectedItemSlot");
 
-                if (j >= 100 && j < 104)
-                {
-                	items[j - 100 + 1] = itemstack;
-                }
-            }
-        }
-		
-        int i;
-        NBTTagCompound nbttagcompound;
+		ItemStack[] items = new ItemStack[5];
 
-        for (i = 0; i < items.length; ++i)
-        {
-            if (items[i] != null)
-            {
-                nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setByte("Slot", (byte)i);
-                items[i].writeToNBT(nbttagcompound);
-                list.appendTag(nbttagcompound);
-            }
-        }
-		
+		for (int i = 0; i < nbttaglist.tagCount(); ++i)
+		{
+			NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+			int j = nbttagcompound.getByte("Slot") & 255;
+			ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+
+			if (itemstack != null)
+			{
+				if (j == currentItem)
+				{
+					items[0] = itemstack;
+				}
+
+				if (j >= 100 && j < 104)
+				{
+					items[j - 100 + 1] = itemstack;
+				}
+			}
+		}
+
+		int i;
+		NBTTagCompound nbttagcompound;
+
+		for (i = 0; i < items.length; ++i)
+		{
+			if (items[i] != null)
+			{
+				nbttagcompound = new NBTTagCompound();
+				nbttagcompound.setByte("Slot", (byte)i);
+				items[i].writeToNBT(nbttagcompound);
+				list.appendTag(nbttagcompound);
+			}
+		}
+
 		return list;
 	}
-	
+
 	public static void addShowableEquipToPlayer(EntityPlayer player, NBTTagCompound tag)
 	{
 		NBTTagList nbttaglist = tag.getTagList("Inventory");
-		
-        for (int i = 0; i < nbttaglist.tagCount(); ++i)
-        {
-            NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
-            int j = nbttagcompound.getByte("Slot") & 255;
-            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
 
-            if (itemstack != null)
-            {
-            	player.setCurrentItemOrArmor(j, itemstack);
-            }
-        }
+		for (int i = 0; i < nbttaglist.tagCount(); ++i)
+		{
+			NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+			int j = nbttagcompound.getByte("Slot") & 255;
+			ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+
+			if (itemstack != null)
+			{
+				player.setCurrentItemOrArmor(j, itemstack);
+			}
+		}
 	}
-	
-	@Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
-    {
-        return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
-    }
 
 	@Override
-    public Block getBlockType()
-    {
-        return Sync.blockDualVertical;
-    }
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
+	}
+
+	@Override
+	public Block getBlockType()
+	{
+		return Sync.blockDualVertical;
+	}
 }
