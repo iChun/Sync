@@ -206,6 +206,9 @@ public class TileEntityDualVertical extends TileEntity
 						DataOutputStream stream1 = new DataOutputStream(bytes);
 						try
 						{
+                            //Clear active potion effects before syncing
+                            player.clearActivePotions();
+
 							//Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
 							if (!playerNBT.hasKey("Inventory")) {
 								NBTTagCompound tag = new NBTTagCompound();
@@ -237,8 +240,8 @@ public class TileEntityDualVertical extends TileEntity
 							//Also sync ender chest.
 							playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
+                            //Update the players NBT stuff
 							Sync.writeNBTTagCompound(playerNBT, stream1);
-
 							player.readFromNBT(playerNBT);
 
 							player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
