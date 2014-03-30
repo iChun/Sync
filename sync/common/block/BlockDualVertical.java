@@ -186,6 +186,11 @@ public class BlockDualVertical extends BlockContainer
 				else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
 				{
 					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
+					
+					if(player != null)
+					{
+						ShellHandler.updatePlayerOfShells(player, null, true);
+					}
 
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
