@@ -110,6 +110,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				modelStorage.txBiped = rl;
 				if(ss.playerInstance != null && ss.syncing)
 				{
+                    if (Sync.hasMorphMod) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell
 					GL11.glPushMatrix();
 					
 					GL11.glScalef(-2.0F, -2.0F, 2.0F);
