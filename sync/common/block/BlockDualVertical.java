@@ -12,8 +12,6 @@ import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.*;
@@ -292,7 +290,7 @@ public class BlockDualVertical extends BlockContainer
 		            {
 		                EntityLiving entityliving = (EntityLiving)iterator.next();
 	
-		                if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && !entityliving.isChild() && (entityliving instanceof EntityPig || entityliving instanceof EntityWolf && !((EntityWolf)entityliving).isSitting()))
+		                if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(entityliving))
 		                {
 		                	if(!world.isRemote)
 		                	{
@@ -314,11 +312,11 @@ public class BlockDualVertical extends BlockContainer
                 	if(!world.isRemote)
                 	{
 						Entity entity = ItemMonsterPlacer.spawnCreature(world, is.getItemDamage(), tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1));
-						if(entity instanceof EntityPig || entity instanceof EntityWolf)
+						if(Sync.treadmillEntityHashMap.containsKey(entity.getClass()))
 						{
 	                		tm.latchedEnt = (EntityLiving)entity;
 							tm.latchedHealth = ((EntityLiving)entity).getHealth();
-							((EntityLiving)entity).setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
+							entity.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
 							world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
 							return true;
 						}

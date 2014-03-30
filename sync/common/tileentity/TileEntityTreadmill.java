@@ -1,7 +1,8 @@
 package sync.common.tileentity;
 
-import java.util.List;
-
+import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EntityDiggingFX;
@@ -9,8 +10,7 @@ import net.minecraft.client.particle.EntitySmokeFX;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityPig;
-import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
@@ -21,9 +21,8 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
-import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.util.List;
 
 public class TileEntityTreadmill extends TileEntity 
 	implements IEnergyHandler
@@ -85,9 +84,9 @@ public class TileEntityTreadmill extends TileEntity
 					{
 						Entity ent = (Entity)list.get(i);
 						
-						if(ent instanceof EntityLiving && !((EntityLiving)ent).isChild() && (ent instanceof EntityPig || ent instanceof EntityWolf && !((EntityWolf)ent).isSitting()))
+						if(isEntityValidForTreadmill(ent))
 						{
-							if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
+                            if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
 							{
 								latchedEnt = (EntityLiving)ent;
 								latchedHealth = latchedEnt.getHealth();
@@ -151,35 +150,27 @@ public class TileEntityTreadmill extends TileEntity
 			if(latchedEnt != null)
 			{
 				boolean remove = false;
-				if(latchedEnt instanceof EntityWolf)
+				if(latchedEnt instanceof EntityTameable)
 				{
-					EntityWolf wolf = (EntityWolf)latchedEnt;
-					if(wolf.isSitting())
+                    EntityTameable entityTameable = (EntityTameable)latchedEnt;
+                    //Remove sitting entities
+					if(entityTameable.isSitting())
 					{
 						timeRunning = 0;
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 						
 						remove = true;
 					}
-					if(wolf.isTamed())
+					if(entityTameable.isTamed())
 					{
 						latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 						
 						aabb = latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D);
 						list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
-
-//						if(wolf.getNavigator().noPath())
-//						{
-//							wolf.getNavigator().tryMoveToXYZ(wolf.posX + (face == 1 ? 3D : face == 3 ? -3D : 0D), wolf.posY, wolf.posZ + (face == 0 ? -3D : face == 2 ? 3D : 0D), 0.2D);
-//						}
-//						else
-//						{
-//							ObfuscationReflectionHelper.setPrivateValue(PathNavigate.class, wolf.getNavigator(), (Integer)ObfuscationReflectionHelper.getPrivateValue(PathNavigate.class, wolf.getNavigator(), "field_75520_h", "ticksAtLastPos", "h"), "field_75510_g", "totalTicks", "g");
-//						}
 					}
 					else
 					{
-						wolf.ticksExisted = 1200; //anti despawn methods
+                        entityTameable.ticksExisted = 1200; //anti despawn methods
 					}
 				}
 				for(int i = 0 ; i < list.size(); i++)
@@ -253,10 +244,7 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-					if(!(latchedEnt instanceof EntityWolf))
-					{
-						latchedEnt.getNavigator().clearPathEntity();
-					}
+				    latchedEnt.getNavigator().clearPathEntity();
 					timeRunning++;
 					if(timeRunning > 12000)
 					{
@@ -303,7 +291,7 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					Entity ent = (Entity)list.get(i);
 					
-					if(ent instanceof EntityLiving && !((EntityLiving)ent).isChild() && (ent instanceof EntityPig || ent instanceof EntityWolf && !((EntityWolf)ent).isSitting()))
+					if(TileEntityTreadmill.isEntityValidForTreadmill(ent))
 					{
 						if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
 						{
@@ -370,24 +358,9 @@ public class TileEntityTreadmill extends TileEntity
 		float power = 0.0F;
 		if(latchedEnt != null)
 		{
-			if(latchedEnt instanceof EntityPig)
-			{
-				power = 2F;
-				power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F);
-			}
-			else if(latchedEnt instanceof EntityWolf)
-			{
-				if(((EntityWolf)latchedEnt).isTamed())
-				{
-					power = 4F;
-					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
-				}
-				else
-				{
-					power = 3F;
-					power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
-				}
-			}
+            power = Sync.treadmillEntityHashMap.get(latchedEnt.getClass());
+            if (latchedEnt instanceof EntityTameable && ((EntityTameable) latchedEnt).isTamed()) power = (power / 2) + (power / 4); //Decrease power if the entity isn't tamed
+            power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F);
 		}
 		return power;
 	}
@@ -446,6 +419,11 @@ public class TileEntityTreadmill extends TileEntity
     public Block getBlockType()
     {
         return Sync.blockDualVertical;
+    }
+
+    //Will return true if the entity can use the treadmill
+    public static boolean isEntityValidForTreadmill(Entity entity) {
+        return Sync.treadmillEntityHashMap.containsKey(entity.getClass()) && !((EntityLiving) entity).isChild() && !(entity instanceof EntityTameable && ((EntityTameable) entity).isSitting());
     }
 	
     // TE methods

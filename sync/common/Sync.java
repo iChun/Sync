@@ -11,6 +11,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -24,6 +26,7 @@ import sync.common.shell.ShellHandler;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -81,6 +84,8 @@ public class Sync
 	public static boolean isChristmasOrNewYear;
 	
 	public static boolean hasMorphMod;
+
+    public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
@@ -134,6 +139,10 @@ public class Sync
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" ); 
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
         FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
+
+        treadmillEntityHashMap.put(EntityWolf.class, 4);
+        treadmillEntityHashMap.put(EntityPig.class, 2);
+
 	}
 	
 	@EventHandler
@@ -158,6 +167,43 @@ public class Sync
 		ChunkLoadHandler.shellTickets.clear();
 		ShellHandler.deathRespawns.clear();
 	}
+
+    @EventHandler
+    public void processIMC(FMLInterModComms.IMCEvent event) {
+        for (FMLInterModComms.IMCMessage message : event.getMessages())
+        {
+            if (message.isStringMessage())
+            {
+                if (message.key.equals("treadmill"))
+                {
+                    String[] s = message.getStringValue().split(":");
+                    if (s.length != 2)
+                    {
+                        logger.warning("Invalid IMC treadmill register (incorrect length) received from " + message.getSender());
+                    }
+                    else
+                    {
+                        try
+                        {
+                            String entityClassName = s[0];
+                            int entityPower = Integer.valueOf(s[1]);
+                            Class entityClass = Class.forName(entityClassName);
+
+                            treadmillEntityHashMap.put(entityClass, entityPower);
+                            logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
+
+                        } catch (NumberFormatException e)
+                        {
+                            logger.warning("Invalid IMC treadmill register (power not integer) received from " + message.getSender());
+                        } catch (ClassNotFoundException e)
+                        {
+                            logger.warning("Invalid IMC treadmill register (class not found) received from " + message.getSender());
+                        }
+                    }
+                }
+            }
+        }
+    }
 	
 	public static int addCommentAndReturnBlockId(Configuration config, String cat, String s, String comment, int i)
 	{
