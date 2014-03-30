@@ -360,7 +360,7 @@ public class TileEntityTreadmill extends TileEntity
 		{
             power = Sync.treadmillEntityHashMap.get(latchedEnt.getClass());
             if (latchedEnt instanceof EntityTameable && ((EntityTameable) latchedEnt).isTamed()) power = (power / 2) + (power / 4); //Decrease power if the entity isn't tamed
-            power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F);
+            power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
 		}
 		return power;
 	}
