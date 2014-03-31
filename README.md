@@ -68,6 +68,22 @@ to abandon a hardcore world, but instead resync to another shell.
 
 ====================
 
+For modders:
+
+If you wish for your entity to be able to used on the treadmill,
+you need to send an IMC to "Sync" with the key as "treadmill" and the
+message in the format classPath:power. classPath has to include
+the packages as well eg net.minecraft.entity.passive.EntityWolf.
+Power has to be an integer.
+
+Example:
+
+FMLInterModComms.sendMessage("Sync", "treadmill", "net.minecraft.entity.passive.EntityWolf:4");
+
+Will register EntityWolf with the power of 4
+
+====================
+
 Trivia:
 
 This mod is loosely based off CorridorDigital's Sync web series
