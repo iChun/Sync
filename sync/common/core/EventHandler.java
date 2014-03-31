@@ -137,7 +137,7 @@ public class EventHandler
 						else if(tpPosition instanceof TileEntityShellConstructor)
 						{
 							dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
-							((EntityPlayerMP)dvInstance).playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+							((EntityPlayerMP)dvInstance).playerNetServerHandler = player.playerNetServerHandler;
 						}
 						
 						if(dvInstance != null)
@@ -167,13 +167,14 @@ public class EventHandler
 							tpPosition.playerNBT = tag;
 						}
 
-						MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true);
+						PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));
 						
 						player.setHealth(1);
 
-						if(!ShellHandler.deathRespawns.contains(player.username))
+						if(!ShellHandler.syncInProgress.containsKey(player.username))
 						{
-							ShellHandler.deathRespawns.add(player.username);
+							player.getEntityData().setBoolean("isDeathSyncing", true);
+							ShellHandler.syncInProgress.put(player.username, tpPosition);
 						}
 					}
 				}
@@ -186,7 +187,7 @@ public class EventHandler
 	{
 		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
 		{
-			if(ShellHandler.deathRespawns.contains(((EntityPlayer)event.entityLiving).username))
+			if(ShellHandler.syncInProgress.containsKey(((EntityPlayer)event.entityLiving).username))
 			{
 				event.setCanceled(true);
 			}
@@ -196,7 +197,7 @@ public class EventHandler
 	@ForgeSubscribe
 	public void onItemPickup(EntityItemPickupEvent event)
 	{
-		if(ShellHandler.deathRespawns.contains(event.entityPlayer.username))
+		if(ShellHandler.syncInProgress.containsKey(event.entityPlayer.username))
 		{
 			event.setCanceled(true);
 		}
@@ -289,6 +290,7 @@ public class EventHandler
 			if(dv instanceof TileEntityShellConstructor)
 			{
 				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+				//If enabled in config and shell is complete, allow sync into constructor
 				if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
 				{
 					continue;

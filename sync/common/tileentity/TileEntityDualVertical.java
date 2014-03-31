@@ -47,8 +47,8 @@ public class TileEntityDualVertical extends TileEntity
 	public String name;
 
 	public int resyncPlayer;
-
 	public int canSavePlayer;
+	public TileEntityDualVertical resyncOrigin;
 
 	public NBTTagCompound playerNBT;
 
@@ -70,6 +70,7 @@ public class TileEntityDualVertical extends TileEntity
 
 		resyncPlayer = 0;
 		canSavePlayer = 0;
+		resyncOrigin = null;
 
 		playerNBT = new NBTTagCompound();
 
@@ -103,6 +104,7 @@ public class TileEntityDualVertical extends TileEntity
 		}
 		if(!top && !worldObj.isRemote)
 		{
+			//If this is true, we're syncing a player to this location
 			if(resyncPlayer > -10)
 			{
 				resyncPlayer--;
@@ -212,6 +214,7 @@ public class TileEntityDualVertical extends TileEntity
 						if (persistentData != null) {
 							NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
 							forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+							forgeData.setBoolean("isDeathSyncing", false);
 							playerNBT.setCompoundTag("ForgeData", forgeData);
 						}
 						//Also sync ender chest.
@@ -228,7 +231,8 @@ public class TileEntityDualVertical extends TileEntity
 				}
 				if(resyncPlayer == 0)
 				{
-					ShellHandler.deathRespawns.remove(playerName);
+					ShellHandler.syncInProgress.remove(playerName);
+					resyncOrigin = null;
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)this;

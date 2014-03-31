@@ -84,23 +84,23 @@ public class MapPacketHandler
 						
 						if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
 						{
-							TileEntityDualVertical dv = (TileEntityDualVertical)oriTe;
-							TileEntityDualVertical dv1 = (TileEntityDualVertical)te;
+							TileEntityDualVertical originShell = (TileEntityDualVertical)oriTe;
+							TileEntityDualVertical targetShell = (TileEntityDualVertical)te;
 							
-							if(dv.playerName.equalsIgnoreCase(player.username) && dv1.playerName.equalsIgnoreCase(player.username))
+							if(originShell.playerName.equalsIgnoreCase(player.username) && targetShell.playerName.equalsIgnoreCase(player.username))
 							{
-								if(dv1 instanceof TileEntityShellConstructor)
+								if(targetShell instanceof TileEntityShellConstructor)
 								{
-									TileEntityShellConstructor sc = (TileEntityShellConstructor)dv1;
+									TileEntityShellConstructor sc = (TileEntityShellConstructor)targetShell;
 									if(sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
 									{
 										ShellHandler.updatePlayerOfShells(player, null, true);
 										break;
 									}
 								}
-								if(dv1 instanceof TileEntityShellStorage)
+								if(targetShell instanceof TileEntityShellStorage)
 								{
-									TileEntityShellStorage ss = (TileEntityShellStorage)dv1;
+									TileEntityShellStorage ss = (TileEntityShellStorage)targetShell;
 									if(!ss.syncing)
 									{
 										ShellHandler.updatePlayerOfShells(player, null, true);
@@ -108,9 +108,9 @@ public class MapPacketHandler
 									}
 								}
 								
-								if(dv instanceof TileEntityShellStorage)
+								if(originShell instanceof TileEntityShellStorage)
 								{
-									TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+									TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
 									
 									ss.playerName = player.username;
 									
@@ -132,13 +132,15 @@ public class MapPacketHandler
 									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 								}
 
-								Packet131MapData zoomPacket = createZoomCameraPacket(oriX, oriY, oriZ, oriDim, dv.face, false, false);
+								Packet131MapData zoomPacket = createZoomCameraPacket(oriX, oriY, oriZ, oriDim, originShell.face, false, false);
 								PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 
-								dv1.resyncPlayer = 120;
-								dv.canSavePlayer = -1;
+								targetShell.resyncPlayer = 120;
+								originShell.canSavePlayer = -1;
+								targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
+								ShellHandler.syncInProgress.put(player.username, targetShell);
 								
-								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, dv.playerNBT, dv1.playerNBT, dv1.xCoord, dv1.yCoord, dv1.zCoord));
+								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.playerNBT, targetShell.playerNBT, targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
 
 								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.username, false));
 								

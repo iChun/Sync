@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 public class ShellHandler 
@@ -80,5 +81,5 @@ public class ShellHandler
 		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createRemoveShellDataPacket(dv), (Player)player);
 	}
 	
-	public static ArrayList<String> deathRespawns = new ArrayList<String>();
+	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<String, TileEntityDualVertical>();
 }

@@ -398,11 +398,7 @@ public class BlockDualVertical extends BlockContainer
 			}
 			else
 			{
-				if(dv instanceof TileEntityShellConstructor)
-				{
-					TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-				}
-				else if(dv instanceof TileEntityShellStorage)
+				if(dv instanceof TileEntityShellStorage)
 				{
 					TileEntityShellStorage ss = (TileEntityShellStorage)dv;
 					if(!ss.occupied && !world.isRemote && !ss.syncing && ss.resyncPlayer <= -10)

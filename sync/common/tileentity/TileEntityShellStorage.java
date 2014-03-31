@@ -8,7 +8,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import sync.common.core.ChunkLoadHandler;
-import sync.common.shell.ShellHandler;
 
 public class TileEntityShellStorage extends TileEntityDualVertical 
 {
@@ -99,7 +98,6 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			{
 				if(vacating)
 				{
-					ShellHandler.deathRespawns.remove(playerName);
 					vacating = false;
 					occupied = false;
 					syncing = false;

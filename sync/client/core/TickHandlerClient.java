@@ -19,7 +19,6 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
@@ -184,80 +183,6 @@ public class TickHandlerClient implements ITickHandler {
 		if(clock != world.getWorldTime() || !world.getGameRules().getGameRuleBooleanValue("doDaylightCycle"))
 		{
 			clock = world.getWorldTime();
-
-			if(clock % 20L == 0 && Keyboard.isKeyDown(Keyboard.KEY_GRAVE))
-			{
-				//				try
-				//				{
-				//					BufferedImage img = ImageIO.read(Sync.class.getResourceAsStream("/assets/sync/textures/ohaiiChun.png"));
-				//					
-				//					int[] dimsX = new int[] { 8, 4, 8, 4 };
-				//					int[] dimsZ = new int[] { 8, 4, 4, 4 };
-				//					int[] dimsY = new int[] { 8, 12, 12, 12 };
-				//					
-				//					int[] startX = new int[] { 0, 0, 16, 40 };
-				//					int[] startY = new int[] { 0, 16, 16, 16 };
-				//					
-				//					for(int j = 0; j < dimsX.length; j++)
-				//					{
-				//						int[] dim = new int[] { dimsX[j], dimsY[j], dimsZ[j] };
-				//						int[] rots = new int[] { -90, 180, 0, 0, 90, 0, -90, 180, 				90 };
-				//						BufferedImage tmp = new BufferedImage(48, 24, 1);
-				//						
-				//		                Graphics2D gfx = tmp.createGraphics();
-				//						
-				//						int[] xSource = new int[] { dim[2], dim[2], dim[2] + dim[0] + dim[2], 0, dim[2] + dim[0], dim[2] + dim[0], dim[2] + dim[0], dim[2] + dim[0], 				dim[2]};
-				//						int[] ySource = new int[] { 0, 0, dim[2], dim[2], 0, 0, 0, 0,  					0 };
-				//						
-				//						int[] xCoord = new int[] { dim[0], dim[0] + dim[2] + dim[0] + dim[2], 0, dim[0] + dim[2] + dim[0] + dim[2] + dim[0], dim[0], dim[0] + dim[2], dim[0] + dim[2] + dim[0], dim[0] + dim[2] + dim[0] + dim[2], 				dim[2] + dim[0] + dim[2] };
-				//						int[] yCoord = new int[] { 0, 0, dim[2], dim[2], dim[2] + dim[1], dim[2] + dim[1], dim[2] + dim[1], dim[2] + dim[1], 				0 };
-				//						
-				//						int[] dimX = new int[] { dim[0], dim[0], dim[0], dim[2], dim[0], dim[0], dim[0], dim[0], 					dim[0] };
-				//						int[] dimY = new int[] { dim[2], dim[2], dim[1], dim[1], dim[2], dim[2], dim[2], dim[2], 					dim[2] };
-				//						
-				//						for(int i = 0; i < rots.length; i++)
-				//						{
-				//							if(i == rots.length - 1)
-				//							{
-				//								gfx.drawImage(img, dim[0], 0, dim[0] + dim[2] + dim[0] + dim[2] + dim[0], dim[2] + dim[1], startX[j], startY[j], startX[j] + (2 * dim[0] + 2 * dim[2]), startY[j] + dim[1] + dim[2], (ImageObserver)null);
-				//							}
-				//							
-				//							BufferedImage temp = img.getSubimage(startX[j] + xSource[i], startY[j] + ySource[i], dimX[i], dimY[i]); //new BufferedImage(img.getWidth(), img.getHeight(), 1); 
-				//							
-				//							BufferedImage temp1 = new BufferedImage(dimX[i], dimY[i], 1); 
-				//		
-				//			                Graphics2D gfx1 = temp1.createGraphics();
-				//			                gfx1.rotate(Math.toRadians(rots[i]), dimX[i] / 2, dimY[i] / 2);
-				////			                gfx1.drawImage(temp, 0, 0, (Math.abs(rots[i]) == 90) ? dimY[i] : dimX[i], (Math.abs(rots[i]) == 90) ? dimX[i] : dimY[i], 0, 0, (Math.abs(rots[i]) == 90) ? dimY[i] : dimX[i], (Math.abs(rots[i]) == 90) ? dimX[i] : dimY[i], (ImageObserver)null);
-				//			                gfx1.drawImage(temp, 0, 0, dimX[i], dimY[i], 0, 0, dimX[i], dimY[i], (ImageObserver)null);
-				//			                gfx1.dispose();
-				//							
-				//			                gfx.drawImage(temp1, xCoord[i], yCoord[i], xCoord[i] + dimX[i], yCoord[i] + dimY[i], 0, 0, dimX[i], dimY[i], (ImageObserver)null);
-				//						}
-				//						
-				//		                gfx.dispose();
-				//		                try
-				//		                {
-				//		                    ImageIO.write(tmp, "png", new File(Minecraft.getMinecraft().mcDataDir, "test"+j+".png"));
-				//		                }
-				//		                catch (IOException ioexception)
-				//		                {
-				//		                    ioexception.printStackTrace();
-				//		                }
-				//		                System.out.println("sdinds");
-				//					}
-				//				}
-				//				catch(IOException e)
-				//				{
-				//					e.printStackTrace();
-				//				}
-
-				//				System.out.println("spawn");
-				//				EntityShellDestruction sd = new EntityShellDestruction(world, mc.thePlayer.rotationYaw, mc.thePlayer.renderYawOffset, mc.thePlayer.rotationPitch, mc.thePlayer.limbSwing, mc.thePlayer.limbSwingAmount, mc.thePlayer.getLocationSkin());
-				//				sd.setLocationAndAngles(mc.thePlayer.posX + 2D, mc.thePlayer.posY - mc.thePlayer.yOffset, mc.thePlayer.posZ, 0.0F, 0.0F);
-				//				world.spawnEntityInWorld(sd);
-
-			}
 
 			for(ShellState state : shells)
 			{

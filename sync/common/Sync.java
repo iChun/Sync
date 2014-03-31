@@ -122,6 +122,7 @@ public class Sync
 		config.save();
 		
 		MinecraftForge.EVENT_BUS.register(new sync.common.core.EventHandler());
+		GameRegistry.registerPlayerTracker(new ConnectionHandler());
 		
 		//Following new modding convention, blocks and items are initialized in pre-init
 		proxy.initMod();
@@ -164,7 +165,7 @@ public class Sync
 	public void serverStopped(FMLServerStoppedEvent event)
 	{
 		ChunkLoadHandler.shellTickets.clear();
-		ShellHandler.deathRespawns.clear();
+		ShellHandler.syncInProgress.clear();
 	}
 
 	@EventHandler
