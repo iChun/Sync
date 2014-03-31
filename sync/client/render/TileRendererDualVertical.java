@@ -110,7 +110,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				modelStorage.txBiped = rl;
 				if(ss.playerInstance != null && ss.syncing)
 				{
-                    if (Sync.hasMorphMod) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell
+					if (Sync.hasMorphMod) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell
 					GL11.glPushMatrix();
 					
 					GL11.glScalef(-2.0F, -2.0F, 2.0F);
@@ -172,35 +172,35 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				
 				if(!ss.name.equalsIgnoreCase(""))
 				{
-		            FontRenderer fontrenderer = this.getFontRenderer();
-		            float ff = 1.6F;
-		            float f1 = 0.016666668F * ff;
-		            GL11.glPushMatrix();
-		            GL11.glTranslatef(0.0F, -2.475F, -1.01F);
-		            GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-		            GL11.glScalef(f1, f1, f1);
-		            GL11.glDisable(GL11.GL_LIGHTING);
-		            GL11.glDepthMask(false);
-		            GL11.glEnable(GL11.GL_BLEND);
-		            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		            Tessellator tessellator = Tessellator.instance;
-		            byte b0 = 0;
-		            GL11.glDisable(GL11.GL_TEXTURE_2D);
-		            tessellator.startDrawingQuads();
-		            int j = fontrenderer.getStringWidth(ss.name) / 2;
-		            tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
-		            tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
-		            tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
-		            tessellator.addVertex((double)(j + 1), (double)(8 + b0), 0.0D);
-		            tessellator.addVertex((double)(j + 1), (double)(-1 + b0), 0.0D);
-		            tessellator.draw();
-		            GL11.glEnable(GL11.GL_TEXTURE_2D);
-		            GL11.glDepthMask(true);
-		            fontrenderer.drawString(ss.name, -fontrenderer.getStringWidth(ss.name) / 2, b0, -1);
-		            GL11.glEnable(GL11.GL_LIGHTING);
-		            GL11.glDisable(GL11.GL_BLEND);
-		            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		            GL11.glPopMatrix();
+					FontRenderer fontrenderer = this.getFontRenderer();
+					float ff = 1.6F;
+					float f1 = 0.016666668F * ff;
+					GL11.glPushMatrix();
+					GL11.glTranslatef(0.0F, -2.475F, -1.01F);
+					GL11.glNormal3f(0.0F, 1.0F, 0.0F);
+					GL11.glScalef(f1, f1, f1);
+					GL11.glDisable(GL11.GL_LIGHTING);
+					GL11.glDepthMask(false);
+					GL11.glEnable(GL11.GL_BLEND);
+					GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+					Tessellator tessellator = Tessellator.instance;
+					byte b0 = 0;
+					GL11.glDisable(GL11.GL_TEXTURE_2D);
+					tessellator.startDrawingQuads();
+					int j = fontrenderer.getStringWidth(ss.name) / 2;
+					tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
+					tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
+					tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
+					tessellator.addVertex((double)(j + 1), (double)(8 + b0), 0.0D);
+					tessellator.addVertex((double)(j + 1), (double)(-1 + b0), 0.0D);
+					tessellator.draw();
+					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					GL11.glDepthMask(true);
+					fontrenderer.drawString(ss.name, -fontrenderer.getStringWidth(ss.name) / 2, b0, -1);
+					GL11.glEnable(GL11.GL_LIGHTING);
+					GL11.glDisable(GL11.GL_BLEND);
+					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GL11.glPopMatrix();
 				}
 			}
 		}
@@ -210,45 +210,45 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 		GL11.glPopMatrix();
 	}
 	
-    public void faceEntity(Entity ent, Entity par1Entity, float par2, float par3)
-    {
-        double d0 = par1Entity.posX - ent.posX;
-        double d1 = par1Entity.posZ - ent.posZ;
-        double d2;
+	public void faceEntity(Entity ent, Entity par1Entity, float par2, float par3)
+	{
+		double d0 = par1Entity.posX - ent.posX;
+		double d1 = par1Entity.posZ - ent.posZ;
+		double d2;
 
-        if (par1Entity instanceof EntityLivingBase)
-        {
-            EntityLivingBase entitylivingbase = (EntityLivingBase)par1Entity;
-            d2 = entitylivingbase.posY + (double)entitylivingbase.getEyeHeight() - (ent.posY + (double)ent.getEyeHeight());
-        }
-        else
-        {
-            d2 = (par1Entity.boundingBox.minY + par1Entity.boundingBox.maxY) / 2.0D - (ent.posY + (double)ent.getEyeHeight());
-        }
+		if (par1Entity instanceof EntityLivingBase)
+		{
+			EntityLivingBase entitylivingbase = (EntityLivingBase)par1Entity;
+			d2 = entitylivingbase.posY + (double)entitylivingbase.getEyeHeight() - (ent.posY + (double)ent.getEyeHeight());
+		}
+		else
+		{
+			d2 = (par1Entity.boundingBox.minY + par1Entity.boundingBox.maxY) / 2.0D - (ent.posY + (double)ent.getEyeHeight());
+		}
 
-        double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d1 * d1);
-        float f2 = (float)(Math.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
-        float f3 = (float)(-(Math.atan2(d2, d3) * 180.0D / Math.PI));
-        ent.rotationPitch = this.updateRotation(ent.rotationPitch, f3, par3);
-        ent.rotationYaw = this.updateRotation(ent.rotationYaw, f2, par2);
-    }
+		double d3 = (double)MathHelper.sqrt_double(d0 * d0 + d1 * d1);
+		float f2 = (float)(Math.atan2(d1, d0) * 180.0D / Math.PI) - 90.0F;
+		float f3 = (float)(-(Math.atan2(d2, d3) * 180.0D / Math.PI));
+		ent.rotationPitch = this.updateRotation(ent.rotationPitch, f3, par3);
+		ent.rotationYaw = this.updateRotation(ent.rotationYaw, f2, par2);
+	}
 
-    private float updateRotation(float par1, float par2, float par3)
-    {
-        float f3 = MathHelper.wrapAngleTo180_float(par2 - par1);
+	private float updateRotation(float par1, float par2, float par3)
+	{
+		float f3 = MathHelper.wrapAngleTo180_float(par2 - par1);
 
-        if (f3 > par3)
-        {
-            f3 = par3;
-        }
+		if (f3 > par3)
+		{
+			f3 = par3;
+		}
 
-        if (f3 < -par3)
-        {
-            f3 = -par3;
-        }
+		if (f3 < -par3)
+		{
+			f3 = -par3;
+		}
 
-        return par1 + f3;
-    }
+		return par1 + f3;
+	}
 	
 	@Override
 	public void renderTileEntityAt(TileEntity tileentity, double d0, double d1,	double d2, float f) 

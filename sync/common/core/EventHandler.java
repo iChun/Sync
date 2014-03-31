@@ -114,17 +114,17 @@ public class EventHandler
 					
 					EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
 
-                    TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
+					TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
 					
 					if(tpPosition != null)
 					{
-                        Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
-                                (int) Math.floor(event.entityLiving.posX),
-                                (int) Math.floor(event.entityLiving.posY),
-                                (int) Math.floor(event.entityLiving.posZ),
-                                event.entityLiving.dimension,
-                                -1, false, true);
-                        PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
+						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
+								(int) Math.floor(event.entityLiving.posX),
+								(int) Math.floor(event.entityLiving.posY),
+								(int) Math.floor(event.entityLiving.posZ),
+								event.entityLiving.dimension,
+								-1, false, true);
+						PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 						
 						tpPosition.resyncPlayer = 120;
 						
@@ -151,23 +151,23 @@ public class EventHandler
 
 							dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
 
-					        boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+							boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
 
-					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+							tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-					        dvInstance.clonePlayer(player, false);
-					        dvInstance.entityId = player.entityId;
+							dvInstance.clonePlayer(player, false);
+							dvInstance.entityId = player.entityId;
 
-					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+							tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-					        dvInstance.writeToNBT(tag);
+							dvInstance.writeToNBT(tag);
 
-					        tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
+							tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
 
-					        tpPosition.playerNBT = tag;
+							tpPosition.playerNBT = tag;
 						}
 
-					    MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true);
+						MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true);
 						
 						player.setHealth(1);
 
@@ -252,106 +252,106 @@ public class EventHandler
 		}
 	}
 
-    //Will return the closest shell that the player can be synced too
-    public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
-        ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
+	//Will return the closest shell that the player can be synced too
+	public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
+		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
 
-        boolean reiterateShells = false;
+		boolean reiterateShells = false;
 
-        for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
-        {
-            if(e.getKey().playerName.equalsIgnoreCase(player.username))
-            {
-                TileEntityDualVertical dv1 = e.getKey();
-                if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
-                {
-                    dvs.add(dv1);
-                }
-                else
-                {
-                    reiterateShells = true;
-                }
-            }
-        }
+		for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
+		{
+			if(e.getKey().playerName.equalsIgnoreCase(player.username))
+			{
+				TileEntityDualVertical dv1 = e.getKey();
+				if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
+				{
+					dvs.add(dv1);
+				}
+				else
+				{
+					reiterateShells = true;
+				}
+			}
+		}
 
-        if(reiterateShells)
-        {
-            ShellHandler.updatePlayerOfShells(player, null, true);
-        }
+		if(reiterateShells)
+		{
+			ShellHandler.updatePlayerOfShells(player, null, true);
+		}
 
-        TileEntityDualVertical tpPosition, nearestHome, nearestDv, nearestCrossDim, nearestCrossDimHome;
-        tpPosition = nearestHome = nearestDv = nearestCrossDim = nearestCrossDimHome = null;
-        double homeDist, dist, crossDimDist, crossDimHomeDist;
-        homeDist = dist = crossDimDist = crossDimHomeDist = -1D;
+		TileEntityDualVertical tpPosition, nearestHome, nearestDv, nearestCrossDim, nearestCrossDimHome;
+		tpPosition = nearestHome = nearestDv = nearestCrossDim = nearestCrossDimHome = null;
+		double homeDist, dist, crossDimDist, crossDimHomeDist;
+		homeDist = dist = crossDimDist = crossDimHomeDist = -1D;
 
-        for(TileEntityDualVertical dv : dvs)
-        {
-            if(dv instanceof TileEntityShellConstructor)
-            {
-                TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-                if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
-                {
-                    continue;
-                }
-            }
+		for(TileEntityDualVertical dv : dvs)
+		{
+			if(dv instanceof TileEntityShellConstructor)
+			{
+				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+				if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+				{
+					continue;
+				}
+			}
 
-            double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
-            if(dv.worldObj.provider.dimensionId == player.dimension)
-            {
-                if(dv.isHomeUnit)
-                {
-                    if(homeDist == -1D || dvDist < homeDist)
-                    {
-                        nearestHome = dv;
-                        homeDist = dvDist;
-                    }
-                }
-                if(dist == -1D || dvDist < dist)
-                {
-                    nearestDv = dv;
-                    dist = dvDist;
-                }
-            }
-            else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
-            {
-                if(dv.isHomeUnit)
-                {
-                    if(crossDimHomeDist == -1D || dvDist < crossDimHomeDist)
-                    {
-                        nearestCrossDimHome = dv;
-                        crossDimHomeDist = dvDist;
-                    }
-                }
-                if(crossDimDist == -1D || dvDist < crossDimDist)
-                {
-                    nearestCrossDim = dv;
-                    crossDimDist = dvDist;
-                }
-            }
-        }
+			double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
+			if(dv.worldObj.provider.dimensionId == player.dimension)
+			{
+				if(dv.isHomeUnit)
+				{
+					if(homeDist == -1D || dvDist < homeDist)
+					{
+						nearestHome = dv;
+						homeDist = dvDist;
+					}
+				}
+				if(dist == -1D || dvDist < dist)
+				{
+					nearestDv = dv;
+					dist = dvDist;
+				}
+			}
+			else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
+			{
+				if(dv.isHomeUnit)
+				{
+					if(crossDimHomeDist == -1D || dvDist < crossDimHomeDist)
+					{
+						nearestCrossDimHome = dv;
+						crossDimHomeDist = dvDist;
+					}
+				}
+				if(crossDimDist == -1D || dvDist < crossDimDist)
+				{
+					nearestCrossDim = dv;
+					crossDimDist = dvDist;
+				}
+			}
+		}
 
-        if(Sync.prioritizeHomeShellOnDeath == 1)
-        {
-            if(nearestHome != null)
-            {
-                tpPosition = nearestHome;
-            }
-            else if(nearestCrossDimHome != null)
-            {
-                tpPosition = nearestCrossDimHome;
-            }
-        }
-        if(tpPosition == null)
-        {
-            if(nearestDv != null)
-            {
-                tpPosition = nearestDv;
-            }
-            else if(nearestCrossDim != null)
-            {
-                tpPosition = nearestCrossDim;
-            }
-        }
-        return tpPosition;
-    }
+		if(Sync.prioritizeHomeShellOnDeath == 1)
+		{
+			if(nearestHome != null)
+			{
+				tpPosition = nearestHome;
+			}
+			else if(nearestCrossDimHome != null)
+			{
+				tpPosition = nearestCrossDimHome;
+			}
+		}
+		if(tpPosition == null)
+		{
+			if(nearestDv != null)
+			{
+				tpPosition = nearestDv;
+			}
+			else if(nearestCrossDim != null)
+			{
+				tpPosition = nearestCrossDim;
+			}
+		}
+		return tpPosition;
+	}
 }

@@ -48,7 +48,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				{
 					playerInstance.readFromNBT(playerNBT);
 				}
-                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 		if(top && pair != null)
@@ -69,19 +69,19 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			EntityPlayer player = worldObj.getPlayerEntityByName(playerName);
 			if(player != null)
 			{
-		        double d3 = player.posX - (xCoord + 0.5D);
-		        double d4 = player.boundingBox.minY - yCoord;
-		        double d5 = player.posZ - (zCoord + 0.5D);
-		        double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
-		        
-		        if(dist > 0.75D)
-		        {
+				double d3 = player.posX - (xCoord + 0.5D);
+				double d4 = player.boundingBox.minY - yCoord;
+				double d5 = player.posZ - (zCoord + 0.5D);
+				double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+
+				if(dist > 0.75D)
+				{
 					occupied = false;
 					playerName = "";
 					
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-                    worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
-		        }
+					worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				}
 			}
 			else
 			{
@@ -89,7 +89,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				playerName = "";
 				
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 		if(syncing && occupationTime > 0)
@@ -108,14 +108,14 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					if(!worldObj.isRemote && !top )
 					{
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-                        worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+						worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 						ChunkLoadHandler.removeShellAsChunkloader(this);
 					}
 				}
 				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ChunkLoadHandler.shellTickets.containsKey(this))
 				{
 					ChunkLoadHandler.addShellAsChunkloader(this);
-                    worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+					worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 				}
 			}
 		}
@@ -124,12 +124,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			if(!isPowered() && ChunkLoadHandler.shellTickets.containsKey(this))
 			{
 				ChunkLoadHandler.removeShellAsChunkloader(this);
-                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
 			{
 				ChunkLoadHandler.addShellAsChunkloader(this);
-                worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}
 	}
@@ -150,18 +150,18 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 	
 	@Override
-    public void writeToNBT(NBTTagCompound tag)
-    {
+	public void writeToNBT(NBTTagCompound tag)
+	{
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
 		tag.setBoolean("syncing", canSavePlayer <= 0 && syncing);
 		
 		tag.setInteger("occupationTime", occupationTime);
-    }
+	}
 	 
 	@Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
+	public void readFromNBT(NBTTagCompound tag)
+	{
 		super.readFromNBT(tag);
 		
 		occupied = tag.getBoolean("occupied");
@@ -171,6 +171,6 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		occupationTime = tag.getInteger("occupationTime");
 		
 		resync = true;
-    }
+	}
 	
 }

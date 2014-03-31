@@ -86,7 +86,7 @@ public class TileEntityTreadmill extends TileEntity
 						
 						if(isEntityValidForTreadmill(ent))
 						{
-                            if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
+							if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
 							{
 								latchedEnt = (EntityLiving)ent;
 								latchedHealth = latchedEnt.getHealth();
@@ -152,8 +152,8 @@ public class TileEntityTreadmill extends TileEntity
 				boolean remove = false;
 				if(latchedEnt instanceof EntityTameable)
 				{
-                    EntityTameable entityTameable = (EntityTameable)latchedEnt;
-                    //Remove sitting entities
+					EntityTameable entityTameable = (EntityTameable)latchedEnt;
+					//Remove sitting entities
 					if(entityTameable.isSitting())
 					{
 						timeRunning = 0;
@@ -170,7 +170,7 @@ public class TileEntityTreadmill extends TileEntity
 					}
 					else
 					{
-                        entityTameable.ticksExisted = 1200; //anti despawn methods
+						entityTameable.ticksExisted = 1200; //anti despawn methods
 					}
 				}
 				for(int i = 0 ; i < list.size(); i++)
@@ -244,7 +244,7 @@ public class TileEntityTreadmill extends TileEntity
 				{
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-				    latchedEnt.getNavigator().clearPathEntity();
+					latchedEnt.getNavigator().clearPathEntity();
 					timeRunning++;
 					if(timeRunning > 12000)
 					{
@@ -358,9 +358,9 @@ public class TileEntityTreadmill extends TileEntity
 		float power = 0.0F;
 		if(latchedEnt != null)
 		{
-            power = Sync.treadmillEntityHashMap.get(latchedEnt.getClass());
-            if (latchedEnt instanceof EntityTameable && ((EntityTameable) latchedEnt).isTamed()) power = (power / 2) + (power / 4); //Decrease power if the entity isn't tamed
-            power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+			power = Sync.treadmillEntityHashMap.get(latchedEnt.getClass());
+			if (latchedEnt instanceof EntityTameable && ((EntityTameable) latchedEnt).isTamed()) power = (power / 2) + (power / 4); //Decrease power if the entity isn't tamed
+			power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
 		}
 		return power;
 	}
@@ -387,18 +387,18 @@ public class TileEntityTreadmill extends TileEntity
 	}
 	
 	@Override
-    public void writeToNBT(NBTTagCompound tag)
-    {
+	public void writeToNBT(NBTTagCompound tag)
+	{
 		super.writeToNBT(tag);
 		tag.setBoolean("back", back);
 		tag.setInteger("face", face);
 		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.entityId : -1);
 		tag.setInteger("timeRunning", timeRunning);
-    }
+	}
 	 
 	@Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
+	public void readFromNBT(NBTTagCompound tag)
+	{
 		super.readFromNBT(tag);
 		back = tag.getBoolean("back");
 		face = tag.getInteger("face");
@@ -406,27 +406,27 @@ public class TileEntityTreadmill extends TileEntity
 		timeRunning = tag.getInteger("timeRunning");
 		
 		resync = true;
-    }
+	}
 	
 	@Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
-    {
-        return AxisAlignedBB.getAABBPool().getAABB(xCoord - 1, yCoord, zCoord - 1, xCoord + 2, yCoord + 1, zCoord + 2);
-    }
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		return AxisAlignedBB.getAABBPool().getAABB(xCoord - 1, yCoord, zCoord - 1, xCoord + 2, yCoord + 1, zCoord + 2);
+	}
 
 	@Override
-    public Block getBlockType()
-    {
-        return Sync.blockDualVertical;
-    }
+	public Block getBlockType()
+	{
+		return Sync.blockDualVertical;
+	}
 
-    //Will return true if the entity can use the treadmill
-    public static boolean isEntityValidForTreadmill(Entity entity) {
-        return Sync.treadmillEntityHashMap.containsKey(entity.getClass()) && !((EntityLiving) entity).isChild() && !(entity instanceof EntityTameable && ((EntityTameable) entity).isSitting());
-    }
+	//Will return true if the entity can use the treadmill
+	public static boolean isEntityValidForTreadmill(Entity entity) {
+		return Sync.treadmillEntityHashMap.containsKey(entity.getClass()) && !((EntityLiving) entity).isChild() && !(entity instanceof EntityTameable && ((EntityTameable) entity).isSitting());
+	}
 	
-    // TE methods
+	// TE methods
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{

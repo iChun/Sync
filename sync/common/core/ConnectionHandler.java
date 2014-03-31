@@ -56,7 +56,7 @@ public class ConnectionHandler
 	@Override
 	public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) //server
 	{
-	    PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), player);
+		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), player);
 		ShellHandler.updatePlayerOfShells((EntityPlayer)player, null, true);
 	}
 

@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 @Mod(modid = "Sync", name = "Sync",
 			version = Sync.version,
 			dependencies = "required-after:Forge@[9.11.1.945,);after:ThermalExpansion;after:Waila"
-		 		)
+				)
 @NetworkMod(clientSideRequired = true,
 			serverSideRequired = false,
 			tinyPacketHandler = MapPacketHandler.class,
@@ -85,7 +85,7 @@ public class Sync
 	
 	public static boolean hasMorphMod;
 
-    public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
+	public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
 	
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
@@ -138,10 +138,10 @@ public class Sync
 		
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" ); 
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
-        FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
+		FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
 
-        treadmillEntityHashMap.put(EntityWolf.class, 4);
-        treadmillEntityHashMap.put(EntityPig.class, 2);
+		treadmillEntityHashMap.put(EntityWolf.class, 4);
+		treadmillEntityHashMap.put(EntityPig.class, 2);
 	}
 	
 	@EventHandler
@@ -167,42 +167,42 @@ public class Sync
 		ShellHandler.deathRespawns.clear();
 	}
 
-    @EventHandler
-    public void processIMC(FMLInterModComms.IMCEvent event) {
-        for (FMLInterModComms.IMCMessage message : event.getMessages())
-        {
-            if (message.isStringMessage())
-            {
-                if (message.key.equals("treadmill"))
-                {
-                    String[] s = message.getStringValue().split(":");
-                    if (s.length != 2)
-                    {
-                        logger.warning("Invalid IMC treadmill register (incorrect length) received from " + message.getSender());
-                    }
-                    else
-                    {
-                        try
-                        {
-                            String entityClassName = s[0];
-                            int entityPower = Integer.valueOf(s[1]);
-                            Class entityClass = Class.forName(entityClassName);
+	@EventHandler
+	public void processIMC(FMLInterModComms.IMCEvent event) {
+		for (FMLInterModComms.IMCMessage message : event.getMessages())
+		{
+			if (message.isStringMessage())
+			{
+				if (message.key.equals("treadmill"))
+				{
+					String[] s = message.getStringValue().split(":");
+					if (s.length != 2)
+					{
+						logger.warning("Invalid IMC treadmill register (incorrect length) received from " + message.getSender());
+					}
+					else
+					{
+						try
+						{
+							String entityClassName = s[0];
+							int entityPower = Integer.valueOf(s[1]);
+							Class entityClass = Class.forName(entityClassName);
 
-                            treadmillEntityHashMap.put(entityClass, entityPower);
-                            logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
+							treadmillEntityHashMap.put(entityClass, entityPower);
+							logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
 
-                        } catch (NumberFormatException e)
-                        {
-                            logger.warning("Invalid IMC treadmill register (power not integer) received from " + message.getSender());
-                        } catch (ClassNotFoundException e)
-                        {
-                            logger.warning("Invalid IMC treadmill register (class not found) received from " + message.getSender());
-                        }
-                    }
-                }
-            }
-        }
-    }
+						} catch (NumberFormatException e)
+						{
+							logger.warning("Invalid IMC treadmill register (power not integer) received from " + message.getSender());
+						} catch (ClassNotFoundException e)
+						{
+							logger.warning("Invalid IMC treadmill register (class not found) received from " + message.getSender());
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	public static int addCommentAndReturnBlockId(Configuration config, String cat, String s, String comment, int i)
 	{
@@ -231,35 +231,35 @@ public class Sync
 		return ((NetworkModHandler)FMLNetworkHandler.instance().findNetworkModHandler(Sync.instance)).getNetworkId();
 	}
 	
-    public static NBTTagCompound readNBTTagCompound(DataInput par0DataInput) throws IOException
-    {
-        short short1 = par0DataInput.readShort();
+	public static NBTTagCompound readNBTTagCompound(DataInput par0DataInput) throws IOException
+	{
+		short short1 = par0DataInput.readShort();
 
-        if (short1 < 0)
-        {
-            return null;
-        }
-        else
-        {
-            byte[] abyte = new byte[short1];
-            par0DataInput.readFully(abyte);
-            return CompressedStreamTools.decompress(abyte);
-        }
-    }
+		if (short1 < 0)
+		{
+			return null;
+		}
+		else
+		{
+			byte[] abyte = new byte[short1];
+			par0DataInput.readFully(abyte);
+			return CompressedStreamTools.decompress(abyte);
+		}
+	}
 
-    public static void writeNBTTagCompound(NBTTagCompound par0NBTTagCompound, DataOutput par1DataOutput) throws IOException
-    {
-        if (par0NBTTagCompound == null)
-        {
-            par1DataOutput.writeShort(-1);
-        }
-        else
-        {
-            byte[] abyte = CompressedStreamTools.compress(par0NBTTagCompound);
-            par1DataOutput.writeShort((short)abyte.length);
-            par1DataOutput.write(abyte);
-        }
-    }
+	public static void writeNBTTagCompound(NBTTagCompound par0NBTTagCompound, DataOutput par1DataOutput) throws IOException
+	{
+		if (par0NBTTagCompound == null)
+		{
+			par1DataOutput.writeShort(-1);
+		}
+		else
+		{
+			byte[] abyte = CompressedStreamTools.compress(par0NBTTagCompound);
+			par1DataOutput.writeShort((short)abyte.length);
+			par1DataOutput.write(abyte);
+		}
+	}
 
 	public static void mapHardmodeRecipe() 
 	{

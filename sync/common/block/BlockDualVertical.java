@@ -422,7 +422,7 @@ public class BlockDualVertical extends BlockContainer
 							}
 							else
 							{
-							    PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(i, j, k), (Player)player);
+								PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(i, j, k), (Player)player);
 
 								player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
 							}
@@ -675,16 +675,16 @@ public class BlockDualVertical extends BlockContainer
 
 						world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-                        Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
-                        PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
+						Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
+						PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
 					}
 					else if(bottom instanceof TileEntityShellConstructor)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)bottom;
 						if(!sc.playerName.equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
 						{
-                            Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
-                            PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
+							Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
+							PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
 						}
 					}
 

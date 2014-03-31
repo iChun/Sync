@@ -150,8 +150,8 @@ public class TileEntityDualVertical extends TileEntity
 							player.fallDistance = 0F;
 						}
 
-                        Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(xCoord, yCoord, zCoord, worldObj.provider.dimensionId, face, true, false);
-                        PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
+						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(xCoord, yCoord, zCoord, worldObj.provider.dimensionId, face, true, false);
+						PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 					}
 				}
 				//Beginning of kicking the player out
@@ -181,49 +181,49 @@ public class TileEntityDualVertical extends TileEntity
 				{
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 
-                    if(player != null && player.isEntityAlive())
-                    {
-                        //Clear active potion effects before syncing
-                        player.clearActivePotions();
+					if(player != null && player.isEntityAlive())
+					{
+						//Clear active potion effects before syncing
+						player.clearActivePotions();
 
-                        //Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
-                        if (!playerNBT.hasKey("Inventory")) {
-                            NBTTagCompound tag = new NBTTagCompound();
-                            boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+						//Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
+						if (!playerNBT.hasKey("Inventory")) {
+							NBTTagCompound tag = new NBTTagCompound();
+							boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
 
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-                            dummy.playerNetServerHandler = player.playerNetServerHandler;
-                            dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-                            dummy.fallDistance = 0F;
-                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+							dummy.playerNetServerHandler = player.playerNetServerHandler;
+							dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+							dummy.fallDistance = 0F;
+							worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-                            dummy.clonePlayer(player, false);
-                            dummy.dimension = player.dimension;
-                            dummy.entityId = player.entityId;
+							dummy.clonePlayer(player, false);
+							dummy.dimension = player.dimension;
+							dummy.entityId = player.entityId;
 
-                            worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+							worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-                            dummy.writeToNBT(tag);
-                            tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-                            playerNBT = tag;
-                        }
-                        //Sync Forge persistent data as it's supposed to carry over on death
-                        NBTTagCompound persistentData = player.getEntityData();
-                        if (persistentData != null) {
-                            NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
-                            forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
-                            playerNBT.setCompoundTag("ForgeData", forgeData);
-                        }
-                        //Also sync ender chest.
-                        playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
+							dummy.writeToNBT(tag);
+							tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+							playerNBT = tag;
+						}
+						//Sync Forge persistent data as it's supposed to carry over on death
+						NBTTagCompound persistentData = player.getEntityData();
+						if (persistentData != null) {
+							NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
+							forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+							playerNBT.setCompoundTag("ForgeData", forgeData);
+						}
+						//Also sync ender chest.
+						playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
-                        //Update the players NBT stuff
-                        Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(playerNBT);
-                        player.readFromNBT(playerNBT);
+						//Update the players NBT stuff
+						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(playerNBT);
+						player.readFromNBT(playerNBT);
 
-                        player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
+						player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
 
-                        PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
+						PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
 					}
 				}
 				if(resyncPlayer == 0)

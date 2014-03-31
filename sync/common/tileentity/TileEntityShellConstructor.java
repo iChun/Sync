@@ -84,8 +84,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 				spawnParticles();
 			}
 
-            //Notifies neighbours of block update, used for comparator
-            if (worldObj.getWorldTime() % 40L == 0) worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+			//Notifies neighbours of block update, used for comparator
+			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 		}
 		if(!top)
 		{
@@ -192,26 +192,26 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 	}
 
 	@Override
-    public void writeToNBT(NBTTagCompound tag)
-    {
+	public void writeToNBT(NBTTagCompound tag)
+	{
 		super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
 		tag.setInteger("rfIntake", rfIntake);
-    }
+	}
 	 
 	@Override
-    public void readFromNBT(NBTTagCompound tag)
-    {
+	public void readFromNBT(NBTTagCompound tag)
+	{
 		super.readFromNBT(tag);
 		constructionProgress = tag.getFloat("constructionProgress");
 		doorOpen = tag.getBoolean("doorOpen");
 		rfIntake = tag.getInteger("rfIntake");
 		
 		resync = true;
-    }
+	}
 	
-    // TE methods
+	// TE methods
 	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
@@ -260,23 +260,23 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		return 0;
 	}
 
-    @Override
-    public int getEnergyPerTick() {
-        return powReceived;
-    }
+	@Override
+	public int getEnergyPerTick() {
+		return powReceived;
+	}
 
-    @Override
-    public int getMaxEnergyPerTick() {
-        return 24;
-    }
+	@Override
+	public int getMaxEnergyPerTick() {
+		return 24;
+	}
 
-    @Override
-    public int getEnergy() {
-        return 0;
-    }
+	@Override
+	public int getEnergy() {
+		return 0;
+	}
 
-    @Override
-    public int getMaxEnergy() {
-        return 0;
-    }
+	@Override
+	public int getMaxEnergy() {
+		return 0;
+	}
 }
