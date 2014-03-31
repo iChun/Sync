@@ -31,9 +31,6 @@ import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
@@ -116,135 +113,18 @@ public class EventHandler
 //					}
 					
 					EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
-					
-					ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
-					
-					boolean reiterateShells = false;
-					
-					for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
-					{
-						if(e.getKey().playerName.equalsIgnoreCase(player.username))
-						{
-							TileEntityDualVertical dv1 = e.getKey();
-							if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
-							{
-								dvs.add(dv1);
-							}
-							else
-							{
-								reiterateShells = true;
-							}
-						}
-					}
-					
-					if(reiterateShells)
-					{
-						ShellHandler.updatePlayerOfShells(player, null, true);
-					}
-					
-					TileEntityDualVertical tpPosition = null;
-					
-					TileEntityDualVertical nearestHome = null;
-					double homeDist = -1D;
-					TileEntityDualVertical nearestDv = null;
-					double dist = -1D;
-					TileEntityDualVertical nearestCrossDim = null;
-					double crossDimDist = -1D;
-					TileEntityDualVertical nearestCrossDimHome = null;
-					double crossDimHomeDist = -1D;
-					
-					for(TileEntityDualVertical dv : dvs)
-					{
-						if(dv instanceof TileEntityShellConstructor)
-						{
-							TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-							if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
-							{
-								continue;
-							}
-						}
-						
-						double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
-						if(dv.worldObj.provider.dimensionId == player.dimension)
-						{
-							if(dv.isHomeUnit)
-							{
-								if(homeDist == -1D || dvDist < homeDist)
-								{
-									nearestHome = dv;
-									homeDist = dvDist;
-								}
-							}
-							if(dist == -1D || dvDist < dist)
-							{
-								nearestDv = dv;
-								dist = dvDist;
-							}
-						}
-						else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
-						{
-							if(dv.isHomeUnit)
-							{
-								if(crossDimHomeDist == -1D || dvDist < crossDimHomeDist)
-								{
-									nearestCrossDimHome = dv;
-									crossDimHomeDist = dvDist;
-								}
-							}
-							if(crossDimDist == -1D || dvDist < crossDimDist)
-							{
-								nearestCrossDim = dv;
-								crossDimDist = dvDist;
-							}
-						}
-					}
-					
-					if(Sync.prioritizeHomeShellOnDeath == 1)
-					{
-						if(nearestHome != null)
-						{
-							tpPosition = nearestHome;
-						}
-						else if(nearestCrossDimHome != null)
-						{
-							tpPosition = nearestCrossDimHome;
-						}
-					}
-					if(tpPosition == null)
-					{
-						if(nearestDv != null)
-						{
-							tpPosition = nearestDv;
-						}
-						else if(nearestCrossDim != null)
-						{
-							tpPosition = nearestCrossDim;
-						}
-					}
+
+                    TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
 					
 					if(tpPosition != null)
 					{
-						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-						DataOutputStream stream = new DataOutputStream(bytes);
-						try
-						{
-							stream.writeInt((int)Math.floor(event.entityLiving.posX));
-							stream.writeInt((int)Math.floor(event.entityLiving.posY));
-							stream.writeInt((int)Math.floor(event.entityLiving.posZ));
-							
-							stream.writeInt(event.entityLiving.dimension);
-							
-							stream.writeInt(-1);
-							
-							stream.writeBoolean(false);
-							
-							stream.writeBoolean(true);
-							
-							PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
-						}
-						catch(IOException e)
-						{
-						}
+                        Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
+                                (int) Math.floor(event.entityLiving.posX),
+                                (int) Math.floor(event.entityLiving.posY),
+                                (int) Math.floor(event.entityLiving.posZ),
+                                event.entityLiving.dimension,
+                                -1, false, true);
+                        PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 						
 						tpPosition.resyncPlayer = 120;
 						
@@ -263,44 +143,34 @@ public class EventHandler
 						if(dvInstance != null)
 						{
 							NBTTagCompound tag = new NBTTagCompound();
-							
+
 							if(tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory"))
 							{
 								dvInstance.readFromNBT(tpPosition.playerNBT);
 							}
-							
+
 							dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
-					        
+
 					        boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
-					        
+
 					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
-					        
+
 					        dvInstance.clonePlayer(player, false);
 					        dvInstance.entityId = player.entityId;
 
 					        tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-							
+
 					        dvInstance.writeToNBT(tag);
-					        
+
 					        tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
-					        
+
 					        tpPosition.playerNBT = tag;
 						}
-						
-						bytes = new ByteArrayOutputStream();
-						stream = new DataOutputStream(bytes);
-						try
-						{
-							stream.writeUTF(((EntityPlayer)event.entityLiving).username);
-							stream.writeBoolean(true);
-							PacketDispatcher.sendPacketToAllPlayers(new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray()));
-						}
-						catch(IOException e)
-						{
-						}
+
+					    MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true);
 						
 						player.setHealth(1);
-						
+
 						if(!ShellHandler.deathRespawns.contains(player.username))
 						{
 							ShellHandler.deathRespawns.add(player.username);
@@ -381,4 +251,107 @@ public class EventHandler
 			}
 		}
 	}
+
+    //Will return the closest shell that the player can be synced too
+    public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
+        ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
+
+        boolean reiterateShells = false;
+
+        for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
+        {
+            if(e.getKey().playerName.equalsIgnoreCase(player.username))
+            {
+                TileEntityDualVertical dv1 = e.getKey();
+                if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
+                {
+                    dvs.add(dv1);
+                }
+                else
+                {
+                    reiterateShells = true;
+                }
+            }
+        }
+
+        if(reiterateShells)
+        {
+            ShellHandler.updatePlayerOfShells(player, null, true);
+        }
+
+        TileEntityDualVertical tpPosition, nearestHome, nearestDv, nearestCrossDim, nearestCrossDimHome;
+        tpPosition = nearestHome = nearestDv = nearestCrossDim = nearestCrossDimHome = null;
+        double homeDist, dist, crossDimDist, crossDimHomeDist;
+        homeDist = dist = crossDimDist = crossDimHomeDist = -1D;
+
+        for(TileEntityDualVertical dv : dvs)
+        {
+            if(dv instanceof TileEntityShellConstructor)
+            {
+                TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+                if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+                {
+                    continue;
+                }
+            }
+
+            double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
+            if(dv.worldObj.provider.dimensionId == player.dimension)
+            {
+                if(dv.isHomeUnit)
+                {
+                    if(homeDist == -1D || dvDist < homeDist)
+                    {
+                        nearestHome = dv;
+                        homeDist = dvDist;
+                    }
+                }
+                if(dist == -1D || dvDist < dist)
+                {
+                    nearestDv = dv;
+                    dist = dvDist;
+                }
+            }
+            else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
+            {
+                if(dv.isHomeUnit)
+                {
+                    if(crossDimHomeDist == -1D || dvDist < crossDimHomeDist)
+                    {
+                        nearestCrossDimHome = dv;
+                        crossDimHomeDist = dvDist;
+                    }
+                }
+                if(crossDimDist == -1D || dvDist < crossDimDist)
+                {
+                    nearestCrossDim = dv;
+                    crossDimDist = dvDist;
+                }
+            }
+        }
+
+        if(Sync.prioritizeHomeShellOnDeath == 1)
+        {
+            if(nearestHome != null)
+            {
+                tpPosition = nearestHome;
+            }
+            else if(nearestCrossDimHome != null)
+            {
+                tpPosition = nearestCrossDimHome;
+            }
+        }
+        if(tpPosition == null)
+        {
+            if(nearestDv != null)
+            {
+                tpPosition = nearestDv;
+            }
+            else if(nearestCrossDim != null)
+            {
+                tpPosition = nearestCrossDim;
+            }
+        }
+        return tpPosition;
+    }
 }

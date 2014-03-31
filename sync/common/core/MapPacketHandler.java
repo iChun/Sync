@@ -1,11 +1,11 @@
 package sync.common.core;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.ITinyPacketHandler;
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.multiplayer.NetClientHandler;
@@ -28,12 +28,8 @@ import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.ITinyPacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+
+import java.io.*;
 
 public class MapPacketHandler
 	implements ITinyPacketHandler
@@ -136,44 +132,15 @@ public class MapPacketHandler
 									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 								}
 
-								ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-								DataOutputStream stream1 = new DataOutputStream(bytes);
-								try
-								{
-									stream1.writeInt(oriX);
-									stream1.writeInt(oriY);
-									stream1.writeInt(oriZ);
-									
-									stream1.writeInt(oriDim);
-									
-									stream1.writeInt(dv.face);
-									
-									stream1.writeBoolean(false);
-									
-									stream1.writeBoolean(false);//isDeathZoom?
-									
-									PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray()), (Player)player);
-								}
-								catch(IOException e)
-								{
-								}
-								
+                                Packet131MapData zoomPacket = createZoomCameraPacket(oriX, oriY, oriZ, oriDim, dv.face, false, false);
+                                PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
+
 								dv1.resyncPlayer = 120;
 								dv.canSavePlayer = -1;
 								
 								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, dv.playerNBT, dv1.playerNBT, dv1.xCoord, dv1.yCoord, dv1.zCoord));
-								
-								bytes = new ByteArrayOutputStream();
-								stream1 = new DataOutputStream(bytes);
-								try
-								{
-									stream1.writeUTF(player.username);
-									stream1.writeBoolean(false);
-									PacketDispatcher.sendPacketToAllPlayers(new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray()));
-								}
-								catch(IOException e)
-								{
-								}
+
+								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.username, false));
 								
 								valid = true;
 							}
@@ -213,71 +180,6 @@ public class MapPacketHandler
 		{
 			switch(id)
 			{
-				case 0:
-				{
-					SessionState.shellConstructionPowerRequirement = stream.readInt();
-					SessionState.allowCrossDimensional = stream.readInt();
-					SessionState.deathMode = stream.readInt();
-					SessionState.hardMode = stream.readBoolean();
-					
-					Sync.mapHardmodeRecipe();
-					
-					break;
-				}
-				case 1:
-				{
-					//Create shell state
-					int x = stream.readInt();
-					int y = stream.readInt();
-					int z = stream.readInt();
-					int dim = stream.readInt();
-					
-					ShellState state = new ShellState(x, y, z, dim);
-
-					state.buildProgress = stream.readFloat();
-					state.powerReceived = stream.readFloat();
-					
-					state.name = stream.readUTF();
-					
-					state.dimName = stream.readUTF();
-					
-					state.isConstructor = stream.readBoolean();
-					
-					state.isHome = stream.readBoolean();
-					
-					boolean add = true;
-					for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
-					{
-						ShellState state1 = Sync.proxy.tickHandlerClient.shells.get(i);
-						if(state1.matches(state))
-						{
-							Sync.proxy.tickHandlerClient.shells.remove(i);
-						}
-						if(!Sync.proxy.tickHandlerClient.shells.contains(state))
-						{
-							Sync.proxy.tickHandlerClient.shells.add(i, state);
-						}
-						add = false;
-					}
-					
-					if(add)
-					{
-						Sync.proxy.tickHandlerClient.shells.add(state);
-					}
-					
-					state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.username);
-					
-					if(!state.isConstructor)
-					{
-						NBTTagCompound tag = Sync.readNBTTagCompound(stream);
-						if(tag.hasKey("Inventory"))
-						{
-							TileEntityDualVertical.addShowableEquipToPlayer(state.playerState, tag);
-						}
-					}
-					
-					break;
-				}
 				case 2:
 				{
 					//Remove shell state
@@ -354,6 +256,7 @@ public class MapPacketHandler
 				}
 				case 6:
 				{
+                    //Update player NBT
 					NBTTagCompound tag = Sync.readNBTTagCompound(stream);
 					mc.thePlayer.readFromNBT(tag);
 					if(mc.thePlayer.isEntityAlive())
@@ -366,6 +269,7 @@ public class MapPacketHandler
 				}
 				case 7:
 				{
+                    //Player death animation
 					String name = stream.readUTF();
 					Sync.proxy.tickHandlerClient.refusePlayerRender.put(name, 120);
 					if(stream.readBoolean())
@@ -407,11 +311,249 @@ public class MapPacketHandler
 						}
 					}
 				}
+                case 9:
+                {
+                    //Sync config from server
+                    SessionState.shellConstructionPowerRequirement = stream.readInt();
+                    SessionState.allowCrossDimensional = stream.readInt();
+                    SessionState.deathMode = stream.readInt();
+                    SessionState.hardMode = stream.readBoolean();
+
+                    Sync.mapHardmodeRecipe();
+
+                    break;
+                }
+                case 10:
+                {
+                    //Create shell state
+                    int x = stream.readInt();
+                    int y = stream.readInt();
+                    int z = stream.readInt();
+                    int dim = stream.readInt();
+
+                    ShellState state = new ShellState(x, y, z, dim);
+
+                    state.buildProgress = stream.readFloat();
+                    state.powerReceived = stream.readFloat();
+
+                    state.name = stream.readUTF();
+
+                    state.dimName = stream.readUTF();
+
+                    state.isConstructor = stream.readBoolean();
+
+                    state.isHome = stream.readBoolean();
+
+                    boolean add = true;
+                    for(int i = Sync.proxy.tickHandlerClient.shells.size() - 1; i >= 0; i--)
+                    {
+                        ShellState state1 = Sync.proxy.tickHandlerClient.shells.get(i);
+                        if(state1.matches(state))
+                        {
+                            Sync.proxy.tickHandlerClient.shells.remove(i);
+                        }
+                        if(!Sync.proxy.tickHandlerClient.shells.contains(state))
+                        {
+                            Sync.proxy.tickHandlerClient.shells.add(i, state);
+                        }
+                        add = false;
+                    }
+
+                    if(add)
+                    {
+                        Sync.proxy.tickHandlerClient.shells.add(state);
+                    }
+
+                    state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.username);
+
+                    if(!state.isConstructor)
+                    {
+                        NBTTagCompound tag = Sync.readNBTTagCompound(stream);
+                        if(tag.hasKey("Inventory"))
+                        {
+                            TileEntityDualVertical.addShowableEquipToPlayer(state.playerState, tag);
+                        }
+                    }
+
+                    break;
+                }
 			}
 		}
 		catch(IOException e)
 		{
+            e.printStackTrace();
 		}
 	}
-	
+
+    //Packet ID 0
+    //Sent from client to server
+    public static Packet131MapData createSyncRequestPacket(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeInt(xCoord);
+            stream.writeInt(yCoord);
+            stream.writeInt(zCoord);
+            stream.writeInt(dimID);
+            stream.writeInt(shellPosX);
+            stream.writeInt(shellPosY);
+            stream.writeInt(shellPosZ);
+            stream.writeInt(shellDimID);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray());
+    }
+
+    //Packet ID 1
+    //Sent from client to server
+    public static Packet131MapData createUpdatePlayerOnZoomFinishPacket(double posX, double posY, double posZ, float rotationYaw, float rotationPitch) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeDouble(posX);
+            stream.writeDouble(posY);
+            stream.writeDouble(posZ);
+            stream.writeFloat(rotationYaw);
+            stream.writeFloat(rotationPitch);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        return new Packet131MapData((short)Sync.getNetId(), (short)1, bytes.toByteArray());
+    }
+
+    //Packet ID 2
+    //Sent from server to client TODO: Merge this and the createShellData packet
+    public static Packet131MapData createRemoveShellDataPacket(TileEntityDualVertical dv) {
+        return new Packet131MapData((short)Sync.getNetId(), (short)2, dv.createShellStateData());
+    }
+
+    //Packet ID 3
+    //Sent from server to client
+    public static Packet131MapData createPlayerEnterStoragePacket(int posX, int posY, int posZ) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+        try {
+            stream.writeInt(posX);
+            stream.writeInt(posY);
+            stream.writeInt(posZ);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray());
+    }
+
+    //Packet ID 4
+    //Sent from server to client
+    public static Packet131MapData createZoomCameraPacket(int posX, int posY, int posZ, int dimID, int zoomFace, boolean zoom, boolean zoomDeath) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeInt((int) Math.floor(posX));
+            stream.writeInt((int) Math.floor(posY));
+            stream.writeInt((int) Math.floor(posZ));
+            stream.writeInt(dimID);
+            stream.writeInt(zoomFace);
+            stream.writeBoolean(zoom);
+            stream.writeBoolean(zoomDeath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray());
+    }
+
+    //Packet ID 5
+    //Sent from server to client
+    public static Packet131MapData createClearShellListPacket(byte notUsed) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeByte(notUsed);
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)5, bytes.toByteArray());
+    }
+
+    //Packet ID 6
+    //Sent from server to client
+    public static Packet131MapData createNBTPacket(NBTTagCompound tagCompound) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            Sync.writeNBTTagCompound(tagCompound, stream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)6, bytes.toByteArray());
+    }
+
+    //Packet ID 7
+    //Sent from server to client
+    public static Packet131MapData createPlayerDeathPacket(String playerName, boolean doDeathAnimation) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeUTF(playerName);
+            stream.writeBoolean(doDeathAnimation);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray());
+    }
+
+    //Packet ID 8
+    //Sent from server to client
+    public static Packet131MapData createShellDeathPacket(int xCoord, int yCoord, int zCoord, int face) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeInt(xCoord);
+            stream.writeInt(yCoord);
+            stream.writeInt(zCoord);
+            stream.writeInt(face);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)8, bytes.toByteArray());
+    }
+
+    //Packet ID 9
+    //Sent from server to client
+    public static Packet131MapData createConfigDataPacket() {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        DataOutputStream stream = new DataOutputStream(bytes);
+
+        try {
+            stream.writeInt(SessionState.shellConstructionPowerRequirement);
+            stream.writeInt(SessionState.allowCrossDimensional);
+            stream.writeInt(SessionState.deathMode);
+            stream.writeBoolean(SessionState.hardMode);
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+
+        return new Packet131MapData((short)Sync.getNetId(), (short)9, bytes.toByteArray());
+    }
+
+    //Packet ID 10
+    //Sent from server to client
+    public static Packet131MapData createShellStatePacket(TileEntityDualVertical dv) {
+        return new Packet131MapData((short)Sync.getNetId(), (short)10, dv.createShellStateData());
+    }
 }

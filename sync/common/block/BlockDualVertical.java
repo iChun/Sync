@@ -26,6 +26,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
+import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.network.FakeNetServerHandler;
 import sync.common.network.FakeNetworkManager;
@@ -35,9 +36,6 @@ import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -424,19 +422,7 @@ public class BlockDualVertical extends BlockContainer
 							}
 							else
 							{
-								ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-								DataOutputStream stream = new DataOutputStream(bytes);
-								try
-								{
-									stream.writeInt(i);
-									stream.writeInt(j);
-									stream.writeInt(k);
-
-									PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray()), (Player)player);
-								}
-								catch(IOException e)
-								{
-								}
+							    PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(i, j, k), (Player)player);
 
 								player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
 							}
@@ -689,43 +675,16 @@ public class BlockDualVertical extends BlockContainer
 
 						world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-						ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-						DataOutputStream stream1 = new DataOutputStream(bytes);
-						try
-						{
-							stream1.writeInt(bottom.xCoord);
-							stream1.writeInt(bottom.yCoord);
-							stream1.writeInt(bottom.zCoord);
-
-							stream1.writeInt(bottom.face);
-
-							PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, new Packet131MapData((short)Sync.getNetId(), (short)8, bytes.toByteArray()));
-						}
-						catch(IOException e)
-						{
-						}
-
+                        Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
+                        PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
 					}
 					else if(bottom instanceof TileEntityShellConstructor)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)bottom;
 						if(!sc.playerName.equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
 						{
-							ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-							DataOutputStream stream1 = new DataOutputStream(bytes);
-							try
-							{
-								stream1.writeInt(bottom.xCoord);
-								stream1.writeInt(bottom.yCoord);
-								stream1.writeInt(bottom.zCoord);
-
-								stream1.writeInt(bottom.face);
-
-								PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, new Packet131MapData((short)Sync.getNetId(), (short)8, bytes.toByteArray()));
-							}
-							catch(IOException e)
-							{
-							}
+                            Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
+                            PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
 						}
 					}
 

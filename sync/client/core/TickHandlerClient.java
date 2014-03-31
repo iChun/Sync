@@ -1,15 +1,8 @@
 package sync.client.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-
+import cpw.mods.fml.common.ITickHandler;
+import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.network.PacketDispatcher;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
@@ -26,22 +19,20 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-
-import sync.client.entity.EntityShellDestruction;
 import sync.client.model.ModelShellConstructor;
 import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
+import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityShellStorage;
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
-import cpw.mods.fml.common.network.PacketDispatcher;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class TickHandlerClient implements ITickHandler {
 
@@ -167,27 +158,10 @@ public class TickHandlerClient implements ITickHandler {
 				}
 				if(selected != null && selected.buildProgress >= SessionState.shellConstructionPowerRequirement && lockedStorage != null)
 				{
-					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-					DataOutputStream stream = new DataOutputStream(bytes);
-					try
-					{
-						stream.writeInt(lockedStorage.xCoord);
-						stream.writeInt(lockedStorage.yCoord);
-						stream.writeInt(lockedStorage.zCoord);
-
-						stream.writeInt(lockedStorage.worldObj.provider.dimensionId);
-
-						stream.writeInt(selected.xCoord);
-						stream.writeInt(selected.yCoord);
-						stream.writeInt(selected.zCoord);
-
-						stream.writeInt(selected.dimension);
-
-						PacketDispatcher.sendPacketToServer(new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray()));
-					}
-					catch(IOException e)
-					{
-					}
+                    Packet131MapData syncRequestPacket = MapPacketHandler.createSyncRequestPacket(
+                            lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord, lockedStorage.worldObj.provider.dimensionId,
+                            selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension);
+                    PacketDispatcher.sendPacketToServer(syncRequestPacket);
 				}
 
 				radialShow = false;
@@ -330,27 +304,14 @@ public class TickHandlerClient implements ITickHandler {
 				if(zoomTimer > -10)
 				{
 					zoomTimer--;
-				}
-				if(zoomTimer == 0)
-				{
-					ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-					DataOutputStream stream = new DataOutputStream(bytes);
-					try
-					{
-						stream.writeDouble(mc.thePlayer.posX);
-						stream.writeDouble(mc.thePlayer.posY - mc.thePlayer.yOffset);
-						stream.writeDouble(mc.thePlayer.posZ);
+                }
+                if(zoomTimer == 0)
+                {
+                    Packet131MapData updatePlayerPacket = MapPacketHandler.createUpdatePlayerOnZoomFinishPacket(
+                            mc.thePlayer.posX, mc.thePlayer.posY - mc.thePlayer.yOffset, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
+                    PacketDispatcher.sendPacketToServer(updatePlayerPacket);//
 
-						stream.writeFloat(mc.thePlayer.rotationYaw);
-						stream.writeFloat(mc.thePlayer.rotationPitch);
-
-						PacketDispatcher.sendPacketToServer(new Packet131MapData((short)Sync.getNetId(), (short)1, bytes.toByteArray()));
-					}
-					catch(IOException e)
-					{
-					}
-
-					mc.thePlayer.sendPlayerAbilities();
+                    mc.thePlayer.sendPlayerAbilities();
 				}
 			}
 			else if(zoomTimer > -10)

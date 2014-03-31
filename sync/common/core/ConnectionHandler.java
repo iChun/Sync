@@ -1,23 +1,18 @@
 package sync.common.core;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.NetLoginHandler;
-import net.minecraft.network.packet.NetHandler;
-import net.minecraft.network.packet.Packet131MapData;
-import net.minecraft.network.packet.Packet1Login;
-import net.minecraft.server.MinecraftServer;
-import sync.common.Sync;
-import sync.common.shell.ShellHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.NetLoginHandler;
+import net.minecraft.network.packet.NetHandler;
+import net.minecraft.network.packet.Packet1Login;
+import net.minecraft.server.MinecraftServer;
+import sync.common.Sync;
+import sync.common.shell.ShellHandler;
 
 public class ConnectionHandler 
 	implements IConnectionHandler 
@@ -61,21 +56,7 @@ public class ConnectionHandler
 	@Override
 	public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) //server
 	{
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-		try
-		{
-			stream.writeInt(SessionState.shellConstructionPowerRequirement);
-			stream.writeInt(SessionState.allowCrossDimensional);
-			stream.writeInt(SessionState.deathMode);
-			stream.writeBoolean(SessionState.hardMode);
-			
-			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray()), player);
-		}
-		catch(IOException e)
-		{
-		}
-		
+	    PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), player);
 		ShellHandler.updatePlayerOfShells((EntityPlayer)player, null, true);
 	}
 

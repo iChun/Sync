@@ -1,20 +1,18 @@
 package sync.common.shell;
 
+import cpw.mods.fml.common.network.PacketDispatcher;
+import cpw.mods.fml.common.network.Player;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.common.ForgeChunkManager.Ticket;
+import sync.common.core.ChunkLoadHandler;
+import sync.common.core.MapPacketHandler;
+import sync.common.tileentity.TileEntityDualVertical;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map.Entry;
-
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.packet.Packet131MapData;
-import net.minecraftforge.common.ForgeChunkManager.Ticket;
-import sync.common.Sync;
-import sync.common.core.ChunkLoadHandler;
-import sync.common.core.SessionState;
-import sync.common.tileentity.TileEntityDualVertical;
 
 public class ShellHandler 
 {
@@ -34,7 +32,7 @@ public class ShellHandler
 			{
 				stream.writeByte(0);
 				
-				PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)5, bytes.toByteArray()), (Player)player);
+				PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createClearShellListPacket((byte) 0), (Player)player);
 			}
 			catch(IOException e)
 			{
@@ -67,7 +65,7 @@ public class ShellHandler
 		{
 			if(dv1.top)
 				continue;
-			PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)1, dv1.createShellStateData()), (Player)player);
+			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createShellStatePacket(dv1), (Player)player);
 		}
 		
 		for(TileEntityDualVertical dv1 : remove)
@@ -78,9 +76,8 @@ public class ShellHandler
 	
 	public static void updatePlayerOfShellRemoval(EntityPlayer player, TileEntityDualVertical dv)
 	{
-		if(dv.top)
-			return;
-		PacketDispatcher.sendPacketToPlayer(new Packet131MapData((short)Sync.getNetId(), (short)2, dv.createShellStateData()), (Player)player);
+		if (dv.top) return;
+		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createRemoveShellDataPacket(dv), (Player)player);
 	}
 	
 	public static ArrayList<String> deathRespawns = new ArrayList<String>();
