@@ -637,10 +637,6 @@ public class BlockDualVertical extends BlockContainer
 					}
 					else if(bottom instanceof TileEntityShellStorage && bottom.resyncPlayer == -10 && ((TileEntityShellStorage)dv).syncing && dv.playerNBT.hasKey("Inventory"))
 					{
-						boolean keepInv = world.getGameRules().getGameRuleBooleanValue("keepInventory");
-
-						world.getGameRules().setOrCreateGameRule("keepInventory", "false");
-
 						FakePlayer fake = new FakePlayer(world, dv.playerName);
 						fake.readFromNBT(dv.playerNBT);                        
 						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
@@ -656,10 +652,7 @@ public class BlockDualVertical extends BlockContainer
 								fake.dropPlayerItemWithRandomChoice(new ItemStack(Item.appleRed, 1), true);
 							}
 
-							if (!fake.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory"))
-							{
-								fake.inventory.dropAllItems();
-							}
+							fake.inventory.dropAllItems();
 
 							fake.captureDrops = false;
 
@@ -672,8 +665,6 @@ public class BlockDualVertical extends BlockContainer
 								}
 							}
 						}
-
-						world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
 						Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
 						PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
