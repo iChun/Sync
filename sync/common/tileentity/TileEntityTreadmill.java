@@ -166,39 +166,32 @@ public class TileEntityTreadmill extends TileEntity
 						latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 						
 						aabb = latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D);
-						list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
+						list = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 					}
 					else
 					{
 						entityTameable.ticksExisted = 1200; //anti despawn methods
 					}
 				}
-				for(int i = 0 ; i < list.size(); i++)
-				{
-					Entity ent = (Entity)list.get(i);
-					
-					if(ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer))
-					{
+				for (Object aList : list) {
+					Entity ent = (Entity) aList;
+
+					if (ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer)) {
 						double velo = 0.9D;
-						switch(face)
-						{
-							case 0:
-							{
+						switch (face) {
+							case 0: {
 								ent.motionZ = velo;
 								break;
 							}
-							case 1:
-							{
+							case 1: {
 								ent.motionX = -velo;
 								break;
 							}
-							case 2:
-							{
+							case 2: {
 								ent.motionZ = -velo;
 								break;
 							}
-							case 3:
-							{
+							case 3: {
 								ent.motionX = velo;
 								break;
 							}
@@ -245,13 +238,11 @@ public class TileEntityTreadmill extends TileEntity
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 					latchedEnt.getNavigator().clearPathEntity();
-					timeRunning++;
-					if(timeRunning > 12000)
-					{
-						timeRunning = 12000;
+					if (timeRunning < 12000) {
+						timeRunning++;
 					}
 					
-					//Still running
+					//Still running. This sends RF power to nearby IEnergyHandlers
 					float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
 					int handlerCount = 0;
 					IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
@@ -261,13 +252,14 @@ public class TileEntityTreadmill extends TileEntity
 						{
 							continue;
 						}
-						TileEntity te = worldObj.getBlockTileEntity(xCoord+dir.offsetX, yCoord+dir.offsetY, zCoord+dir.offsetZ);
+						TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
 						if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
 						{
-							IEnergyHandler energy=(IEnergyHandler) te;
+							IEnergyHandler energy = (IEnergyHandler) te;
 							if(energy.canInterface(dir.getOpposite()))
 							{
 								handlerCount++;
+								//Test if they can recieve power via simulate
 								if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
 								{
 									handlers[dir.getOpposite().ordinal()] = energy;
@@ -280,22 +272,20 @@ public class TileEntityTreadmill extends TileEntity
 						IEnergyHandler handler = handlers[i];
 						if(handler != null)
 						{
-							handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max((int)Math.round(power / (float)handlerCount), 1), false);
+							//Sends power equally to all nearby IEnergyHandlers that can receive it
+							handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max(Math.round(power / (float)handlerCount), 1), false);
 						}
 					}
 				}
 			}
 			else
 			{
-				for(int i = 0 ; i < list.size(); i++)
-				{
-					Entity ent = (Entity)list.get(i);
-					
-					if(TileEntityTreadmill.isEntityValidForTreadmill(ent))
-					{
-						if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
-						{
-							latchedEnt = (EntityLiving)ent;
+				for (Object aList : list) {
+					Entity ent = (Entity) aList;
+
+					if (TileEntityTreadmill.isEntityValidForTreadmill(ent)) {
+						if (ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ) {
+							latchedEnt = (EntityLiving) ent;
 							latchedHealth = latchedEnt.getHealth();
 							timeRunning = 0;
 							latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
