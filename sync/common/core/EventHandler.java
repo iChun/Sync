@@ -256,27 +256,22 @@ public class EventHandler
 	//Will return the closest shell that the player can be synced too
 	public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
-
 		boolean reiterateShells = false;
 
-		for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
-		{
-			if(e.getKey().playerName.equalsIgnoreCase(player.username))
-			{
+		//Shells are chunk loaded so look through the tickets for the players shells
+		for (Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet()) {
+			if (e.getKey().playerName.equalsIgnoreCase(player.username)) {
 				TileEntityDualVertical dv1 = e.getKey();
-				if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
-				{
+				if (dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1) {
 					dvs.add(dv1);
 				}
-				else
-				{
+				else {
 					reiterateShells = true;
 				}
 			}
 		}
 
-		if(reiterateShells)
-		{
+		if (reiterateShells) {
 			ShellHandler.updatePlayerOfShells(player, null, true);
 		}
 
@@ -285,72 +280,55 @@ public class EventHandler
 		double homeDist, dist, crossDimDist, crossDimHomeDist;
 		homeDist = dist = crossDimDist = crossDimHomeDist = -1D;
 
-		for(TileEntityDualVertical dv : dvs)
-		{
-			if(dv instanceof TileEntityShellConstructor)
-			{
-				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+		for (TileEntityDualVertical dv : dvs) {
+			if (dv instanceof TileEntityShellConstructor) {
+				TileEntityShellConstructor sc = (TileEntityShellConstructor) dv;
 				//If enabled in config and shell is complete, allow sync into constructor
-				if(SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
-				{
+				if (SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement) {
 					continue;
 				}
 			}
 
 			double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
-			if(dv.worldObj.provider.dimensionId == player.dimension)
-			{
-				if(dv.isHomeUnit)
-				{
-					if(homeDist == -1D || dvDist < homeDist)
-					{
+			if (dv.worldObj.provider.dimensionId == player.dimension) {
+				if (dv.isHomeUnit) {
+					if (homeDist == -1D || dvDist < homeDist) {
 						nearestHome = dv;
 						homeDist = dvDist;
 					}
 				}
-				if(dist == -1D || dvDist < dist)
-				{
+				if (dist == -1D || dvDist < dist) {
 					nearestDv = dv;
 					dist = dvDist;
 				}
 			}
-			else if((SessionState.allowCrossDimensional == 1 && player.dimension != 1 || SessionState.allowCrossDimensional == 2) && Sync.crossDimensionalSyncingOnDeath == 1 )
-			{
-				if(dv.isHomeUnit)
-				{
-					if(crossDimHomeDist == -1D || dvDist < crossDimHomeDist)
-					{
+			else if ((SessionState.allowCrossDimensional == 1 && (player.dimension != 1 || SessionState.allowCrossDimensional == 2)) && Sync.crossDimensionalSyncingOnDeath == 1) {
+				if (dv.isHomeUnit) {
+					if (crossDimHomeDist == -1D || dvDist < crossDimHomeDist) {
 						nearestCrossDimHome = dv;
 						crossDimHomeDist = dvDist;
 					}
 				}
-				if(crossDimDist == -1D || dvDist < crossDimDist)
-				{
+				if (crossDimDist == -1D || dvDist < crossDimDist) {
 					nearestCrossDim = dv;
 					crossDimDist = dvDist;
 				}
 			}
 		}
 
-		if(Sync.prioritizeHomeShellOnDeath == 1)
-		{
-			if(nearestHome != null)
-			{
+		if (Sync.prioritizeHomeShellOnDeath == 1) {
+			if (nearestHome != null) {
 				tpPosition = nearestHome;
 			}
-			else if(nearestCrossDimHome != null)
-			{
+			else if (nearestCrossDimHome != null) {
 				tpPosition = nearestCrossDimHome;
 			}
 		}
-		if(tpPosition == null)
-		{
-			if(nearestDv != null)
-			{
+		if (tpPosition == null) {
+			if (nearestDv != null) {
 				tpPosition = nearestDv;
 			}
-			else if(nearestCrossDim != null)
-			{
+			else if (nearestCrossDim != null) {
 				tpPosition = nearestCrossDim;
 			}
 		}
