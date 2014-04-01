@@ -246,9 +246,7 @@ public class TileEntityDualVertical extends TileEntity
 						ChunkLoadHandler.removeShellAsChunkloader(sc);
 
 						sc.constructionProgress = 0.0F;
-
 						sc.playerName = "";
-
 						sc.playerNBT = new NBTTagCompound();
 
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);

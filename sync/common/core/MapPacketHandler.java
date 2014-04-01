@@ -312,6 +312,7 @@ public class MapPacketHandler
 							mc.theWorld.spawnEntityInWorld(sd);
 						}
 					}
+					break;
 				}
 				case 9:
 				{
