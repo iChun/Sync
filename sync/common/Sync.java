@@ -10,12 +10,10 @@ import cpw.mods.fml.common.network.NetworkModHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -195,7 +193,7 @@ public class Sync
 							int entityPower = Integer.valueOf(s[1]);
 							Class entityClass = Class.forName(entityClassName);
 
-							if (entityClass == EntityPlayer.class || entityClass == EntityPlayerMP.class || entityClass == EntityPlayerSP.class) logger.warning("Seriously? You're gonna try that?");
+							if (EntityPlayer.class.isAssignableFrom(entityClass)) logger.warning("Seriously? You're gonna try that?");
 							else {
 								treadmillEntityHashMap.put(entityClass, entityPower);
 								logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
