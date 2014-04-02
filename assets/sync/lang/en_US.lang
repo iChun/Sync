@@ -9,3 +9,5 @@ sync.isMorphed=Cannot use! You are morphed.
 sync.waila.owner=Shell Owner
 sync.waila.progress=Build Progress
 sync.waila.entity=Entity Name
+sync.waila.active=Active
+sync.waila.powerout=Generating

@@ -59,6 +59,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			TileEntityShellStorage ss = (TileEntityShellStorage)pair;
 			occupied = ss.occupied;
 			syncing = ss.syncing;
+			hasPower = ss.hasPower;
 			
 			playerInstance = ss.playerInstance;
 			

@@ -18,6 +18,7 @@ import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class HUDHandlerSync implements IWailaDataProvider {
@@ -36,17 +37,22 @@ public class HUDHandlerSync implements IWailaDataProvider {
     public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
         if (accessor.getTileEntity() instanceof TileEntityShellConstructor) {
             TileEntityShellConstructor tileEntityShellConstructor = (TileEntityShellConstructor) accessor.getTileEntity();
-            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.playerName.equals("") ? "None" : tileEntityShellConstructor.playerName)) ;
+            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.playerName.equals("") ? "None" : tileEntityShellConstructor.playerName));
             if (config.getConfig("sync.showprogress")) currenttip.add(StatCollector.translateToLocal("sync.waila.progress") + ": " + String.valueOf((int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / SessionState.shellConstructionPowerRequirement * 100)) + "%");
         }
         else if (accessor.getTileEntity() instanceof TileEntityShellStorage) {
             TileEntityShellStorage tileEntityShellStorage = (TileEntityShellStorage) accessor.getTileEntity();
-            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellStorage.playerName.equals("") ? "None" : tileEntityShellStorage.playerName)) ;
+            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellStorage.playerName.equals("") ? "None" : tileEntityShellStorage.playerName));
+			if (config.getConfig("sync.showactive")) currenttip.add(StatCollector.translateToLocal("sync.waila.active") + ": " + (tileEntityShellStorage.isPowered() ? StatCollector.translateToLocal("gui.yes") : StatCollector.translateToLocal("gui.no")));
         }
         else if (accessor.getTileEntity() instanceof TileEntityTreadmill) {
             TileEntityTreadmill tileEntityTreadmill = (TileEntityTreadmill) accessor.getTileEntity();
             if (config.getConfig("sync.showentity")) currenttip.add(StatCollector.translateToLocal("sync.waila.entity") + ": " + (tileEntityTreadmill.latchedEnt != null ? tileEntityTreadmill.latchedEnt.getEntityName() : "None"));
-        }
+			if (config.getConfig("sync.showpower.output")) {
+				DecimalFormat decimalFormat = new DecimalFormat("##.##");
+				currenttip.add(StatCollector.translateToLocal("sync.waila.powerout") + ": " + decimalFormat.format(tileEntityTreadmill.powerOutput()) + "PW");
+			}
+		}
         return currenttip;
     }
 
@@ -61,5 +67,7 @@ public class HUDHandlerSync implements IWailaDataProvider {
         registrar.addConfig("Sync", "sync.showowner", "Show Shell Owner");
         registrar.addConfig("Sync", "sync.showprogress", "Show Build Progress");
         registrar.addConfig("Sync", "sync.showentity", "Show Entity Name");
-    }
+		registrar.addConfig("Sync", "sync.showactive", "Show Active");
+		registrar.addConfig("Sync", "sync.showpower.output", "Show Power Output");
+	}
 }
