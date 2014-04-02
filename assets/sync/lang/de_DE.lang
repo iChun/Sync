@@ -9,3 +9,5 @@ sync.isMorphed=Du kannst es nicht benutzen! Du bist verwandelt.
 sync.waila.owner=Hüllenbesitzer
 sync.waila.progress=Konstruktionsfortschritt
 sync.waila.entity=Entity-Name
+sync.waila.active=Aktiv
+sync.waila.powerout=Generierend
