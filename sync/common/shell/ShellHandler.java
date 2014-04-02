@@ -1,85 +1,76 @@
 package sync.common.shell;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
-public class ShellHandler 
-{
+public class ShellHandler {
 
-	public static void updatePlayerOfShells(EntityPlayer player, TileEntityDualVertical dv, boolean all)
-	{
+	private static SetMultimap<String, TileEntityDualVertical> playerShells = HashMultimap.create();
+	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<String, TileEntityDualVertical>();
+
+	public static void addShell(String playerName, TileEntityDualVertical dualVertical, boolean shouldChunkLoad) {
+		if (!playerShells.containsEntry(playerName, dualVertical)) {
+			playerShells.put(playerName, dualVertical);
+			if (shouldChunkLoad && !ChunkLoadHandler.isAlreadyChunkLoaded(dualVertical)) ChunkLoadHandler.addShellAsChunkloader(dualVertical);
+		}
+	}
+
+	public static void removeShell(String playerName, TileEntityDualVertical dualVertical) {
+		playerShells.remove(playerName, dualVertical);
+		ChunkLoadHandler.removeShellAsChunkloader(dualVertical);
+	}
+
+	public static boolean isShellAlreadyRegistered(TileEntityDualVertical dualVertical) {
+		return playerShells.containsKey(dualVertical);
+	}
+
+	public static void updatePlayerOfShells(EntityPlayer player, TileEntityDualVertical dv, boolean all) {
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
-		
 		ArrayList<TileEntityDualVertical> remove = new ArrayList<TileEntityDualVertical>();
 		
-		if(all)
-		{
-			
-			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-			DataOutputStream stream = new DataOutputStream(bytes);
-			try
-			{
-				stream.writeByte(0);
-				
-				PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createClearShellListPacket((byte) 0), (Player)player);
-			}
-			catch(IOException e)
-			{
-			}
+		if (all) {
+			//Tell player client to clear current list
+			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createClearShellListPacket((byte) 0), (Player)player);
 
-			
-			for(Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet())
-			{
-				if(e.getKey().playerName.equalsIgnoreCase(player.username))
-				{
-					TileEntityDualVertical dv1 = e.getKey();
-					if(dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1)
-					{
-						dvs.add(dv1);
+			for (Map.Entry<String, TileEntityDualVertical> e : playerShells.entries()) {
+				if (e.getKey().equalsIgnoreCase(player.username)) {
+					TileEntityDualVertical dualVertical = e.getValue();
+					if (dualVertical.worldObj.getBlockTileEntity(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord) == dualVertical) {
+						dvs.add(dualVertical);
 					}
-					else
-					{
-						remove.add(dv1);
+					else {
+						remove.add(dualVertical);
 					}
 				}
 			}
 		}
-		else if(dv != null)
-		{
+		else if (dv != null) {
 			//This is never used due to issues synching to the point I gave up.
 			dvs.add(dv);
 		}
 		
-		for(TileEntityDualVertical dv1 : dvs)
-		{
-			if(dv1.top)
-				continue;
+		for (TileEntityDualVertical dv1 : dvs) {
+			if (dv1.top) continue;
 			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createShellStatePacket(dv1), (Player)player);
 		}
 		
-		for(TileEntityDualVertical dv1 : remove)
-		{
-			ChunkLoadHandler.removeShellAsChunkloader(dv1);
+		for (TileEntityDualVertical dv1 : remove) {
+			removeShell(dv1.playerName, dv1);
 		}
 	}
 	
-	public static void updatePlayerOfShellRemoval(EntityPlayer player, TileEntityDualVertical dv)
-	{
+	public static void updatePlayerOfShellRemoval(EntityPlayer player, TileEntityDualVertical dv) {
 		if (dv.top) return;
 		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createRemoveShellDataPacket(dv), (Player)player);
 	}
-	
-	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<String, TileEntityDualVertical>();
 }

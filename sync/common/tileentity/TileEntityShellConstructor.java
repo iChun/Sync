@@ -115,7 +115,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 			}
 			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
 			{
-				ChunkLoadHandler.addShellAsChunkloader(this);
+				ShellHandler.addShell(playerName, this, true);
 			}
 		}
 		if(!top && !worldObj.isRemote) 
@@ -144,11 +144,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		{
 			return ((TileEntityShellConstructor)pair).isPowered();
 		}
-		if(playerName.equalsIgnoreCase(""))
-		{
-			return false;
-		}
-		return true;
+		return !playerName.equalsIgnoreCase("");
 	}
 	
 	@Override

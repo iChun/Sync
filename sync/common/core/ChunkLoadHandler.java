@@ -1,9 +1,8 @@
 package sync.common.core;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-
+import com.google.common.collect.ImmutableSet;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -14,8 +13,11 @@ import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.ObfuscationReflectionHelper;
+
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 public class ChunkLoadHandler implements LoadingCallback {
 
@@ -62,44 +64,59 @@ public class ChunkLoadHandler implements LoadingCallback {
 		}
 	}
 	
-	public static void addShellAsChunkloader(TileEntityDualVertical dv)
-	{
-		if(dv != null)
-		{
-			Ticket ticket = shellTickets.get(dv);
-			if(ticket == null)
-			{
-				ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.worldObj, ForgeChunkManager.Type.NORMAL);
-			}
-			if(ticket != null)
-			{
-				ticket.getModData().setInteger("shellX", dv.xCoord);
-				ticket.getModData().setInteger("shellY", dv.yCoord);
-				ticket.getModData().setInteger("shellZ", dv.zCoord);
-				ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
-				
-				if(Sync.allowChunkLoading == 0)
-				{
-					//Reflecting into Ticket to remove chunk! Sorry! :(
-					try
-					{
-						LinkedHashSet<ChunkCoordIntPair> requestedChunks = ObfuscationReflectionHelper.getPrivateValue(Ticket.class, ticket, "requestedChunks");
-						requestedChunks.clear();
+	public static void addShellAsChunkloader(TileEntityDualVertical dv) {
+		if (dv != null) {
+			ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4);
+			if (!isAlreadyChunkLoaded(chunkCoordIntPair)) {
+				Ticket ticket = shellTickets.get(dv);
+				if (ticket == null) {
+					ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.worldObj, ForgeChunkManager.Type.NORMAL);
+				}
+				if (ticket != null) {
+					ticket.getModData().setInteger("shellX", dv.xCoord);
+					ticket.getModData().setInteger("shellY", dv.yCoord);
+					ticket.getModData().setInteger("shellZ", dv.zCoord);
+					ForgeChunkManager.forceChunk(ticket, chunkCoordIntPair);
+
+					if (Sync.allowChunkLoading == 0) {
+						//Reflecting into Ticket to remove chunk! Sorry! :(
+						try {
+							LinkedHashSet<ChunkCoordIntPair> requestedChunks = ObfuscationReflectionHelper.getPrivateValue(Ticket.class, ticket, "requestedChunks");
+							requestedChunks.clear();
+						}
+						catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
-					catch(Exception e)
-					{
+				}
+				shellTickets.put(dv, ticket);
+
+				EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+				if (player != null) {
+					ShellHandler.updatePlayerOfShells(player, null, true);
+				}
+			}
+		}
+	}
+
+	public static boolean isAlreadyChunkLoaded(TileEntityDualVertical dualVertical) {
+		ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dualVertical.xCoord >> 4, dualVertical.zCoord >> 4);
+		return shellTickets.containsKey(dualVertical) || isAlreadyChunkLoaded(chunkCoordIntPair);
+	}
+
+	public static boolean isAlreadyChunkLoaded(ChunkCoordIntPair chunkCoordIntPair) {
+		for (Map.Entry<TileEntityDualVertical, Ticket> set : shellTickets.entrySet()) {
+			ImmutableSet loadedChunks = set.getValue().getChunkList();
+			if (loadedChunks != null) {
+				for (Object obj : loadedChunks) {
+					ChunkCoordIntPair theChunks = (ChunkCoordIntPair) obj;
+					//Will only return true if the exact same chunks are loaded but seeing as we are only loading one chunk, that's fine
+					if (theChunks.equals(chunkCoordIntPair)) {
+						return true;
 					}
 				}
 			}
-			
-			shellTickets.put(dv, ticket);
-			
-			EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
-			
-			if(player != null)
-			{
-				ShellHandler.updatePlayerOfShells(player, null, true);
-			}
 		}
+		return false;
 	}
 }

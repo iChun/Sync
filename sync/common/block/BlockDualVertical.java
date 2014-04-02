@@ -25,7 +25,6 @@ import net.minecraftforge.common.FakePlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
-import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.network.FakeNetServerHandler;
@@ -614,7 +613,8 @@ public class BlockDualVertical extends BlockContainer
 
 				if(!world.isRemote)
 				{
-					ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
+					ShellHandler.removeShell(dv.top ? dv1.playerName : dv.playerName, dv.top ? dv1 : dv);
+					//ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
 					{
 						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);

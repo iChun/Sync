@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import sync.common.core.ChunkLoadHandler;
+import sync.common.shell.ShellHandler;
 
 public class TileEntityShellStorage extends TileEntityDualVertical 
 {
@@ -98,35 +98,34 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			{
 				if(vacating)
 				{
+					if(!worldObj.isRemote && !top )
+					{
+						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+						worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+						ShellHandler.removeShell(playerName, this);
+					}
 					vacating = false;
 					occupied = false;
 					syncing = false;
 					prevPlayerName = playerName = "";
 					playerNBT = new NBTTagCompound();
-					if(!worldObj.isRemote && !top )
-					{
-						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-						worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
-						ChunkLoadHandler.removeShellAsChunkloader(this);
-					}
 				}
-				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ChunkLoadHandler.shellTickets.containsKey(this))
+				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ShellHandler.isShellAlreadyRegistered(this))
 				{
-					ChunkLoadHandler.addShellAsChunkloader(this);
+					ShellHandler.addShell(playerName, this, true);
 					worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 				}
 			}
 		}
 		if(!worldObj.isRemote && !top)
 		{
-			if(!isPowered() && ChunkLoadHandler.shellTickets.containsKey(this))
+			if(!isPowered() && ShellHandler.isShellAlreadyRegistered(this))
 			{
-				ChunkLoadHandler.removeShellAsChunkloader(this);
+				ShellHandler.removeShell(playerName, this);
 				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
-			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
-			{
-				ChunkLoadHandler.addShellAsChunkloader(this);
+			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
+				ShellHandler.addShell(playerName, this, true);
 				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 		}

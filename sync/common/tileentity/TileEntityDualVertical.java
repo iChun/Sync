@@ -24,7 +24,6 @@ import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
 import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
-import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
@@ -243,7 +242,7 @@ public class TileEntityDualVertical extends TileEntity
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
 
-						ChunkLoadHandler.removeShellAsChunkloader(sc);
+						ShellHandler.removeShell(sc.playerName, sc);
 
 						sc.constructionProgress = 0.0F;
 						sc.playerName = "";
