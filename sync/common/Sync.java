@@ -10,9 +10,12 @@ import cpw.mods.fml.common.network.NetworkModHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
@@ -143,6 +146,8 @@ public class Sync
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
 		FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
 
+		FMLInterModComms.sendMessage("Sync", "treadmill", "net.minecraft.entity.player.EntityPlayer:4");
+
 		treadmillEntityHashMap.put(EntityWolf.class, 4);
 		treadmillEntityHashMap.put(EntityPig.class, 2);
 	}
@@ -192,9 +197,11 @@ public class Sync
 							int entityPower = Integer.valueOf(s[1]);
 							Class entityClass = Class.forName(entityClassName);
 
-							treadmillEntityHashMap.put(entityClass, entityPower);
-							logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
-
+							if (entityClass == EntityPlayer.class || entityClass == EntityPlayerMP.class || entityClass == EntityPlayerSP.class) logger.warning("Seriously? You're gonna try that?");
+							else {
+								treadmillEntityHashMap.put(entityClass, entityPower);
+								logger.info(String.format("Registered IMC treadmill register from %s for %s with power %s", message.getSender(), entityClassName, entityPower));
+							}
 						} catch (NumberFormatException e)
 						{
 							logger.warning("Invalid IMC treadmill register (power not integer) received from " + message.getSender());
