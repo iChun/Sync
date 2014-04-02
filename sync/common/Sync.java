@@ -168,6 +168,7 @@ public class Sync
 	{
 		ChunkLoadHandler.shellTickets.clear();
 		ShellHandler.syncInProgress.clear();
+		ShellHandler.playerShells.clear();
 	}
 
 	@EventHandler

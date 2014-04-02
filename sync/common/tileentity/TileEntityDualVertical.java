@@ -58,8 +58,8 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
 	public final static int animationTime = 40;
 
-	protected float powReceived;
-	protected float rfIntake;
+	protected int powReceived;
+	protected int rfIntake;
 
 	public TileEntityDualVertical()
 	{
@@ -345,6 +345,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
 		tag.setString("name", name);
 		tag.setCompoundTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
+		tag.setInteger("rfIntake", rfIntake);
 	}
 
 	@Override
@@ -358,6 +359,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		playerName = tag.getString("playerName");
 		name = tag.getString("name");
 		playerNBT = tag.getCompoundTag("playerNBT");
+		rfIntake = tag.getInteger("rfIntake");
 
 		resync = true;
 	}

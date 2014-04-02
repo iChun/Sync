@@ -21,10 +21,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	public float constructionProgress;
 	
 	public int doorTime;
-	public int powReceived;
-	
-	public int rfIntake;
-	
+
 	public int rfBuffer;
 	
 	public boolean doorOpen;
@@ -40,9 +37,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		doorTime = 0;
 		
 		doorOpen = false;
-		powReceived = 0;
-
-		rfIntake = 0;
 	}
 	
 	@Override
@@ -125,8 +119,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 				rfBuffer = 0;
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
+			powReceived = 0;
 		}
-		powReceived = 0;
 	}
 	
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
@@ -170,7 +164,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
-		tag.setInteger("rfIntake", rfIntake);
 	}
 	 
 	@Override
@@ -179,8 +172,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		super.readFromNBT(tag);
 		constructionProgress = tag.getFloat("constructionProgress");
 		doorOpen = tag.getBoolean("doorOpen");
-		rfIntake = tag.getInteger("rfIntake");
-		
 		resync = true;
 	}
 	

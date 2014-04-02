@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class ShellHandler {
 
-	private static SetMultimap<String, TileEntityDualVertical> playerShells = HashMultimap.create();
+	public static SetMultimap<String, TileEntityDualVertical> playerShells = HashMultimap.create();
 	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<String, TileEntityDualVertical>();
 
 	public static void addShell(String playerName, TileEntityDualVertical dualVertical, boolean shouldChunkLoad) {
