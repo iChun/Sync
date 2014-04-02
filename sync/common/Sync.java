@@ -146,8 +146,6 @@ public class Sync
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
 		FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
 
-		FMLInterModComms.sendMessage("Sync", "treadmill", "net.minecraft.entity.player.EntityPlayer:4");
-
 		treadmillEntityHashMap.put(EntityWolf.class, 4);
 		treadmillEntityHashMap.put(EntityPig.class, 2);
 	}
