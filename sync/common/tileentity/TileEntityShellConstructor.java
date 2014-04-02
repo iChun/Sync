@@ -1,6 +1,5 @@
 package sync.common.tileentity;
 
-import cofh.api.energy.IEnergyHandler;
 import cofh.api.tileentity.IEnergyInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -8,7 +7,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
@@ -18,8 +16,7 @@ import sync.common.shell.ShellHandler;
 
 import java.util.List;
 
-public class TileEntityShellConstructor extends TileEntityDualVertical 
-	implements IEnergyHandler, IEnergyInfo
+public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
 {
 	public float constructionProgress;
 	
@@ -121,7 +118,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 		if(!top && !worldObj.isRemote) 
 		{
 			rfBuffer += Math.abs(powReceived - rfIntake);
-			if((float)rfBuffer / (float)SessionState.shellConstructionPowerRequirement > 0.05F || Math.abs((float)(powReceived - rfIntake) / (float)powReceived) > 0.1F) // If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
+			//If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
+			if((float)rfBuffer / (float)SessionState.shellConstructionPowerRequirement > 0.05F || Math.abs((float)(powReceived - rfIntake) / (float)powReceived) > 0.1F)
 			{
 				rfIntake = powReceived;
 				rfBuffer = 0;
@@ -145,27 +143,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical
 			return ((TileEntityShellConstructor)pair).isPowered();
 		}
 		return !playerName.equalsIgnoreCase("");
-	}
-	
-	@Override
-	public float powerAmount()
-	{
-		float power = 0.0F;
-		for(int i = xCoord - 1; i <= xCoord + 1; i++)
-		{
-			for(int k = zCoord - 1; k <= zCoord + 1; k++)
-			{
-				if(!(i == xCoord && k == zCoord))
-				{
-					TileEntity te = worldObj.getBlockTileEntity(i, yCoord, k);
-					if(te instanceof TileEntityTreadmill && !((TileEntityTreadmill)te).back)
-					{
-						power += ((TileEntityTreadmill)te).powerOutput();
-					}
-				}
-			}
-		}
-		return power + (worldObj.isRemote ? rfIntake : powReceived);
 	}
 
 	@Override

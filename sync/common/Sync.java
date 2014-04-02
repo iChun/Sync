@@ -61,6 +61,7 @@ public class Sync
 	public static int idItemSyncCore;
 	
 	public static int shellConstructionPowerRequirement;
+	public static int shellStoragePowerRequirement;
 	
 	public static int allowCrossDimensional;
 	public static int damageGivenOnShellConstruction;
@@ -86,7 +87,7 @@ public class Sync
 	public static boolean hasMorphMod;
 
 	public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
-	
+
 	@EventHandler
 	public void preLoad(FMLPreInitializationEvent event)
 	{
@@ -101,6 +102,7 @@ public class Sync
 		idItemSyncCore = addCommentAndReturnItemId(config, "ids", "idItemSyncCore", "Item ID for the Sync Core", 13331);
 		
 		shellConstructionPowerRequirement = Math.max(addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000), 0); // Dogs power 4, Pigs power... 2?
+		shellStoragePowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellStoragePowerRequirement", "Power requirement per tick in piggawatts to keep shell storage active.\n0 = No requirement", 0);
 		
 		allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End", 1);
 		damageGivenOnShellConstruction = Math.max(addCommentAndReturnInt(config, "gameplay", "damageGivenOnShellConstruction", "Number of half hearts damage given to the player when a new shell is constructed.", 2), 0);

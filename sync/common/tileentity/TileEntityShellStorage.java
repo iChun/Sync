@@ -7,25 +7,29 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeDirection;
+import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 
-public class TileEntityShellStorage extends TileEntityDualVertical 
+public class TileEntityShellStorage extends TileEntityDualVertical
 {
 	
 	public boolean occupied;
 	public boolean syncing;
+	public boolean hasPower;
 	
 	public EntityPlayer playerInstance;
 	
 	public String prevPlayerName;
 	
 	public int occupationTime;
-	
+
 	public TileEntityShellStorage()
 	{
 		super();
 		occupied = false;
 		syncing = false;
+		hasPower = false;
 		
 		playerInstance = null;
 		
@@ -122,12 +126,23 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			if(!isPowered() && ShellHandler.isShellAlreadyRegistered(this))
 			{
 				ShellHandler.removeShell(playerName, this);
+				hasPower = false;
 				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
 				ShellHandler.addShell(playerName, this, true);
 				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
+
+			if (powerAmount() >= Sync.shellStoragePowerRequirement && !hasPower) {
+				hasPower = true;
+				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			}
+			else if (powerAmount() < Sync.shellStoragePowerRequirement && hasPower) {
+				hasPower = false;
+				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+			}
+			powReceived = 0;
 		}
 	}
 	
@@ -137,13 +152,11 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		return new EntityOtherPlayerMP(world, playerName);
 	}
 
-	public boolean isPowered()
-	{
-		if(top && pair != null)
-		{
+	public boolean isPowered() {
+		if (top && pair != null) {
 			return ((TileEntityShellStorage)pair).isPowered();
 		}
-		return worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) || worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord + 1, zCoord);
+		return (worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) || worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord + 1, zCoord)) && hasPower;
 	}
 	
 	@Override
@@ -152,7 +165,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
 		tag.setBoolean("syncing", canSavePlayer <= 0 && syncing);
-		
+		tag.setBoolean("hasPower", hasPower);
 		tag.setInteger("occupationTime", occupationTime);
 	}
 	 
@@ -162,12 +175,44 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		super.readFromNBT(tag);
 		
 		occupied = tag.getBoolean("occupied");
-		
 		syncing = tag.getBoolean("syncing");
-		
+		hasPower = tag.getBoolean("hasPower");
 		occupationTime = tag.getInteger("occupationTime");
-		
 		resync = true;
 	}
-	
+
+	@Override
+	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
+		if (Sync.shellStoragePowerRequirement == 0) {
+			return 0;
+		}
+		int pow = maxReceive;
+		if (pow > Sync.shellStoragePowerRequirement) {
+			pow = Sync.shellStoragePowerRequirement;
+		}
+		if (!simulate) {
+			powReceived += (float)pow * (float)Sync.ratioRF;
+		}
+		return pow;
+	}
+
+	@Override
+	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public boolean canInterface(ForgeDirection from) {
+		return !top;
+	}
+
+	@Override
+	public int getEnergyStored(ForgeDirection from) {
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored(ForgeDirection from) {
+		return 0;
+	}
 }

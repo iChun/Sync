@@ -24,7 +24,7 @@ import sync.common.Sync;
 
 import java.util.List;
 
-public class TileEntityTreadmill extends TileEntity 
+public class TileEntityTreadmill extends TileEntity
 	implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;

@@ -1,5 +1,6 @@
 package sync.common.tileentity;
 
+import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
@@ -33,7 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class TileEntityDualVertical extends TileEntity 
+public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler
 {
 
 	public TileEntityDualVertical pair;
@@ -57,6 +58,9 @@ public class TileEntityDualVertical extends TileEntity
 
 	public final static int animationTime = 40;
 
+	protected float powReceived;
+	protected float rfIntake;
+
 	public TileEntityDualVertical()
 	{
 		pair = null;
@@ -74,6 +78,9 @@ public class TileEntityDualVertical extends TileEntity
 		playerNBT = new NBTTagCompound();
 
 		resync = false;
+
+		powReceived = 0;
+		rfIntake = 0;
 	}
 
 	@Override
@@ -283,7 +290,22 @@ public class TileEntityDualVertical extends TileEntity
 
 	public float powerAmount()
 	{
-		return 0F;
+		float power = 0.0F;
+		for(int i = xCoord - 1; i <= xCoord + 1; i++)
+		{
+			for(int k = zCoord - 1; k <= zCoord + 1; k++)
+			{
+				if(!(i == xCoord && k == zCoord))
+				{
+					TileEntity te = worldObj.getBlockTileEntity(i, yCoord, k);
+					if(te instanceof TileEntityTreadmill && !((TileEntityTreadmill)te).back)
+					{
+						power += ((TileEntityTreadmill)te).powerOutput();
+					}
+				}
+			}
+		}
+		return power + (worldObj.isRemote ? rfIntake : powReceived);
 	}
 
 	public float getBuildProgress()
