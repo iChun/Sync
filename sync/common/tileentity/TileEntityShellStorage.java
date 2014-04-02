@@ -136,10 +136,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 
 			if (powerAmount() >= Sync.shellStoragePowerRequirement && !hasPower) {
 				hasPower = true;
+				ShellHandler.addShell(playerName, this, true);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 			else if (powerAmount() < Sync.shellStoragePowerRequirement && hasPower) {
 				hasPower = false;
+				ShellHandler.removeShell(playerName, this);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
 			powReceived = 0;
