@@ -41,11 +41,11 @@ import java.util.logging.Logger;
 			serverSideRequired = false,
 			tinyPacketHandler = MapPacketHandler.class,
 			connectionHandler = ConnectionHandler.class,
-			versionBounds = "[2.1.0,2.2.0)"
+			versionBounds = "[2.2.0,2.3.0)"
 				)
 public class Sync 
 {
-	public static final String version = "2.1.2";
+	public static final String version = "2.2.0";
 	
 	@Instance("Sync")
 	public static Sync instance;
