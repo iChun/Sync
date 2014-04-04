@@ -22,6 +22,7 @@ import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import sync.common.Sync;
@@ -184,6 +185,18 @@ public class EventHandler
 	
 	@ForgeSubscribe(priority = EventPriority.HIGHEST)
 	public void onEntityAttacked(LivingAttackEvent event)
+	{
+		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
+		{
+			if(ShellHandler.syncInProgress.containsKey(((EntityPlayer)event.entityLiving).username))
+			{
+				event.setCanceled(true);
+			}
+		}
+	}
+
+	@ForgeSubscribe(priority = EventPriority.HIGHEST)
+	public void onEntityHurt(LivingHurtEvent event)
 	{
 		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
 		{
