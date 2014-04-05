@@ -131,7 +131,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						{
 							player.setHealth(20);
 						}
-						player.setFire(0); //Remove fire
+						player.extinguish(); //Remove fire
 
 						int dim = player.dimension;
 						//If player is in different dimension, bring them here

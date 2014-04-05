@@ -116,7 +116,7 @@ public class MapPacketHandler
 									ss.occupationTime = TileEntityDualVertical.animationTime;
 									ss.syncing = true;
 
-									player.setFire(0); //Remove fire so when you sync back into this shell, you aren't on fire
+									player.extinguish(); //Remove fire so when you sync back into this shell, you aren't on fire
 									
 									NBTTagCompound tag = new NBTTagCompound();
 									player.writeToNBT(tag);
