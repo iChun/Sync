@@ -17,7 +17,6 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.common.ForgeChunkManager.Ticket;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -272,9 +271,9 @@ public class EventHandler
 		boolean reiterateShells = false;
 
 		//Shells are chunk loaded so look through the tickets for the players shells
-		for (Entry<TileEntityDualVertical, Ticket> e : ChunkLoadHandler.shellTickets.entrySet()) {
-			if (e.getKey().playerName.equalsIgnoreCase(player.username)) {
-				TileEntityDualVertical dv1 = e.getKey();
+		for (Entry<String, TileEntityDualVertical> e : ShellHandler.playerShells.entries()) {
+			if (e.getKey().equalsIgnoreCase(player.username)) {
+				TileEntityDualVertical dv1 = e.getValue();
 				if (dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1) {
 					dvs.add(dv1);
 				}

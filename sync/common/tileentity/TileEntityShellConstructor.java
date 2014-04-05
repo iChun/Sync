@@ -10,7 +10,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.ForgeDirection;
 import sync.common.Sync;
-import sync.common.core.ChunkLoadHandler;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
 
@@ -104,7 +103,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 					doorTime--;
 				}
 			}
-			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ChunkLoadHandler.shellTickets.containsKey(this))
+			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ShellHandler.isShellAlreadyRegistered(this))
 			{
 				ShellHandler.addShell(playerName, this, true);
 			}
