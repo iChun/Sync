@@ -26,23 +26,24 @@ public class ChunkLoadHandler implements LoadingCallback {
 	@Override
 	public void ticketsLoaded(List<Ticket> tickets, World world) 
 	{
-		for(Ticket ticket : tickets)
-		{
-			TileEntity te = world.getBlockTileEntity(ticket.getModData().getInteger("shellX"), ticket.getModData().getInteger("shellY"), ticket.getModData().getInteger("shellZ"));
-			if(te instanceof TileEntityDualVertical)
-			{
-				TileEntityDualVertical dv = (TileEntityDualVertical)te;
-				Ticket ticket1 = shellTickets.get(dv);
-				if(ticket1 != null)
+		for(Ticket ticket : tickets) {
+			if (ticket != null) {
+				TileEntity te = world.getBlockTileEntity(ticket.getModData().getInteger("shellX"), ticket.getModData().getInteger("shellY"), ticket.getModData().getInteger("shellZ"));
+				if(te instanceof TileEntityDualVertical)
 				{
-					ForgeChunkManager.releaseTicket(ticket1);
+					TileEntityDualVertical dv = (TileEntityDualVertical)te;
+					Ticket ticket1 = shellTickets.get(dv);
+					if(ticket1 != null)
+					{
+						ForgeChunkManager.releaseTicket(ticket1);
+					}
+					shellTickets.put(dv, ticket);
+					ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
 				}
-				shellTickets.put(dv, ticket);
-				ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
-			}
-			else
-			{
-				ForgeChunkManager.releaseTicket(ticket);
+				else
+				{
+					ForgeChunkManager.releaseTicket(ticket);
+				}
 			}
 		}
 	}
