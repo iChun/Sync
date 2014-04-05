@@ -230,14 +230,13 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(playerNBT);
 						player.readFromNBT(playerNBT);
 
+						ShellHandler.syncInProgress.remove(playerName);
 						player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
-
 						PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
 					}
 				}
 				if(resyncPlayer == 0)
 				{
-					ShellHandler.syncInProgress.remove(playerName);
 					resyncOrigin = null;
 					if(this.getClass() == TileEntityShellStorage.class)
 					{
