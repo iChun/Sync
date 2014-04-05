@@ -111,17 +111,14 @@ public class MapPacketHandler
 								if(originShell instanceof TileEntityShellStorage)
 								{
 									TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
-									
 									ss.playerName = player.username;
-									
 									ss.occupied = true;
-									
 									ss.occupationTime = TileEntityDualVertical.animationTime;
-									
 									ss.syncing = true;
+
+									player.setFire(0); //Remove fire so when you sync back into this shell, you aren't on fire
 									
 									NBTTagCompound tag = new NBTTagCompound();
-									
 									player.writeToNBT(tag);
 									
 									tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
