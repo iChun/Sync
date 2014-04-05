@@ -29,16 +29,23 @@ public class ChunkLoadHandler implements LoadingCallback {
 		for(Ticket ticket : tickets) {
 			if (ticket != null) {
 				TileEntity te = world.getBlockTileEntity(ticket.getModData().getInteger("shellX"), ticket.getModData().getInteger("shellY"), ticket.getModData().getInteger("shellZ"));
-				if(te instanceof TileEntityDualVertical)
-				{
-					TileEntityDualVertical dv = (TileEntityDualVertical)te;
-					Ticket ticket1 = shellTickets.get(dv);
-					if(ticket1 != null)
-					{
-						ForgeChunkManager.releaseTicket(ticket1);
+				if(te instanceof TileEntityDualVertical) {
+					TileEntityDualVertical dv = (TileEntityDualVertical) te;
+
+					//Check if this chunk is already loaded. If so, we can release this ticket
+					if (isAlreadyChunkLoaded(dv)) {
+						ForgeChunkManager.releaseTicket(ticket);
 					}
-					shellTickets.put(dv, ticket);
-					ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
+					else {
+						//Check we haven't already loaded this ticket or there are dupes
+						Ticket ticket1 = shellTickets.get(dv);
+						if (ticket1 != null) {
+							ForgeChunkManager.releaseTicket(ticket1);
+						}
+
+						shellTickets.put(dv, ticket);
+						ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
+					}
 				}
 				else
 				{
