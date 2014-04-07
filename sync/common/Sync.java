@@ -43,7 +43,7 @@ import java.util.logging.Logger;
 				)
 public class Sync 
 {
-	public static final String version = "2.2.0";
+	public static final String version = "2.2.1";
 	
 	@Instance("Sync")
 	public static Sync instance;
