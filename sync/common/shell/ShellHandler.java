@@ -31,7 +31,7 @@ public class ShellHandler {
 	}
 
 	public static boolean isShellAlreadyRegistered(TileEntityDualVertical dualVertical) {
-		return playerShells.containsKey(dualVertical);
+		return playerShells.containsValue(dualVertical);
 	}
 
 	public static void updatePlayerOfShells(EntityPlayer player, TileEntityDualVertical dv, boolean all) {

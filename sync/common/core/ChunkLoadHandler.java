@@ -32,20 +32,14 @@ public class ChunkLoadHandler implements LoadingCallback {
 				if(te instanceof TileEntityDualVertical) {
 					TileEntityDualVertical dv = (TileEntityDualVertical) te;
 
-					//Check if this chunk is already loaded. If so, we can release this ticket
-					if (isAlreadyChunkLoaded(dv)) {
-						ForgeChunkManager.releaseTicket(ticket);
+					//Check we haven't already loaded this ticket or there are dupes
+					Ticket ticket1 = shellTickets.get(dv);
+					if (ticket1 != null) {
+						ForgeChunkManager.releaseTicket(ticket1);
 					}
-					else {
-						//Check we haven't already loaded this ticket or there are dupes
-						Ticket ticket1 = shellTickets.get(dv);
-						if (ticket1 != null) {
-							ForgeChunkManager.releaseTicket(ticket1);
-						}
 
-						shellTickets.put(dv, ticket);
-						ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
-					}
+					shellTickets.put(dv, ticket);
+					ForgeChunkManager.forceChunk(ticket, new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4));
 				}
 				else
 				{
@@ -75,7 +69,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 	public static void addShellAsChunkloader(TileEntityDualVertical dv) {
 		if (dv != null) {
 			ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4);
-			if (!isAlreadyChunkLoaded(chunkCoordIntPair)) {
+			if (!isAlreadyChunkLoaded(chunkCoordIntPair, dv.worldObj.provider.dimensionId)) {
 				Ticket ticket = shellTickets.get(dv);
 				if (ticket == null) {
 					ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.worldObj, ForgeChunkManager.Type.NORMAL);
@@ -109,13 +103,13 @@ public class ChunkLoadHandler implements LoadingCallback {
 
 	public static boolean isAlreadyChunkLoaded(TileEntityDualVertical dualVertical) {
 		ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dualVertical.xCoord >> 4, dualVertical.zCoord >> 4);
-		return shellTickets.containsKey(dualVertical) || isAlreadyChunkLoaded(chunkCoordIntPair);
+		return shellTickets.containsKey(dualVertical) || isAlreadyChunkLoaded(chunkCoordIntPair, dualVertical.worldObj.provider.dimensionId);
 	}
 
-	public static boolean isAlreadyChunkLoaded(ChunkCoordIntPair chunkCoordIntPair) {
+	public static boolean isAlreadyChunkLoaded(ChunkCoordIntPair chunkCoordIntPair, int dimID) {
 		for (Map.Entry<TileEntityDualVertical, Ticket> set : shellTickets.entrySet()) {
 			ImmutableSet loadedChunks = set.getValue().getChunkList();
-			if (loadedChunks != null) {
+			if (loadedChunks != null && set.getValue().world.provider.dimensionId == dimID) {
 				for (Object obj : loadedChunks) {
 					ChunkCoordIntPair theChunks = (ChunkCoordIntPair) obj;
 					//Will only return true if the exact same chunks are loaded but seeing as we are only loading one chunk, that's fine

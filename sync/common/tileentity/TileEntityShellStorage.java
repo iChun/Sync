@@ -29,7 +29,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		super();
 		occupied = false;
 		syncing = false;
-		hasPower = false;
+		hasPower = true;
 		
 		playerInstance = null;
 		
@@ -132,6 +132,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
 				ShellHandler.addShell(playerName, this, true);
+				hasPower = true;
 				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
 			}
 
@@ -140,7 +141,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				ShellHandler.addShell(playerName, this, true);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
-			else if (powerAmount() < Sync.shellStoragePowerRequirement && hasPower) {
+			if (powerAmount() < Sync.shellStoragePowerRequirement && hasPower) {
 				hasPower = false;
 				ShellHandler.removeShell(playerName, this);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
