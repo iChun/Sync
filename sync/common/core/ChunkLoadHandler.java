@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ChunkLoadHandler implements LoadingCallback {
 
-	public static HashMap<TileEntityDualVertical, Ticket> shellTickets = new HashMap<TileEntityDualVertical, Ticket>();
+	public static final HashMap<TileEntityDualVertical, Ticket> shellTickets = new HashMap<TileEntityDualVertical, Ticket>();
 	
 	@Override
 	public void ticketsLoaded(List<Ticket> tickets, World world) 
@@ -108,13 +108,15 @@ public class ChunkLoadHandler implements LoadingCallback {
 
 	public static boolean isAlreadyChunkLoaded(ChunkCoordIntPair chunkCoordIntPair, int dimID) {
 		for (Map.Entry<TileEntityDualVertical, Ticket> set : shellTickets.entrySet()) {
-			ImmutableSet loadedChunks = set.getValue().getChunkList();
-			if (loadedChunks != null && set.getValue().world.provider.dimensionId == dimID) {
-				for (Object obj : loadedChunks) {
-					ChunkCoordIntPair theChunks = (ChunkCoordIntPair) obj;
-					//Will only return true if the exact same chunks are loaded but seeing as we are only loading one chunk, that's fine
-					if (theChunks.equals(chunkCoordIntPair)) {
-						return true;
+			if (set != null && set.getValue() != null) {
+				ImmutableSet loadedChunks = set.getValue().getChunkList();
+				if (loadedChunks != null && set.getValue().world.provider.dimensionId == dimID) {
+					for (Object obj : loadedChunks) {
+						ChunkCoordIntPair theChunks = (ChunkCoordIntPair) obj;
+						//Will only return true if the exact same chunks are loaded but seeing as we are only loading one chunk, that's fine
+						if (theChunks.equals(chunkCoordIntPair)) {
+							return true;
+						}
 					}
 				}
 			}
