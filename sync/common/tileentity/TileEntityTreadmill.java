@@ -1,6 +1,8 @@
 package sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -24,8 +26,8 @@ import sync.common.Sync;
 
 import java.util.List;
 
-public class TileEntityTreadmill extends TileEntity
-	implements IEnergyHandler
+@Optional.Interface(iface = "IEnergyHandler", modid = "ThermalExpansion")
+public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;
 	
@@ -243,39 +245,9 @@ public class TileEntityTreadmill extends TileEntity
 					}
 					
 					//Still running. This sends RF power to nearby IEnergyHandlers
-					float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
-					int handlerCount = 0;
-					IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
-					for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
-					{
-						if(dir == ForgeDirection.UP)
-						{
-							continue;
-						}
-						TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
-						if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
-						{
-							IEnergyHandler energy = (IEnergyHandler) te;
-							if(energy.canInterface(dir.getOpposite()))
-							{
-								handlerCount++;
-								//Test if they can recieve power via simulate
-								if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
-								{
-									handlers[dir.getOpposite().ordinal()] = energy;
-								}
-							}
-						}
-					}
-					for(int i = 0; i < handlers.length; i++)
-					{
-						IEnergyHandler handler = handlers[i];
-						if(handler != null)
-						{
-							//Sends power equally to all nearby IEnergyHandlers that can receive it
-							handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max(Math.round(power / (float)handlerCount), 1), false);
-						}
-					}
+                    if (Loader.isModLoaded("ThermalExpansion")) {
+                        this.sendRFEnergyToNearbyDevices();
+                    }
 				}
 			}
 			else
@@ -297,6 +269,42 @@ public class TileEntityTreadmill extends TileEntity
 			}
 		}
 	}
+
+    private void sendRFEnergyToNearbyDevices() {
+        float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
+        int handlerCount = 0;
+        IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
+        for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
+        {
+            if(dir == ForgeDirection.UP)
+            {
+                continue;
+            }
+            TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
+            if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
+            {
+                IEnergyHandler energy = (IEnergyHandler) te;
+                if(energy.canInterface(dir.getOpposite()))
+                {
+                    handlerCount++;
+                    //Test if they can recieve power via simulate
+                    if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
+                    {
+                        handlers[dir.getOpposite().ordinal()] = energy;
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < handlers.length; i++)
+        {
+            IEnergyHandler handler = handlers[i];
+            if(handler != null)
+            {
+                //Sends power equally to all nearby IEnergyHandlers that can receive it
+                handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max(Math.round(power / (float)handlerCount), 1), false);
+            }
+        }
+    }
 	
 	@SideOnly(Side.CLIENT)
 	public void spawnParticles() 

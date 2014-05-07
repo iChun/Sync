@@ -2,6 +2,7 @@ package sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -34,6 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+@Optional.Interface(iface = "IEnergyHandler", modid = "ThermalExpansion")
 public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler
 {
 
