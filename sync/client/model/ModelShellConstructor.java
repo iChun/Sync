@@ -1,8 +1,5 @@
 package sync.client.model;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
@@ -11,10 +8,10 @@ import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
-
 import org.lwjgl.opengl.GL11;
 
-import sync.common.Sync;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class ModelShellConstructor extends ModelBase
 {
@@ -600,6 +597,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	
 					modelBiped.bipedHead.render(f5);
+                    modelBiped.bipedHeadwear.render(f5);
 					modelBiped.bipedBody.render(f5);
 					modelBiped.bipedRightArm.render(f5);
 					modelBiped.bipedLeftArm.render(f5);
@@ -629,6 +627,7 @@ public class ModelShellConstructor extends ModelBase
 					if(prog < 1.0F)
 					{
 						modelBiped.bipedHead.render(f5);
+                        modelBiped.bipedHeadwear.render(f5);
 						modelBiped.bipedBody.render(f5);
 						modelBiped.bipedRightArm.render(f5);
 						modelBiped.bipedLeftArm.render(f5);
@@ -648,6 +647,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 	
 					modelBiped.bipedHead.render(f5);
+                    modelBiped.bipedHeadwear.render(f5);
 					modelBiped.bipedBody.render(f5);
 					modelBiped.bipedRightArm.render(f5);
 					modelBiped.bipedLeftArm.render(f5);
@@ -681,6 +681,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					
 					modelBiped.bipedHead.render(f5);
+                    modelBiped.bipedHeadwear.render(f5);
 					modelBiped.bipedBody.render(f5);
 					modelBiped.bipedRightArm.render(f5);
 					modelBiped.bipedLeftArm.render(f5);
@@ -695,6 +696,7 @@ public class ModelShellConstructor extends ModelBase
 					if(prog < 1.0F)
 					{
 						modelBiped.bipedHead.render(f5);
+                        modelBiped.bipedHeadwear.render(f5);
 						modelBiped.bipedBody.render(f5);
 						modelBiped.bipedRightArm.render(f5);
 						modelBiped.bipedLeftArm.render(f5);
@@ -710,6 +712,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
 					
 					modelBiped.bipedHead.render(f5);
+                    modelBiped.bipedHeadwear.render(f5);
 					modelBiped.bipedBody.render(f5);
 					modelBiped.bipedRightArm.render(f5);
 					modelBiped.bipedLeftArm.render(f5);
