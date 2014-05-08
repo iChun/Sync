@@ -34,7 +34,7 @@ import sync.common.tileentity.TileEntityTreadmill;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-public class EventHandler 
+public class EventHandler
 {
 
 	@SideOnly(Side.CLIENT)
@@ -47,7 +47,7 @@ public class EventHandler
 			{
 				Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
 				Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
-				
+
 				double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
 				if(mag > 1.0D)
 				{
@@ -80,7 +80,7 @@ public class EventHandler
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
 	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event)
@@ -90,98 +90,72 @@ public class EventHandler
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@ForgeSubscribe
-	public void onLivingDeath(LivingDeathEvent event)
-	{
-		if(SessionState.deathMode > 0)
-		{
-			if(FMLCommonHandler.instance().getEffectiveSide().isServer())
-			{
-				if(event.entityLiving instanceof EntityPlayerMP && !(event.entityLiving instanceof FakePlayer))
-				{
-					
-					//TODO check for this
-//					if(dv1 instanceof TileEntityShellStorage)
-//					{
-//						TileEntityShellStorage ss = (TileEntityShellStorage)dv1;
-//						if(!ss.syncing)
-//						{
-//							ShellHandler.updatePlayerOfShells(player, null, true);
-//							break;
-//						}
-//					}
-					
-					EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
+	public void onLivingDeath(LivingDeathEvent event) {
+		if (SessionState.deathMode > 0) {
+			if (event.entityLiving instanceof EntityPlayerMP && !(event.entityLiving instanceof FakePlayer) && !event.entityLiving.worldObj.isRemote) {
+				EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
+				TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
 
-					TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
-					
-					if(tpPosition != null)
-					{
-						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
-								(int) Math.floor(event.entityLiving.posX),
-								(int) Math.floor(event.entityLiving.posY),
-								(int) Math.floor(event.entityLiving.posZ),
-								event.entityLiving.dimension,
-								-1, false, true);
-						PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
-						
-						tpPosition.resyncPlayer = 120;
-						
-						EntityPlayer dvInstance = null;
-						
-						if(tpPosition instanceof TileEntityShellStorage)
-						{
-							dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
-						}
-						else if(tpPosition instanceof TileEntityShellConstructor)
-						{
-							dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
-							((EntityPlayerMP)dvInstance).playerNetServerHandler = player.playerNetServerHandler;
-						}
-						
-						if(dvInstance != null)
-						{
-							NBTTagCompound tag = new NBTTagCompound();
+				if (tpPosition != null) {
+					Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
+							(int) Math.floor(event.entityLiving.posX),
+							(int) Math.floor(event.entityLiving.posY),
+							(int) Math.floor(event.entityLiving.posZ),
+							event.entityLiving.dimension,
+							-1, false, true);
+					PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 
-							if(tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory"))
-							{
-								dvInstance.readFromNBT(tpPosition.playerNBT);
-							}
+					tpPosition.resyncPlayer = 120;
+					EntityPlayer dvInstance = null;
 
-							dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
+					if (tpPosition instanceof TileEntityShellStorage) {
+						dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
+					}
+					else if (tpPosition instanceof TileEntityShellConstructor) {
+						dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
+						((EntityPlayerMP)dvInstance).playerNetServerHandler = player.playerNetServerHandler;
+					}
 
-							boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+					if (dvInstance != null) {
+						NBTTagCompound tag = new NBTTagCompound();
 
-							tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
-
-							dvInstance.clonePlayer(player, false);
-							dvInstance.entityId = player.entityId;
-
-							tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-
-							dvInstance.writeToNBT(tag);
-
-							tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
-
-							tpPosition.playerNBT = tag;
+						if (tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory")) {
+							dvInstance.readFromNBT(tpPosition.playerNBT);
 						}
 
-						PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));
-						
-						player.setHealth(1);
+						dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
 
-						if(!ShellHandler.syncInProgress.containsKey(player.username))
-						{
-							player.getEntityData().setBoolean("isDeathSyncing", true);
-							ShellHandler.syncInProgress.put(player.username, tpPosition);
-						}
+						boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+
+						tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+
+						dvInstance.clonePlayer(player, false);
+						dvInstance.entityId = player.entityId;
+
+						tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+
+						dvInstance.writeToNBT(tag);
+
+						tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
+
+						tpPosition.playerNBT = tag;
+					}
+
+					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));
+
+					player.setHealth(1);
+
+					if (!ShellHandler.syncInProgress.containsKey(player.username)) {
+						player.getEntityData().setBoolean("isDeathSyncing", true);
+						ShellHandler.syncInProgress.put(player.username, tpPosition);
 					}
 				}
 			}
 		}
 	}
-	
+
 	@ForgeSubscribe(priority = EventPriority.HIGHEST)
 	public void onEntityAttacked(LivingAttackEvent event)
 	{
@@ -214,7 +188,7 @@ public class EventHandler
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@ForgeSubscribe
 	public void onEntityInteract(EntityInteractEvent event)
 	{
@@ -224,7 +198,7 @@ public class EventHandler
 			if(te instanceof TileEntityTreadmill)
 			{
 				TileEntityTreadmill tm = (TileEntityTreadmill)te;
-				
+
 				if(tm.back)
 				{
 					tm = tm.pair;
@@ -258,7 +232,7 @@ public class EventHandler
 					tm.latchedEnt = null;
 					tm.timeRunning = 0;
 					tm.worldObj.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
-					
+
 					event.setCanceled(true);
 				}
 			}
@@ -266,7 +240,7 @@ public class EventHandler
 	}
 
 	//Will return the closest shell that the player can be synced too
-    public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
+	public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
 		boolean reiterateShells = false;
 
