@@ -60,7 +60,6 @@ public class RenderBlockPlacerItem implements IItemRenderer
 			}
 			case INVENTORY:
 			{
-				data = new Object[] { data[0], null } ;
 				if(renderType == 0)
 				{
 					renderType = 1;

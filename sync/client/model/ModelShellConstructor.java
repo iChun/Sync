@@ -447,15 +447,13 @@ public class ModelShellConstructor extends ModelBase
 				{
 					bodyPix.remove(rand.nextInt(bodyPix.size()));
 				}
-				
-				for(int i = 0; i < bodyPix.size(); i++)
-				{
-					int[] coord = bodyPix.get(i);
-					bodyPixel.rotationPointX = coord[0];
-					bodyPixel.rotationPointZ = coord[1];
-					bodyPixel.rotationPointY = 24.0F + (-2 * level);
-					bodyPixel.render(f5);
-				}
+
+                for (int[] coord : bodyPix) {
+                    bodyPixel.rotationPointX = coord[0];
+                    bodyPixel.rotationPointZ = coord[1];
+                    bodyPixel.rotationPointY = 24.0F + (-2 * level);
+                    bodyPixel.render(f5);
+                }
 			}
 			else if(prog < 0.95F)
 			{
@@ -483,19 +481,17 @@ public class ModelShellConstructor extends ModelBase
 				{
 					armPix.remove(armLevel == 0 ? armPix.size() - 1 : rand.nextInt(armPix.size()));
 				}
-				
-				for(int i = 0; i < armPix.size(); i++)
-				{
-					int[] coord = armPix.get(i);
-					bodyPixel.rotationPointX = coord[0];
-					bodyPixel.rotationPointZ = coord[1];
-					bodyPixel.rotationPointY = -22.0F + (2 * armLevel);
-					bodyPixel.render(f5);
-					
-					bodyPixel.rotationPointX = -coord[0];
-					bodyPixel.rotationPointZ = -coord[1];
-					bodyPixel.render(f5);
-				}
+
+                for (int[] coord : armPix) {
+                    bodyPixel.rotationPointX = coord[0];
+                    bodyPixel.rotationPointZ = coord[1];
+                    bodyPixel.rotationPointY = -22.0F + (2 * armLevel);
+                    bodyPixel.render(f5);
+
+                    bodyPixel.rotationPointX = -coord[0];
+                    bodyPixel.rotationPointZ = -coord[1];
+                    bodyPixel.render(f5);
+                }
 				
 				rand.setSeed("headConstructor".hashCode());
 				
@@ -522,15 +518,13 @@ public class ModelShellConstructor extends ModelBase
 				{
 					headPix.remove(headLevel == 0 ? headPix.size() - 1 : rand.nextInt(headPix.size()));
 				}
-				
-				for(int i = 0; i < headPix.size(); i++)
-				{
-					int[] coord = headPix.get(i);
-					bodyPixel.rotationPointX = coord[0];
-					bodyPixel.rotationPointZ = coord[1];
-					bodyPixel.rotationPointY = -24.0F + (-2 * headLevel);
-					bodyPixel.render(f5);
-				}
+
+                for (int[] coord : headPix) {
+                    bodyPixel.rotationPointX = coord[0];
+                    bodyPixel.rotationPointZ = coord[1];
+                    bodyPixel.rotationPointY = -24.0F + (-2 * headLevel);
+                    bodyPixel.render(f5);
+                }
 			}
 			
 			if(prog < 0.95F)

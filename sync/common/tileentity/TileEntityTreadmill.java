@@ -1,7 +1,6 @@
 package sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -81,23 +80,20 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 				{
 					AxisAlignedBB aabb = AxisAlignedBB.getAABBPool().getAABB(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
 					List list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
-					
-					for(int i = 0 ; i < list.size(); i++)
-					{
-						Entity ent = (Entity)list.get(i);
-						
-						if(isEntityValidForTreadmill(ent))
-						{
-							if(ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ)
-							{
-								latchedEnt = (EntityLiving)ent;
-								latchedHealth = latchedEnt.getHealth();
-								latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-								worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-								break;
-							}
-						}
-					}
+
+                    for (Object aList : list) {
+                        Entity ent = (Entity) aList;
+
+                        if (isEntityValidForTreadmill(ent)) {
+                            if (ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ) {
+                                latchedEnt = (EntityLiving) ent;
+                                latchedHealth = latchedEnt.getHealth();
+                                latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+                                worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                                break;
+                            }
+                        }
+                    }
 				}
 			}
 			else if(latchedEnt != null)
@@ -245,7 +241,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 					}
 					
 					//Still running. This sends RF power to nearby IEnergyHandlers
-                    if (Loader.isModLoaded("ThermalExpansion")) {
+                    if (Sync.hasThermalExpansion) {
                         this.sendRFEnergyToNearbyDevices();
                     }
 				}
@@ -270,6 +266,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 		}
 	}
 
+    @Optional.Method(modid = "ThermalExpansion")
     private void sendRFEnergyToNearbyDevices() {
         float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
         int handlerCount = 0;

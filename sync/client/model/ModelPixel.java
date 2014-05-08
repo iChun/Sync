@@ -1,13 +1,11 @@
 package sync.client.model;
 
-import java.awt.image.BufferedImage;
-import java.util.Random;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.util.MathHelper;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Random;
 
 public class ModelPixel extends ModelBase
 {
@@ -58,8 +56,8 @@ public class ModelPixel extends ModelBase
                 	if(i == 0 || i == sizeX - 1 || j == 0 || j == sizeY - 1 || k == 0 || k == sizeZ - 1)
                 	{
 						int x = j == sizeY - 1 && !(i == 0 || i == sizeX - 1 || k == 0 || k == sizeZ - 1) ? sizeX + sizeZ + i : k == 0 ? sizeX + sizeZ + sizeX + sizeZ + i - 3 : k == sizeZ - 1 ? sizeX + sizeZ + i - 1 : k > 0 && i < sizeX / 2 ? sizeX + sizeZ + sizeX + sizeZ - 3 - k : sizeX - 1 + k;
-						int y = j == sizeY - 1 && !(i == 0 || i == sizeX - 1 || k == 0 || k == sizeZ - 1) ? sizeZ - k : sizeZ + sizeY - j - 2; 
-						
+						int y = j == sizeY - 1 && !(i == 0 || i == sizeX - 1 || k == 0 || k == sizeZ - 1) ? sizeZ - k : sizeZ + sizeY - j - 2;
+
                 		ModelRenderer pixel = new ModelRenderer(this, x, sizeZ + sizeY - j - 2);
                 		modelHead[i + j * sizeX + k * sizeY * sizeX] = pixel;
                 		pixel.addBox(-0.5F, -0.5F, -0.5F, 1, 1, 1);
@@ -199,7 +197,7 @@ public class ModelPixel extends ModelBase
 		//4 = body
 		//5 = head
 		
-		float prog = MathHelper.clamp_float((float)(progInt + renderTick) / 100F, 0.0F, 1.0F);
+		float prog = MathHelper.clamp_float((progInt + renderTick) / 100F, 0.0F, 1.0F);
 		
 		float shatterProg = MathHelper.clamp_float((float)(Math.pow(1.0F - MathHelper.clamp_float(((prog - 0.05F) / 0.125F), 0.0F, 1.0F), 3D)), 0.0F, 1.0F);
 		float properShatterProg = 1.0F - MathHelper.clamp_float((float)(Math.pow(1.0F - MathHelper.clamp_float(((prog - 0.025F) / 0.2F), 0.0F, 1.0F), 2D)), 0.0F, 1.0F);
@@ -215,8 +213,7 @@ public class ModelPixel extends ModelBase
 			GL11.glRotatef(rotationYaw, 0.0F, 1.0F, 0.0F);
 		}
 
-		
-        float f7 = limbSwingAmount;
+
         float f8 = limbSwing - limbSwingAmount;
         
         int sizeX = 4;
@@ -312,17 +309,15 @@ public class ModelPixel extends ModelBase
                 		{
                 			if(limb % 2 == 0)
                 			{
-                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F + (float)Math.PI) * 1.4F * f7)) * shatterProg, 1.0F, 0.0F, 0.0F);
+                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
                 			}
                 			if(limb % 2 == 1)
                 			{
-                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F) * 1.4F * f7)) * shatterProg, 1.0F, 0.0F, 0.0F);
+                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
                 			}
                 		}
                 	        
                 		GL11.glTranslatef(0.0F, 11F/16F * (1.0F - shatterProg) + rand.nextFloat() * 0.01F, 0.0F);
-                		
-                		float disappearProg = MathHelper.clamp_float((prog - 0.5F) / 0.5F, 0.0F, 1.0F);
                 		
                 		GL11.glTranslatef(-(offsetX + (i + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), (-(offsetY + (j + 0.5F)) / 16F) * shatterProg, -(offsetZ + (k + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg));
                 		if(prog < rand.nextFloat())

@@ -22,7 +22,8 @@ import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 
-public class TileRendererDualVertical extends TileEntitySpecialRenderer 
+@SuppressWarnings("UnnecessaryBoxing")
+public class TileRendererDualVertical extends TileEntitySpecialRenderer
 {
 
 	public static final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shellConstructor.png");
@@ -133,7 +134,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					else
 					{
 						ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
-						ss.playerInstance.rotationPitch = (float)MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
+						ss.playerInstance.rotationPitch = MathHelper.clamp_float((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getCurrentArmor(3) == null ? 15F : 5F);
 					}
 					
 					ss.playerInstance.setPosition(0.0D, 500D, 0.0D);

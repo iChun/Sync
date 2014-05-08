@@ -6,7 +6,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
 import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkModHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.block.Block;
@@ -52,10 +51,8 @@ public class Sync
 	public static CommonProxy proxy;
 	
 	private static Logger logger;
-	
-	private static Configuration config;
-	
-	public static CreativeTabs creativeTabSync;
+
+    public static CreativeTabs creativeTabSync;
 	
 	public static int idBlockShellConstructor;
 	public static int idItemBlockPlacer;
@@ -86,6 +83,7 @@ public class Sync
 	public static boolean isChristmasOrNewYear;
 	
 	public static boolean hasMorphMod;
+    public static boolean hasThermalExpansion;
 
 	public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
 
@@ -94,8 +92,8 @@ public class Sync
 	{
 		logger = Logger.getLogger("Sync");
 		logger.setParent(FMLLog.getLogger());
-		
-		config = new Configuration(event.getSuggestedConfigurationFile());
+
+        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		
 		idBlockShellConstructor = addCommentAndReturnBlockId(config, "ids", "idBlockShellConstructor", "Block ID for the Shell Constructor", 1345);
@@ -139,6 +137,7 @@ public class Sync
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 		
 		hasMorphMod = Loader.isModLoaded("Morph");
+        hasThermalExpansion = Loader.isModLoaded("ThermalExpansion");
 		
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" ); 
 		FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
@@ -235,7 +234,7 @@ public class Sync
 	
 	public static int getNetId()
 	{
-		return ((NetworkModHandler)FMLNetworkHandler.instance().findNetworkModHandler(Sync.instance)).getNetworkId();
+		return FMLNetworkHandler.instance().findNetworkModHandler(Sync.instance).getNetworkId();
 	}
 	
 	public static NBTTagCompound readNBTTagCompound(DataInput par0DataInput) throws IOException
@@ -284,6 +283,6 @@ public class Sync
 		}
 		
 		GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
-				new Object[] { "DLD", "QEQ", "MRM", Character.valueOf('D'), Block.daylightSensor, Character.valueOf('L'), Block.blockLapis, Character.valueOf('Q'), Item.netherQuartz, Character.valueOf('E'), (SessionState.hardMode ? Block.beacon : Item.enderPearl), Character.valueOf('M'), Item.emerald, Character.valueOf('R'), Block.blockRedstone});
+                "DLD", "QEQ", "MRM", 'D', Block.daylightSensor, 'L', Block.blockLapis, 'Q', Item.netherQuartz, 'E', (SessionState.hardMode ? Block.beacon : Item.enderPearl), 'M', Item.emerald, 'R', Block.blockRedstone);
 	}
 }

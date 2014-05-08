@@ -8,9 +8,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 public class CreativeTabSync extends CreativeTabs 
 {
 
-	public CreativeTabSync(String label) 
+	public CreativeTabSync()
 	{
-		super(label);
+		super("sync");
 	}
 
 	@SideOnly(Side.CLIENT)

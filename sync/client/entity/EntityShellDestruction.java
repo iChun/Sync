@@ -50,8 +50,7 @@ public class EntityShellDestruction extends EntityLivingBase
 		if(progress > 110)
 		{
 			setDead();
-			return;
-		}
+        }
 	}
 	
 	@Override
@@ -70,12 +69,6 @@ public class EntityShellDestruction extends EntityLivingBase
     {
     	return false;
     }
-	
-	@Override
-	protected void entityInit() 
-	{
-		super.entityInit();
-	}
 
 	@Override
 	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {}

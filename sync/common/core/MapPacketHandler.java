@@ -38,7 +38,6 @@ public class MapPacketHandler
 	@Override
 	public void handle(NetHandler handler, Packet131MapData mapData) 
 	{
-		int id = mapData.uniqueID;
 		if(handler instanceof NetServerHandler)
 		{
 			handleServerPacket((NetServerHandler)handler, mapData.uniqueID, mapData.itemData, (EntityPlayerMP)handler.getPlayer());
@@ -163,7 +162,7 @@ public class MapPacketHandler
 				}
 			}
 		}
-		catch(IOException e)
+		catch(IOException ignored)
 		{
 		}
 	}

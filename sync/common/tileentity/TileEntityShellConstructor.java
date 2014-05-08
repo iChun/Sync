@@ -3,8 +3,6 @@ package sync.common.tileentity;
 import cofh.api.tileentity.IEnergyInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -70,11 +68,13 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			{
 				constructionProgress = SessionState.shellConstructionPowerRequirement;
 			}
-			
+
+            /*
 			if(worldObj.isRemote && !top)
 			{
 				spawnParticles();
 			}
+			*/
 
 			//Notifies neighbours of block update, used for comparator
 			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
@@ -145,19 +145,21 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	{
 		return constructionProgress;
 	}
-	
+
+    /*
 	@SideOnly(Side.CLIENT)
 	public void spawnParticles()
 	{
-//		float prog = MathHelper.clamp_float(this.constructionProgress, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement;
-//		if(prog > 0.95F)
-//		{
-//			float angle = 0;
-//			
-//			System.out.println(face);
-//			Minecraft.getMinecraft().effectRenderer.addEffect(new EntityPaintFX(worldObj, xCoord + 0.5D , yCoord + 0.5D, zCoord + 0.5D, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, 1.0F));
-//		}
+		float prog = MathHelper.clamp_float(this.constructionProgress, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement;
+		if(prog > 0.95F)
+		{
+			float angle = 0;
+
+			System.out.println(face);
+			Minecraft.getMinecraft().effectRenderer.addEffect(new EntityPaintFX(worldObj, xCoord + 0.5D , yCoord + 0.5D, zCoord + 0.5D, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, 1.0F));
+		}
 	}
+	*/
 
 	@Override
 	public void writeToNBT(NBTTagCompound tag)

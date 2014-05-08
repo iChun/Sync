@@ -266,7 +266,7 @@ public class EventHandler
 	}
 
 	//Will return the closest shell that the player can be synced too
-	public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
+    public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
 		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
 		boolean reiterateShells = false;
 

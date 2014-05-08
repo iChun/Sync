@@ -143,9 +143,6 @@ public class TickHandlerClient implements ITickHandler {
 
 				for(int i = 0; i < selectedShells.size(); i++)
 				{
-					double angle = Math.PI * 2 * i / selectedShells.size();
-
-					angle -= Math.toRadians(90D);
 
 					float leeway = 360F / selectedShells.size();
 
@@ -407,7 +404,7 @@ public class TickHandlerClient implements ITickHandler {
 
 			float prog = MathHelper.clamp_float((3F - radialTime + renderTick) / 3F, 0.0F, 1.0F);
 
-			float rad = (mag > magAcceptance ? 0.85F : 0.82F) * prog;
+			float rad;
 
 			int radius = 80;
 			radius *= Math.pow(prog, 0.5D);
@@ -776,7 +773,7 @@ public class TickHandlerClient implements ITickHandler {
 				GL11.glTranslatef(-8F, 0.0F, 0.0F);	
 			}
 
-			GL11.glScalef((float)(-scale), (float)scale, (float)scale);
+			GL11.glScalef(-scale, scale, scale);
 			GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
 			float f2 = ent.renderYawOffset;
 			float f3 = ent.rotationYaw;

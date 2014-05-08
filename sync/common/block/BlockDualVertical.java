@@ -35,7 +35,6 @@ import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -183,13 +182,10 @@ public class BlockDualVertical extends BlockContainer
 				else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
 				{
 					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
-					
-					if(player != null)
-					{
-						ShellHandler.updatePlayerOfShells(player, null, true);
-					}
 
-					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
+                    ShellHandler.updatePlayerOfShells(player, null, true);
+
+                    world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					return true;
 				}
@@ -286,25 +282,21 @@ public class BlockDualVertical extends BlockContainer
 
 				if (list != null)
 				{
-					Iterator iterator = list.iterator();
 
-					while (iterator.hasNext())
-					{
-						EntityLiving entityliving = (EntityLiving)iterator.next();
+                    for (Object aList : list) {
+                        EntityLiving entityliving = (EntityLiving) aList;
 
-						if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(entityliving))
-						{
-							if(!world.isRemote)
-							{
-								tm.latchedEnt = entityliving;
-								tm.latchedHealth = entityliving.getHealth();
-								entityliving.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
-								world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
-								entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
-							}
-							return true;
-						}
-					}
+                        if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(entityliving)) {
+                            if (!world.isRemote) {
+                                tm.latchedEnt = entityliving;
+                                tm.latchedHealth = entityliving.getHealth();
+                                entityliving.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
+                                world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+                                entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
+                            }
+                            return true;
+                        }
+                    }
 				}
 
 				ItemStack is = player.getCurrentEquippedItem();
@@ -585,7 +577,7 @@ public class BlockDualVertical extends BlockContainer
 
 					if(!bottom.playerName.equalsIgnoreCase("") && !bottom.playerName.equalsIgnoreCase(player.username))
 					{
-						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", new Object[] { player.username, bottom.playerName }));
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", player.username, bottom.playerName));
 					}
 				}
 			}

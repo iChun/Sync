@@ -397,7 +397,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
 			Sync.writeNBTTagCompound(invTag, stream);
 		}
-		catch(IOException e)
+		catch(IOException ignored)
 		{
 		}
 		return bytes.toByteArray();
