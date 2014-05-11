@@ -93,11 +93,14 @@ public class EventHandler
 
 	@ForgeSubscribe
 	public void onLivingDeath(LivingDeathEvent event) {
+		//If we allow death syncing
 		if (SessionState.deathMode > 0) {
+			//And the player is actually a player on a server
 			if (event.entityLiving instanceof EntityPlayerMP && !(event.entityLiving instanceof FakePlayer) && !event.entityLiving.worldObj.isRemote) {
-				EntityPlayerMP player = (EntityPlayerMP)event.entityLiving;
+				EntityPlayerMP player = (EntityPlayerMP) event.entityLiving;
 				TileEntityDualVertical tpPosition = getClosestRespawnShell(player);
 
+				//If we have a valid location to sync into, tell the player to zoom out
 				if (tpPosition != null) {
 					Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
 							(int) Math.floor(event.entityLiving.posX),
@@ -108,6 +111,8 @@ public class EventHandler
 					PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 
 					tpPosition.resyncPlayer = 120;
+
+					//TODO Figure out what the hell this next stuff does. Removing it seems to affect nothing
 					EntityPlayer dvInstance = null;
 
 					if (tpPosition instanceof TileEntityShellStorage) {
@@ -143,9 +148,10 @@ public class EventHandler
 						tpPosition.playerNBT = tag;
 					}
 
+					//Create the death animation packet
 					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));
 
-					player.setHealth(1);
+					player.setHealth(20);
 
 					if (!ShellHandler.syncInProgress.containsKey(player.username)) {
 						player.getEntityData().setBoolean("isDeathSyncing", true);
