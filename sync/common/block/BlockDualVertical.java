@@ -115,7 +115,7 @@ public class BlockDualVertical extends BlockContainer
 	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ)
 	{
 		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
+		if(te instanceof TileEntityDualVertical && !(player instanceof FakePlayer))
 		{
 			TileEntityDualVertical dv = (TileEntityDualVertical)te;
 			if(dv.top)
