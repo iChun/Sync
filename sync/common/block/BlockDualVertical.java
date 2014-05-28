@@ -116,6 +116,7 @@ public class BlockDualVertical extends BlockContainer {
 			if (dualVertical instanceof TileEntityShellConstructor) {
 				TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVertical;
 
+				//If nothing is there
 				if (shellConstructor.getPlayerName().equalsIgnoreCase("")) {
 					if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false)) {
 						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
@@ -155,11 +156,13 @@ public class BlockDualVertical extends BlockContainer {
 					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
 					return true;
 				}
-				else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && player.capabilities.isCreativeMode && !world.isRemote) {
-					shellConstructor.constructionProgress = SessionState.shellConstructionPowerRequirement;
-                    ShellHandler.updatePlayerOfShells(player, null, true);
-                    world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
-					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
+				else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && player.capabilities.isCreativeMode) {
+					if (!world.isRemote) {
+						shellConstructor.constructionProgress = SessionState.shellConstructionPowerRequirement;
+						ShellHandler.updatePlayerOfShells(player, null, true);
+						world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
+						world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
+					}
 					return true;
 				}
 
