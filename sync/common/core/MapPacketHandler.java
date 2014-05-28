@@ -122,7 +122,7 @@ public class MapPacketHandler
 									
 									tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
 									
-									ss.playerNBT = tag;
+									ss.setPlayerNBT(tag);
 									
 									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
 									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
@@ -136,7 +136,7 @@ public class MapPacketHandler
 								targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
 								ShellHandler.syncInProgress.put(player.username, targetShell);
 								
-								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.playerNBT, targetShell.playerNBT, targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
+								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
 
 								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.username, false));
 								

@@ -114,10 +114,11 @@ public class EventHandler {
 					}
 
 					if (dvInstance != null) {
+						//TODO clonePlayer
 						NBTTagCompound tag = new NBTTagCompound();
 
-						if (tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory")) {
-							dvInstance.readFromNBT(tpPosition.playerNBT);
+						if (tpPosition.getPlayerNBT().hasKey("Inventory")) {
+							dvInstance.readFromNBT(tpPosition.getPlayerNBT());
 						}
 
 						dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
@@ -133,9 +134,9 @@ public class EventHandler {
 
 						dvInstance.writeToNBT(tag);
 
-						tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
+						tag.setInteger("sync_playerGameMode", tpPosition.getPlayerNBT().getInteger("sync_playerGameMode"));
 
-						tpPosition.playerNBT = tag;
+						tpPosition.setPlayerNBT(tag);
 					}
 
 					//Create the death animation packet

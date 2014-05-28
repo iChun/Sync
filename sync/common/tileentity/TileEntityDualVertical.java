@@ -47,7 +47,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	protected String playerName;
 	public String name;
 	public TileEntityDualVertical resyncOrigin;
-	public NBTTagCompound playerNBT;
+	protected NBTTagCompound playerNBT;
 	public ResourceLocation locationSkin;
 
 	public boolean resync;
@@ -482,7 +482,18 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		this.playerName = playerName;
 	}
 
+	public void setPlayerNBT(NBTTagCompound tagCompound) {
+		if (tagCompound == null) tagCompound = new NBTTagCompound();
+		this.playerNBT = tagCompound;
+	}
+
 	public String getPlayerName() {
+		if (this.playerName == null) this.setPlayerName("");
 		return this.playerName;
+	}
+
+	public NBTTagCompound getPlayerNBT() {
+		if (this.playerNBT == null) this.setPlayerNBT(new NBTTagCompound());
+		return this.playerNBT;
 	}
 }

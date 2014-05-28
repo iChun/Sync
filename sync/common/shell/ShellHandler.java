@@ -27,6 +27,7 @@ public class ShellHandler {
 
 	public static void removeShell(String playerName, TileEntityDualVertical dualVertical) {
 		playerShells.remove(playerName, dualVertical);
+		//TODO call method in dualVertical like shellRemoved so it can sync properly
 		ChunkLoadHandler.removeShellAsChunkloader(dualVertical);
 	}
 

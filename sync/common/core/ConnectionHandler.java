@@ -90,8 +90,8 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 				if (dvInstance != null) {
 					NBTTagCompound tag = new NBTTagCompound();
 
-					if(tpPosition.playerNBT != null && tpPosition.playerNBT.hasKey("Inventory")) {
-						dvInstance.readFromNBT(tpPosition.playerNBT);
+					if(tpPosition.getPlayerNBT() != null && tpPosition.getPlayerNBT().hasKey("Inventory")) {
+						dvInstance.readFromNBT(tpPosition.getPlayerNBT());
 					}
 
 					dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
@@ -106,8 +106,8 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 					tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
 					dvInstance.writeToNBT(tag);
-					tag.setInteger("sync_playerGameMode", tpPosition.playerNBT.getInteger("sync_playerGameMode"));
-					tpPosition.playerNBT = tag;
+					tag.setInteger("sync_playerGameMode", tpPosition.getPlayerNBT().getInteger("sync_playerGameMode"));
+					tpPosition.setPlayerNBT(tag);
 				}
 
 				MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.username, true);
@@ -154,7 +154,7 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 					ss.occupied = false;
 					ss.occupationTime = 0;
 					ss.syncing = false;
-					ss.playerNBT = new NBTTagCompound();
+					ss.setPlayerNBT(new NBTTagCompound());
 					ss.worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
 					ss.worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
 				}

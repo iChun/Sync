@@ -141,7 +141,8 @@ public class BlockDualVertical extends BlockContainer
 					sc.setPlayerName(player.username);
 
 					if(!world.isRemote)
-					{	
+					{
+						//TODO clonePlayer?
 						NBTTagCompound tag = new NBTTagCompound();
 
 						EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
@@ -162,7 +163,7 @@ public class BlockDualVertical extends BlockContainer
 						dummy.writeToNBT(tag);
 						tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).theItemInWorldManager.getGameType().getID());
 
-						sc.playerNBT = tag;
+						sc.setPlayerNBT(tag);
 
 						//TODO Custom damage source
 						if(!player.capabilities.isCreativeMode)
@@ -555,171 +556,136 @@ public class BlockDualVertical extends BlockContainer
 	}
 
 	@Override
-	public boolean removeBlockByPlayer(World world, EntityPlayer player, int i, int j, int k)
-	{
-		if(!world.isRemote)
-		{
-			TileEntity te = world.getBlockTileEntity(i, j, k);
-			if(te instanceof TileEntityDualVertical)
-			{
-				TileEntityDualVertical dv = (TileEntityDualVertical)te;
-				TileEntity te1 = world.getBlockTileEntity(i, j + (dv.top ? -1 : 1), k);
-				if(te1 instanceof TileEntityDualVertical)
-				{
-					TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
-					if(dv1.pair == dv)
-					{
-						world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockDualVertical.blockID);
-						world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
+	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z) {
+		if (!world.isRemote) {
+			TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+			if (tileEntity instanceof TileEntityDualVertical) {
+				TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+				TileEntity tileEntityPair = world.getBlockTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
+				if (tileEntityPair instanceof TileEntityDualVertical) {
+					TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
+					if (dualVerticalPair.pair == dualVertical) {
+						world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Sync.blockDualVertical.blockID);
+						world.setBlockToAir(x, y + (dualVertical.top ? -1 : 1), z);
 					}
-					TileEntityDualVertical bottom = dv1.top ? dv : dv1;
+					TileEntityDualVertical bottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
-					if(!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()))
-					{
+					if (!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getCommandSenderName())) {
 						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", player.getCommandSenderName(), bottom.getPlayerName()));
 					}
-				}
-			}
-		}
-		return super.removeBlockByPlayer(world, player, i, j, k);
-	}
 
-	@Override
-	public void breakBlock(World world, int i, int j, int k, int par5, int par6)
-	{
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
-		{
-			TileEntityDualVertical dv = (TileEntityDualVertical)te;
-			TileEntity te1 = world.getBlockTileEntity(i, j + (dv.top ? -1 : 1), k);
-			if(te1 instanceof TileEntityDualVertical)
-			{
-				TileEntityDualVertical dv1 = (TileEntityDualVertical)te1;
-				if(dv1.pair == dv)
-				{
-					world.playAuxSFX(2001, i, j + (dv.top ? -1 : 1), k, Sync.blockDualVertical.blockID);
-					world.setBlockToAir(i, j + (dv.top ? -1 : 1), k);
-				}
-				TileEntityDualVertical bottom = dv1.top ? dv : dv1;
-
-				if(!world.isRemote)
-				{
-					ShellHandler.removeShell(dv.top ? dv1.getPlayerName() : dv.getPlayerName(), dv.top ? dv1 : dv);
-					//ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
-					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
-					{
-						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
-						if(player1 != null)
-						{
-							if(dv.playerNBT.hasKey("Inventory"))
-							{
-								player1.readFromNBT(dv.playerNBT);
-							}
-							String name = DamageSource.outOfWorld.damageType;
-							DamageSource.outOfWorld.damageType = "syncFail";
-							player1.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
-
-							DamageSource.outOfWorld.damageType = name;
-						}
-					}
-					//TODO review this code
-					else if(bottom instanceof TileEntityShellStorage && bottom.resyncPlayer == -10 && ((TileEntityShellStorage)dv).syncing && dv.playerNBT.hasKey("Inventory"))
-					{
-						FakePlayer fake = new FakePlayer(world, dv.getPlayerName());
-						fake.readFromNBT(dv.playerNBT);                        
-						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
-						new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
-
-						//if (!ForgeHooks.onLivingDeath(fake, DamageSource.outOfWorld))
-						{
-							fake.captureDrops = true;
-							fake.capturedDrops.clear();
-
-							if (fake.username.equals("Notch"))
-							{
-								fake.dropPlayerItemWithRandomChoice(new ItemStack(Item.appleRed, 1), true);
-							}
-
-							fake.inventory.dropAllItems();
-
-							fake.captureDrops = false;
-
-							PlayerDropsEvent event = new PlayerDropsEvent(fake, DamageSource.outOfWorld, fake.capturedDrops, false);
-							if (!MinecraftForge.EVENT_BUS.post(event))
-							{
-								for (EntityItem item : fake.capturedDrops)
-								{
-									fake.joinEntityItemWithWorld(item);
-								}
-							}
-						}
-
-						Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
-						PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
-					}
-					else if(bottom instanceof TileEntityShellConstructor)
-					{
-						TileEntityShellConstructor sc = (TileEntityShellConstructor)bottom;
-						if(!sc.getPlayerName().equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
-						{
-							Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
-							PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);
-						}
-					}
-
-					if(dv.top)
-					{
+					if (!player.capabilities.isCreativeMode) {
 						float f = 0.5F;
 						double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 						double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 						double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-						EntityItem entityitem = new EntityItem(world, (double)dv.xCoord + d, (double)dv.yCoord + d1, (double)dv.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, dv instanceof TileEntityShellConstructor ? 0 : 1));
+						EntityItem entityitem = new EntityItem(world, (double)dualVertical.xCoord + d, (double)dualVertical.yCoord + d1, (double)dualVertical.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, dualVertical instanceof TileEntityShellConstructor ? 0 : 1));
 						entityitem.delayBeforeCanPickup = 10;
 						world.spawnEntityInWorld(entityitem);
 					}
 				}
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
-		{
-			TileEntityTreadmill tm = (TileEntityTreadmill)te;
-			TileEntity te1 = world.getBlockTileEntity(tm.back ? (tm.face == 1 ? i + 1 : tm.face == 3 ? i - 1 : i) : (tm.face == 1 ? i - 1 : tm.face == 3 ? i + 1 : i), j, tm.back ? (tm.face == 0 ? k - 1 : tm.face == 2 ? k + 1 : k) : (tm.face == 0 ? k + 1 : tm.face == 2 ? k - 1 : k));
+		return super.removeBlockByPlayer(world, player, x, y, z);
+	}
 
-			if(te1 instanceof TileEntityTreadmill)
-			{
-				TileEntityTreadmill tm1 = (TileEntityTreadmill)te1;
-				if(tm1.pair == tm)
-				{
-					world.playAuxSFX(2001, tm1.xCoord, tm1.yCoord, tm1.zCoord, Sync.blockDualVertical.blockID);
-					world.setBlockToAir(tm1.xCoord, tm1.yCoord, tm1.zCoord);
+	@Override
+	public void breakBlock(World world, int x, int y, int z, int blockID, int blockMeta) {
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+			TileEntity tileEntityPair = world.getBlockTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
+			if (tileEntityPair instanceof TileEntityDualVertical) {
+				TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
+				//Confirm they are linked then remove
+				if (dualVerticalPair.pair == dualVertical) {
+					world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Sync.blockDualVertical.blockID);
+					world.setBlockToAir(x, y + (dualVertical.top ? -1 : 1), z);
+				}
+				TileEntityDualVertical dualVerticalBottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
+
+				if (!world.isRemote) {
+					ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
+					//If sync is in progress, cancel and kill the player syncing
+					//TODO Re-implement this
+/*					if (dualVerticalBottom.resyncPlayer > 0 && dualVerticalBottom.resyncPlayer < 120) {
+						ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
+						//Need to let dualVertical know sync is cancelled
+						EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+						if (syncingPlayer != null) {
+							String name = DamageSource.outOfWorld.damageType;
+							DamageSource.outOfWorld.damageType = "syncFail";
+							syncingPlayer.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
+							DamageSource.outOfWorld.damageType = name;
+						}
+					}*/
+					//TODO Should we treat this as an actual player death in terms of drops?
+					if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
+						FakePlayer fake = new FakePlayer(world, dualVertical.getPlayerName());
+						fake.readFromNBT(dualVertical.getPlayerNBT());
+						fake.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (dualVertical.face - 2) * 90F, 0F);
+						new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
+
+						fake.captureDrops = true;
+						fake.capturedDrops.clear();
+						fake.inventory.dropAllItems();
+						fake.captureDrops = false;
+
+						PlayerDropsEvent event = new PlayerDropsEvent(fake, DamageSource.outOfWorld, fake.capturedDrops, false);
+						if (!MinecraftForge.EVENT_BUS.post(event)) {
+							for (EntityItem item : fake.capturedDrops) {
+								fake.joinEntityItemWithWorld(item);
+							}
+						}
+						Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, dualVerticalBottom.face);
+						PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.worldObj.provider.dimensionId, shellDeathPacket);
+					}
+					else if (dualVerticalBottom instanceof TileEntityShellConstructor) {
+						TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVerticalBottom;
+						if (!shellConstructor.getPlayerName().equalsIgnoreCase("") && shellConstructor.constructionProgress >= SessionState.shellConstructionPowerRequirement) {
+							Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, dualVerticalBottom.face);
+							PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.worldObj.provider.dimensionId, shellDeathPacket);
+						}
+					}
+				}
+			}
+		}
+		else if (tileEntity instanceof TileEntityTreadmill) {
+			TileEntityTreadmill treadmill = (TileEntityTreadmill) tileEntity;
+			TileEntity tileEntityPair = world.getBlockTileEntity(treadmill.back ? (treadmill.face == 1 ? x + 1 : treadmill.face == 3 ? x - 1 : x) : (treadmill.face == 1 ? x - 1 : treadmill.face == 3 ? x + 1 : x), y, treadmill.back ? (treadmill.face == 0 ? z - 1 : treadmill.face == 2 ? z + 1 : z) : (treadmill.face == 0 ? z + 1 : treadmill.face == 2 ? z - 1 : z));
+
+			if (tileEntityPair instanceof TileEntityTreadmill) {
+				TileEntityTreadmill treadmillPair = (TileEntityTreadmill)tileEntityPair;
+				if (treadmillPair.pair == treadmill) {
+					world.playAuxSFX(2001, treadmillPair.xCoord, treadmillPair.yCoord, treadmillPair.zCoord, Sync.blockDualVertical.blockID);
+					world.setBlockToAir(treadmillPair.xCoord, treadmillPair.yCoord, treadmillPair.zCoord);
 				}
 
-				if(!tm1.back && !world.isRemote)
-				{
+				if (!treadmillPair.back && !world.isRemote) {
 					float f = 0.5F;
 					double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 					double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
 					double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-					EntityItem entityitem = new EntityItem(world, (double)tm.xCoord + d, (double)tm.yCoord + d1, (double)tm.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, 2));
+					EntityItem entityitem = new EntityItem(world, (double)treadmill.xCoord + d, (double)treadmill.yCoord + d1, (double)treadmill.zCoord + d2, new ItemStack(Sync.itemBlockPlacer, 1, 2));
 					entityitem.delayBeforeCanPickup = 10;
 					world.spawnEntityInWorld(entityitem);
 				}
 			}
 		}
-		super.breakBlock(world, i, j, k, par5, par6);
+		super.breakBlock(world, x, y, z, blockID, blockMeta);
 	}
 
 	@Override
-	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z)
-	{
+	public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z) {
 		return new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockMetadata(x, y, z));
 	}
 
-	public boolean hasComparatorInputOverride()
-	{
+	@Override
+	public boolean hasComparatorInputOverride() {
 		return true;
 	}
 
+	@Override
 	public int getComparatorInputOverride(World par1World, int par2, int par3, int par4, int par5) {
 		if (par1World.getBlockTileEntity(par2, par3, par4) instanceof TileEntityDualVertical) {
 			TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) par1World.getBlockTileEntity(par2, par3, par4);
