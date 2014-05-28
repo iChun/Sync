@@ -186,6 +186,16 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 
 	@Override
+	public void reset() {
+		super.reset();
+		this.syncing = false;
+		this.playerInstance = null;
+		this.vacating = false;
+		this.occupied = false;
+		this.prevPlayerName = "";
+	}
+
+	@Override
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
 		if (Sync.shellStoragePowerRequirement == 0) {
 			return 0;

@@ -14,8 +14,10 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.*;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemBed;
+import net.minecraft.item.ItemMonsterPlacer;
+import net.minecraft.item.ItemNameTag;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
@@ -124,32 +126,11 @@ public class BlockDualVertical extends BlockContainer {
 					}
 					shellConstructor.setPlayerName(player.getCommandSenderName());
 
-					if (!world.isRemote) {
-						//This creates a base NBT tag we can work off TODO generic method?
-						EntityPlayerMP dummyPlayer = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-						dummyPlayer.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-						dummyPlayer.setLocationAndAngles(shellConstructor.xCoord + 0.5D, shellConstructor.yCoord, shellConstructor.zCoord + 0.5D, (shellConstructor.face - 2) * 90F, 0F);
-
-						boolean keepInv = world.getGameRules().getGameRuleBooleanValue("keepInventory");
-						world.getGameRules().setOrCreateGameRule("keepInventory", "false");
-
-						dummyPlayer.clonePlayer(player, false);
-						dummyPlayer.dimension = player.dimension;
-						dummyPlayer.entityId = player.entityId;
-
-						world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-
-						NBTTagCompound tag = new NBTTagCompound();
-						dummyPlayer.writeToNBT(tag);
-						tag.setInteger("sync_playerGameMode", ((EntityPlayerMP) player).theItemInWorldManager.getGameType().getID());
-						shellConstructor.setPlayerNBT(tag);
-
-						if (!player.capabilities.isCreativeMode) {
-							String name = DamageSource.outOfWorld.damageType;
-							DamageSource.outOfWorld.damageType = "shellConstruct";
-							player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.damageGivenOnShellConstruction);
-							DamageSource.outOfWorld.damageType = name;
-						}
+					if (!world.isRemote && !player.capabilities.isCreativeMode) {
+						String name = DamageSource.outOfWorld.damageType;
+						DamageSource.outOfWorld.damageType = "shellConstruct";
+						player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.damageGivenOnShellConstruction);
+						DamageSource.outOfWorld.damageType = name;
 					}
 
 					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
@@ -475,7 +456,6 @@ public class BlockDualVertical extends BlockContainer {
 				TileEntityDualVertical dualVerticalBottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
 				if (!world.isRemote) {
-					ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
 					//If sync is in progress, cancel and kill the player syncing
 					//TODO Re-implement this
 /*					if (dualVerticalBottom.resyncPlayer > 0 && dualVerticalBottom.resyncPlayer < 120) {
@@ -517,6 +497,7 @@ public class BlockDualVertical extends BlockContainer {
 							PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.worldObj.provider.dimensionId, shellDeathPacket);
 						}
 					}
+					ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
 				}
 			}
 		}

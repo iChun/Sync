@@ -50,7 +50,7 @@ public class Sync
 	@SidedProxy(clientSide = "sync.client.core.ClientProxy", serverSide = "sync.common.core.CommonProxy")
 	public static CommonProxy proxy;
 	
-	private static Logger logger;
+	public static Logger logger;
 
     public static CreativeTabs creativeTabSync;
 	

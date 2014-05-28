@@ -81,201 +81,140 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	}
 
 	@Override
-	public void updateEntity()
-	{
-		if(resync)
-		{
-			TileEntity te = worldObj.getBlockTileEntity(xCoord, yCoord + (top ? -1 : 1), zCoord);
-			if(te != null && te.getClass() == this.getClass())
-			{
-				TileEntityDualVertical sc = (TileEntityDualVertical)te;
-				sc.pair = this;
-				pair = sc;
+	public void updateEntity() {
+		if (this.resync) {
+			TileEntity tileEntity = worldObj.getBlockTileEntity(this.xCoord, this.yCoord + (this.top ? -1 : 1), this.zCoord);
+			if (tileEntity != null && tileEntity.getClass() == this.getClass()) {
+				TileEntityDualVertical dualVertical = (TileEntityDualVertical)tileEntity;
+				dualVertical.pair = this;
+				this.pair = dualVertical;
 			}
 
-			if(worldObj.isRemote)
-			{
-				locationSkin = AbstractClientPlayer.getLocationSkin(playerName);
-				AbstractClientPlayer.getDownloadImageSkin(this.locationSkin, playerName);
+			//Reload Player Skin
+			if (this.worldObj.isRemote) {
+				this.locationSkin = AbstractClientPlayer.getLocationSkin(this.getPlayerName());
+				AbstractClientPlayer.getDownloadImageSkin(this.locationSkin, this.getPlayerName());
 			}
 		}
-		if(top && pair != null)
-		{
-			playerName = pair.playerName;
-			name = pair.name;
-			vacating = pair.vacating;
+		if (this.top && this.pair != null) {
+			this.setPlayerName(this.pair.getPlayerName());
+			this.setName(this.pair.getName());
+			this.vacating = this.pair.vacating;
 		}
-		if(!top && !worldObj.isRemote)
-		{
+		if (!this.top && !this.worldObj.isRemote) {
 			//If this is true, we're syncing a player to this location
-			if(resyncPlayer > -10)
-			{
-				resyncPlayer--;
+			if (this.resyncPlayer > -10) {
+				this.resyncPlayer--;
 				//Start of syncing player to this place
-				if(resyncPlayer == 60)
-				{
-					if(this.getClass() == TileEntityShellStorage.class)
-					{
-						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-
-						ss.occupied = true;
+				if (this.resyncPlayer == 60) {
+					if (this.getClass() == TileEntityShellStorage.class) {
+						TileEntityShellStorage shellStorage = (TileEntityShellStorage)this;
+						shellStorage.occupied = true;
 					}
 
-					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
-					if(player != null)
-					{
-						if(!player.isEntityAlive())
-						{
+					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(this.getPlayerName());
+					if (player != null) {
+						if (!player.isEntityAlive()) {
 							player.setHealth(20);
+							player.isDead = false;
 						}
 						player.extinguish(); //Remove fire
 
 						int dim = player.dimension;
 						//If player is in different dimension, bring them here
-						if(player.dimension != worldObj.provider.dimensionId)
-						{
-							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, worldObj.provider.dimensionId, new TeleporterShell((WorldServer)worldObj, worldObj.provider.dimensionId, xCoord, yCoord, zCoord, (face - 2) * 90F, 0F));
+						if (player.dimension != worldObj.provider.dimensionId) {
+							FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, this.worldObj.provider.dimensionId, new TeleporterShell((WorldServer) this.worldObj, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord, (this.face - 2) * 90F, 0F));
 
-							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+							//Refetch player TODO is this needed?
+							player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(this.getPlayerName());
 
-							if (dim == 1)
-							{
-								if (player.isEntityAlive())
-								{
-									worldObj.spawnEntityInWorld(player);
-									player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-									worldObj.updateEntityWithOptionalForce(player, false);
+							//TODO what?
+/*							if (dim == 1) {
+								if (player.isEntityAlive()) {
+									this.worldObj.spawnEntityInWorld(player);
+									player.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
+									this.worldObj.updateEntityWithOptionalForce(player, false);
 									player.fallDistance = 0F;
 								}
-							}
+							}*/
 						}
-						else
-						{
-							player.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
+						else {
+							player.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
 							player.fallDistance = 0F;
 						}
 
-						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(xCoord, yCoord, zCoord, worldObj.provider.dimensionId, face, true, false);
+						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(this.xCoord, this.yCoord, this.zCoord, this.worldObj.provider.dimensionId, this.face, true, false);
 						PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 					}
 				}
 				//Beginning of kicking the player out
-				if(resyncPlayer == 40)
-				{
-					vacating = true;
+				if (this.resyncPlayer == 40) {
+					this.vacating = true;
 
-					if(this.getClass() == TileEntityShellStorage.class)
-					{
-						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-
-						ss.occupied = true;
-
-						ss.occupationTime = TileEntityShellStorage.animationTime;
+					if (this.getClass() == TileEntityShellStorage.class) {
+						TileEntityShellStorage shellStorage = (TileEntityShellStorage) this;
+						shellStorage.occupied = true;
+						shellStorage.occupationTime = TileEntityShellStorage.animationTime;
 					}
-					else if(this.getClass() == TileEntityShellConstructor.class)
-					{
-						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
-
-						sc.doorOpen = true;
+					else if (this.getClass() == TileEntityShellConstructor.class) {
+						TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) this;
+						shellConstructor.doorOpen = true;
 					}
-					worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-					worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
+					this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+					this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
 				}
-				//This is where we begin to sync the data
-				if(resyncPlayer == 30)
-				{
+				//This is where we begin to sync the data aka point of no return
+				if (this.resyncPlayer == 30) {
 					EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
 
-					if(player != null && player.isEntityAlive())
-					{
+					if (player != null && player.isEntityAlive()) {
 						//Clear active potion effects before syncing
 						player.clearActivePotions();
 
-						//Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
-						//TODO use clonePlayer
-						if (!playerNBT.hasKey("Inventory")) {
-							NBTTagCompound tag = new NBTTagCompound();
-							boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+						//Copy data needed from player
+						NBTTagCompound tag = this.getPlayerNBT();
+						boolean keepInv = this.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+						this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-							dummy.playerNetServerHandler = player.playerNetServerHandler;
-							dummy.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, (face - 2) * 90F, 0F);
-							dummy.fallDistance = 0F;
-							worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+						//Setup location for dummy
+						EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+						dummy.playerNetServerHandler = player.playerNetServerHandler;
+						dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
+						dummy.fallDistance = 0F;
 
-							dummy.clonePlayer(player, false);
-							dummy.dimension = player.dimension;
-							dummy.entityId = player.entityId;
+						//Clone data
+						dummy.clonePlayer(player, false);
+						dummy.dimension = player.dimension;
+						dummy.entityId = player.entityId;
 
-							worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+						this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-							dummy.writeToNBT(tag);
-							tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-							playerNBT = tag;
-						}
-						//Sync Forge persistent data as it's supposed to carry over on death
-						NBTTagCompound persistentData = player.getEntityData();
-						if (persistentData != null) {
-							NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
-							forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
-							forgeData.setBoolean("isDeathSyncing", false);
-							playerNBT.setCompoundTag("ForgeData", forgeData);
-						}
-						//Also sync ender chest.
-						playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
+						//Set data
+						dummy.writeToNBT(tag);
+						tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+						this.setPlayerNBT(tag);
 
 						//Update the players NBT stuff
-						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(playerNBT);
-						player.readFromNBT(playerNBT);
+						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(this.getPlayerNBT());
+						player.readFromNBT(this.getPlayerNBT());
 
-						ShellHandler.syncInProgress.remove(playerName);
-						player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(playerNBT.getInteger("sync_playerGameMode")));
+						ShellHandler.syncInProgress.remove(this.getPlayerName());
+						player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
 						PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
 					}
 				}
-				if(resyncPlayer == 0)
-				{
-					resyncOrigin = null;
-					if(this.getClass() == TileEntityShellStorage.class)
-					{
-						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-
-						ss.occupied = true;
-					}
-					if(this.getClass() == TileEntityShellConstructor.class)
-					{
-						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
-
-						ShellHandler.removeShell(sc.getPlayerName(), sc);
-
-						sc.constructionProgress = 0.0F;
-						sc.setPlayerName("");
-						sc.playerNBT = new NBTTagCompound();
-
-						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
-						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
-					}
-				}
-				if(resyncPlayer == -10)
-				{
-					if(this.getClass() == TileEntityShellStorage.class)
-					{
-						TileEntityShellStorage ss = (TileEntityShellStorage)this;
-
-						ss.occupied = true;
-					}
+				if (this.resyncPlayer == 0) {
+					ShellHandler.removeShell(this.getPlayerName(), this);
 				}
 			}
-			if(canSavePlayer > 0)
-			{
-				canSavePlayer--;
+			if (this.canSavePlayer > 0) {
+				this.canSavePlayer--;
 			}
-			if(canSavePlayer < 0)
-			{
-				canSavePlayer = 60;
+			if (this.canSavePlayer < 0) {
+				this.canSavePlayer = 60;
 			}
 		}
-		resync = false;
+		this.resync = false;
 	}
 
 	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
@@ -474,6 +413,12 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	public Block getBlockType()
 	{
 		return Sync.blockDualVertical;
+	}
+
+	public void reset() {
+		this.setPlayerName("");
+		this.setPlayerNBT(new NBTTagCompound());
+		this.resyncOrigin = null;
 	}
 
 	//Setters and getters

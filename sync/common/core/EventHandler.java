@@ -1,6 +1,5 @@
 package sync.common.core;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -8,8 +7,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemInWorldManager;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
@@ -31,7 +28,6 @@ import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
-import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
 
 import java.util.ArrayList;
@@ -103,40 +99,6 @@ public class EventHandler {
 					PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 
 					tpPosition.resyncPlayer = 120;
-					EntityPlayer dvInstance = null;
-
-					if (tpPosition instanceof TileEntityShellStorage) {
-						dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
-					}
-					else if (tpPosition instanceof TileEntityShellConstructor) {
-						dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, player.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
-						((EntityPlayerMP)dvInstance).playerNetServerHandler = player.playerNetServerHandler;
-					}
-
-					if (dvInstance != null) {
-						NBTTagCompound tag = new NBTTagCompound();
-
-						if (tpPosition.getPlayerNBT().hasKey("Inventory")) {
-							dvInstance.readFromNBT(tpPosition.getPlayerNBT());
-						}
-
-						dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
-
-						boolean keepInv = player.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
-
-						tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
-
-						dvInstance.clonePlayer(player, false);
-						dvInstance.entityId = player.entityId;
-
-						tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-
-						dvInstance.writeToNBT(tag);
-
-						tag.setInteger("sync_playerGameMode", tpPosition.getPlayerNBT().getInteger("sync_playerGameMode"));
-
-						tpPosition.setPlayerNBT(tag);
-					}
 
 					//Create the death animation packet
 					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));

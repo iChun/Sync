@@ -5,6 +5,7 @@ import com.google.common.collect.SetMultimap;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import net.minecraft.entity.player.EntityPlayer;
+import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -26,9 +27,14 @@ public class ShellHandler {
 	}
 
 	public static void removeShell(String playerName, TileEntityDualVertical dualVertical) {
-		playerShells.remove(playerName, dualVertical);
-		//TODO call method in dualVertical like shellRemoved so it can sync properly
-		ChunkLoadHandler.removeShellAsChunkloader(dualVertical);
+		if (playerName != null && dualVertical != null) {
+			playerShells.remove(playerName, dualVertical);
+			ChunkLoadHandler.removeShellAsChunkloader(dualVertical);
+			dualVertical.reset();
+			dualVertical.worldObj.markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord);
+			dualVertical.worldObj.markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord + 1, dualVertical.zCoord);
+		}
+		else Sync.logger.warning(String.format("Attempted to remove a shell but something was null for %s at %s", playerName, dualVertical));
 	}
 
 	public static boolean isShellAlreadyRegistered(TileEntityDualVertical dualVertical) {

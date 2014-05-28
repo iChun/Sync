@@ -15,20 +15,14 @@ import sync.common.shell.ShellHandler;
 import java.util.List;
 
 @Optional.Interface(iface = "IEnergyInfo", modid = "ThermalExpansion")
-public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
-{
+public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo {
 	public float constructionProgress;
-	
 	public int doorTime;
-
 	public int rfBuffer;
-	
 	public boolean doorOpen;
-	
 	public float prevPower;
 
-	public TileEntityShellConstructor()
-	{
+	public TileEntityShellConstructor() {
 		super();
 		
 		constructionProgress = 0.0F;
@@ -146,21 +140,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		return constructionProgress;
 	}
 
-    /*
-	@SideOnly(Side.CLIENT)
-	public void spawnParticles()
-	{
-		float prog = MathHelper.clamp_float(this.constructionProgress, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement;
-		if(prog > 0.95F)
-		{
-			float angle = 0;
-
-			System.out.println(face);
-			Minecraft.getMinecraft().effectRenderer.addEffect(new EntityPaintFX(worldObj, xCoord + 0.5D , yCoord + 0.5D, zCoord + 0.5D, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F, 1.0F));
-		}
-	}
-	*/
-
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
 	{
@@ -176,6 +155,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		constructionProgress = tag.getFloat("constructionProgress");
 		doorOpen = tag.getBoolean("doorOpen");
 		resync = true;
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		this.constructionProgress = 0F;
 	}
 	
 	// TE methods
