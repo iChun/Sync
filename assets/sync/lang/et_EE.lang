@@ -1,0 +1,13 @@
+sync.breakShellUnit=%1$s lõhkus %2$s keha
+item.Sync_ShellConstructor.name=Keha ehitaja
+item.Sync_ShellStorage.name=Keha hoiustaja
+item.Sync_Treadmill.name=Jooksulint
+item.Sync_SyncCore.name=Sünkroonimis südamik
+death.attack.syncFail=%1$s sünkroonis surnud kehasse
+death.attack.shellConstruct=%1$s suri proovides luua uut keha
+sync.isMorphed=Ei saa kasutada! Sa oled morphitud.
+sync.waila.owner=Keha omanik
+sync.waila.progress=Ehitamis progress
+sync.waila.entity=Olevuse nimi
+sync.waila.active=Aktiivne
+sync.waila.powerout=Genereeriv
