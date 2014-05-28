@@ -171,7 +171,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorageAlpha);
 				modelStorage.render(prog, 0.0625F, true);
 				
-				if(!ss.name.equalsIgnoreCase(""))
+				if(!ss.getName().equalsIgnoreCase(""))
 				{
 					FontRenderer fontrenderer = this.getFontRenderer();
 					float ff = 1.6F;
@@ -188,7 +188,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					byte b0 = 0;
 					GL11.glDisable(GL11.GL_TEXTURE_2D);
 					tessellator.startDrawingQuads();
-					int j = fontrenderer.getStringWidth(ss.name) / 2;
+					int j = fontrenderer.getStringWidth(ss.getName()) / 2;
 					tessellator.setColorRGBA_F(0.0F, 0.0F, 0.0F, 0.25F);
 					tessellator.addVertex((double)(-j - 1), (double)(-1 + b0), 0.0D);
 					tessellator.addVertex((double)(-j - 1), (double)(8 + b0), 0.0D);
@@ -197,7 +197,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					tessellator.draw();
 					GL11.glEnable(GL11.GL_TEXTURE_2D);
 					GL11.glDepthMask(true);
-					fontrenderer.drawString(ss.name, -fontrenderer.getStringWidth(ss.name) / 2, b0, -1);
+					fontrenderer.drawString(ss.getName(), -fontrenderer.getStringWidth(ss.getName()) / 2, b0, -1);
 					GL11.glEnable(GL11.GL_LIGHTING);
 					GL11.glDisable(GL11.GL_BLEND);
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

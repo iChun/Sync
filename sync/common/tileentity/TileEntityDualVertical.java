@@ -45,7 +45,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	public boolean isHomeUnit;
 
 	protected String playerName;
-	public String name;
+	protected String name;
 	public TileEntityDualVertical resyncOrigin;
 	protected NBTTagCompound playerNBT;
 	public ResourceLocation locationSkin;
@@ -487,6 +487,11 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		this.playerNBT = tagCompound;
 	}
 
+	public void setName(String name) {
+		if (name == null) name = "";
+		this.name = name;
+	}
+
 	public String getPlayerName() {
 		if (this.playerName == null) this.setPlayerName("");
 		return this.playerName;
@@ -495,5 +500,10 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	public NBTTagCompound getPlayerNBT() {
 		if (this.playerNBT == null) this.setPlayerNBT(new NBTTagCompound());
 		return this.playerNBT;
+	}
+
+	public String getName() {
+		if (this.name == null) name = "";
+		return this.name;
 	}
 }

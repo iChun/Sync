@@ -114,7 +114,6 @@ public class EventHandler {
 					}
 
 					if (dvInstance != null) {
-						//TODO clonePlayer
 						NBTTagCompound tag = new NBTTagCompound();
 
 						if (tpPosition.getPlayerNBT().hasKey("Inventory")) {

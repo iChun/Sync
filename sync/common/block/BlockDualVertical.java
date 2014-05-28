@@ -38,261 +38,198 @@ import sync.common.tileentity.TileEntityTreadmill;
 import java.util.List;
 import java.util.Random;
 
-public class BlockDualVertical extends BlockContainer 
-{
+public class BlockDualVertical extends BlockContainer {
 
 	public static int renderPass;
 
-	public BlockDualVertical(int par1)
-	{
-		super(par1, Material.iron);
+	public BlockDualVertical(int id) {
+		super(id, Material.iron);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world) 
-	{
+	public TileEntity createNewTileEntity(World world)  {
 		return new TileEntityShellConstructor();
 	}
 
 	@Override
-	public TileEntity createTileEntity(World world, int metadata)
-	{
-		switch(metadata)
-		{
-		case 0:
-		{
-			return new TileEntityShellConstructor();
+	public TileEntity createTileEntity(World world, int metadata) {
+		switch (metadata) {
+			case 0: {
+				return new TileEntityShellConstructor();
+			}
+			case 1: {
+				return new TileEntityShellStorage();
+			}
+			case 2: {
+				return new TileEntityTreadmill();
+			}
+			default: {
+				return this.createNewTileEntity(world);
+			}
 		}
-		case 1:
-		{
-			return new TileEntityShellStorage();
-		}
-		case 2:
-		{
-			return new TileEntityTreadmill();
-		}
-		}
-		return createNewTileEntity(world);
 	}
 
 	@Override
-	public boolean isOpaqueCube()
-	{
+	public boolean isOpaqueCube() {
 		return false;
 	}
 
 	@Override
-	public boolean renderAsNormalBlock()
-	{
+	public boolean renderAsNormalBlock() {
 		return false;
 	}
 
 	@Override 
-	public int quantityDropped(Random random)
-	{
+	public int quantityDropped(Random random) {
 		return 0;
 	}
 
 	@Override
-	public int getRenderType()
-	{
+	public int getRenderType() {
 		return -1;
 	}
 
 	@Override
-	public int getRenderBlockPass()
-	{
+	public int getRenderBlockPass() {
 		return 0;
 	}
 
 	@Override
-	public void registerIcons(IconRegister par1IconRegister)
-	{
-		this.blockIcon = par1IconRegister.registerIcon("sync:dvBlockPlaceholder");
+	public void registerIcons(IconRegister iconRegister) {
+		this.blockIcon = iconRegister.registerIcon("sync:dvBlockPlaceholder");
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, int i, int j, int k, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ)
-	{
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical && !(player instanceof FakePlayer))
-		{
-			TileEntityDualVertical dv = (TileEntityDualVertical)te;
-			if(dv.top)
-			{
-				TileEntity te1 = world.getBlockTileEntity(i, j - 1, k);
-				if(te1 instanceof TileEntityDualVertical)
-				{
-					dv = (TileEntityDualVertical)te1;
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ) {
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical && !(player instanceof FakePlayer)) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+			if (dualVertical.top) {
+				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				if (tileEntityPair instanceof TileEntityDualVertical) {
+					dualVertical = (TileEntityDualVertical) tileEntityPair;
 				}
 			}
 
-			if(dv instanceof TileEntityShellConstructor)
-			{
-				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+			//Shell Constructor
+			if (dualVertical instanceof TileEntityShellConstructor) {
+				TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVertical;
 
-				if(sc.getPlayerName().equalsIgnoreCase(""))
-				{
-					if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
-					{
+				if (shellConstructor.getPlayerName().equalsIgnoreCase("")) {
+					if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false)) {
 						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
 						return true;
 					}
-					sc.setPlayerName(player.username);
+					shellConstructor.setPlayerName(player.getCommandSenderName());
 
-					if(!world.isRemote)
-					{
-						//TODO clonePlayer?
-						NBTTagCompound tag = new NBTTagCompound();
-
-						EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-						dummy.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-
-						dummy.setLocationAndAngles(sc.xCoord + 0.5D, sc.yCoord, sc.zCoord + 0.5D, (sc.face - 2) * 90F, 0F);
+					if (!world.isRemote) {
+						//This creates a base NBT tag we can work off TODO generic method?
+						EntityPlayerMP dummyPlayer = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+						dummyPlayer.playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
+						dummyPlayer.setLocationAndAngles(shellConstructor.xCoord + 0.5D, shellConstructor.yCoord, shellConstructor.zCoord + 0.5D, (shellConstructor.face - 2) * 90F, 0F);
 
 						boolean keepInv = world.getGameRules().getGameRuleBooleanValue("keepInventory");
-
 						world.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-						dummy.clonePlayer(player, false);
-						dummy.dimension = player.dimension;
-						dummy.entityId = player.entityId;
+						dummyPlayer.clonePlayer(player, false);
+						dummyPlayer.dimension = player.dimension;
+						dummyPlayer.entityId = player.entityId;
 
 						world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-						dummy.writeToNBT(tag);
-						tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).theItemInWorldManager.getGameType().getID());
+						NBTTagCompound tag = new NBTTagCompound();
+						dummyPlayer.writeToNBT(tag);
+						tag.setInteger("sync_playerGameMode", ((EntityPlayerMP) player).theItemInWorldManager.getGameType().getID());
+						shellConstructor.setPlayerNBT(tag);
 
-						sc.setPlayerNBT(tag);
-
-						//TODO Custom damage source
-						if(!player.capabilities.isCreativeMode)
-						{
+						if (!player.capabilities.isCreativeMode) {
 							String name = DamageSource.outOfWorld.damageType;
 							DamageSource.outOfWorld.damageType = "shellConstruct";
 							player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.damageGivenOnShellConstruction);
-
 							DamageSource.outOfWorld.damageType = name;
 						}
 					}
 
-					world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
-					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
+					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
 					return true;
 				}
-				else if(sc.getPlayerName().equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
-				{
-					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
-
+				else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && player.capabilities.isCreativeMode && !world.isRemote) {
+					shellConstructor.constructionProgress = SessionState.shellConstructionPowerRequirement;
                     ShellHandler.updatePlayerOfShells(player, null, true);
-
-                    world.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
-					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
+                    world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
+					world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
 					return true;
 				}
 
 			}
-			else if(dv instanceof TileEntityShellStorage)
-			{
-				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+			//Shell Storage
+			else if (dualVertical instanceof TileEntityShellStorage) {
+				TileEntityShellStorage shellStorage = (TileEntityShellStorage) dualVertical;
+				ItemStack itemStack = player.getCurrentEquippedItem();
 
-				ItemStack is = player.getCurrentEquippedItem();
-
-				if(is != null)
-				{
-					if(is.getItem() instanceof ItemNameTag)
-					{
-						if(!is.hasDisplayName() && dv.name.equalsIgnoreCase("") || is.hasDisplayName() && dv.name.equalsIgnoreCase(is.getDisplayName()))
-						{
+				if (itemStack != null) {
+					//Set storage name
+					if (itemStack.getItem() instanceof ItemNameTag) {
+						//Don't do anything if name is the same
+						if ((!itemStack.hasDisplayName() && dualVertical.getName().equalsIgnoreCase("")) || (itemStack.hasDisplayName() && dualVertical.getName().equalsIgnoreCase(itemStack.getDisplayName()))) {
 							return false;
 						}
-						if(!is.hasDisplayName() && !dv.name.equalsIgnoreCase(""))
-						{
-							dv.name = "";
-						}
-						else
-						{
-							dv.name = is.getDisplayName();
-						}
+						dualVertical.setName(itemStack.hasDisplayName() ? itemStack.getDisplayName() : "");
 
-						if(!player.capabilities.isCreativeMode)
-						{
-							is.stackSize--;
-							if(is.stackSize <= 0)
-							{
-								player.inventory.mainInventory[player.inventory.currentItem] = null;
-							}
+						if (!player.capabilities.isCreativeMode && itemStack.stackSize-- <= 0) {
+							player.setCurrentItemOrArmor(0, null);
 						}
+						world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord, shellStorage.zCoord);
+						world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord + 1, shellStorage.zCoord);
 
-						world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-						world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
-
-						if(!world.isRemote)
-						{
-							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
-							if(player1 != null)
-							{
-								ShellHandler.updatePlayerOfShells(player1, null, true);
+						if (!world.isRemote) {
+							EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+							if (entityPlayerMP != null) {
+								ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
 							}
 						}
 						return true;
 					}
-					else if(is.getItem() instanceof ItemBed)
-					{
-						ss.isHomeUnit = !ss.isHomeUnit;
+					//Set Home Shell
+					else if (itemStack.getItem() instanceof ItemBed) {
+						//Changes state
+						shellStorage.isHomeUnit = !shellStorage.isHomeUnit;
 
-						world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-						world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+						world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord, shellStorage.zCoord);
+						world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord + 1, shellStorage.zCoord);
 
-						if(!world.isRemote)
-						{
-							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
-							if(player1 != null)
-							{
-								ShellHandler.updatePlayerOfShells(player1, null, true);
+						if (!world.isRemote) {
+							EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+							if (entityPlayerMP != null) {
+								ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
 							}
 						}
 						return true;						
 					}
 				}
-
-				//				else if(!ss.playerName.equalsIgnoreCase("") && ss.occupied)
-				//				{
-				//					ss.vacating = true;
-				//					ss.occupationTime = TileEntityShellStorage.animationTime;
-				//
-				//					world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-				//					world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
-				//					return true;
-				//				}
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
-		{
-			TileEntityTreadmill tm = (TileEntityTreadmill)te;
+		else if (tileEntity instanceof TileEntityTreadmill) {
+			TileEntityTreadmill treadmill = (TileEntityTreadmill)tileEntity;
 
-			if(tm.back)
-			{
-				tm = tm.pair;
+			if (treadmill.back) {
+				treadmill = treadmill.pair;
 			}
 
-			if(tm != null && tm.latchedEnt == null)
-			{
-				double d0 = 7.0D;
-				List list = world.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getAABBPool().getAABB((double)i - d0, (double)j - d0, (double)k - d0, (double)i + d0, (double)j + d0, (double)k + d0));
+			if (treadmill != null && treadmill.latchedEnt == null) {
+				double radius = 7D; //Radius
+				List list = world.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getAABBPool().getAABB((double)x - radius, (double)y - radius, (double)z - radius, (double)x + radius, (double)y + radius, (double)z + radius));
 
-				if (list != null)
-				{
-
-                    for (Object aList : list) {
-                        EntityLiving entityliving = (EntityLiving) aList;
-
+				if (list != null && !list.isEmpty()) {
+                    for (Object obj : list) {
+                        EntityLiving entityliving = (EntityLiving) obj;
                         if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(entityliving)) {
                             if (!world.isRemote) {
-                                tm.latchedEnt = entityliving;
-                                tm.latchedHealth = entityliving.getHealth();
-                                entityliving.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
-                                world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+                                treadmill.latchedEnt = entityliving;
+                                treadmill.latchedHealth = entityliving.getHealth();
+                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), treadmill.yCoord + 0.175D, treadmill.getMidCoord(1), (treadmill.face - 2) * 90F, 0.0F);
+                                world.markBlockForUpdate(treadmill.xCoord, treadmill.yCoord, treadmill.zCoord);
                                 entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
                             }
                             return true;
@@ -300,19 +237,16 @@ public class BlockDualVertical extends BlockContainer
                     }
 				}
 
-				ItemStack is = player.getCurrentEquippedItem();
-
-				if(is != null && is.getItem() instanceof ItemMonsterPlacer && (is.getItemDamage() == 90 || is.getItemDamage() == 95))
-				{
-					if(!world.isRemote)
-					{
-						Entity entity = ItemMonsterPlacer.spawnCreature(world, is.getItemDamage(), tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1));
-						if(Sync.treadmillEntityHashMap.containsKey(entity.getClass()))
-						{
-							tm.latchedEnt = (EntityLiving)entity;
-							tm.latchedHealth = ((EntityLiving)entity).getHealth();
-							entity.setLocationAndAngles(tm.getMidCoord(0), tm.yCoord + 0.175D, tm.getMidCoord(1), (tm.face - 2) * 90F, 0.0F);
-							world.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+				ItemStack itemStack = player.getCurrentEquippedItem();
+				//Allow easier creative testing. Only works for pig and wolves cause easier
+				if (itemStack != null && itemStack.getItem() instanceof ItemMonsterPlacer && (itemStack.getItemDamage() == 90 || itemStack.getItemDamage() == 95)) {
+					if (!world.isRemote) {
+						Entity entity = ItemMonsterPlacer.spawnCreature(world, itemStack.getItemDamage(), treadmill.getMidCoord(0), treadmill.yCoord + 0.175D, treadmill.getMidCoord(1));
+						if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
+							treadmill.latchedEnt = (EntityLiving)entity;
+							treadmill.latchedHealth = ((EntityLiving)entity).getHealth();
+							entity.setLocationAndAngles(treadmill.getMidCoord(0), treadmill.yCoord + 0.175D, treadmill.getMidCoord(1), (treadmill.face - 2) * 90F, 0.0F);
+							world.markBlockForUpdate(treadmill.xCoord, treadmill.yCoord, treadmill.zCoord);
 							return true;
 						}
 					}
@@ -323,104 +257,78 @@ public class BlockDualVertical extends BlockContainer
 	}
 
 	@Override
-	public void setBlockBoundsBasedOnState(IBlockAccess world, int i, int j, int k)
-	{
+	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
-		{
-			TileEntityDualVertical dv = (TileEntityDualVertical)te;
-			if(dv instanceof TileEntityShellConstructor)
-			{
-				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
-			}
-			else if(dv instanceof TileEntityShellStorage)
-			{
-				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityShellStorage) {
+			TileEntityShellStorage shellStorage = (TileEntityShellStorage) tileEntity;
 
-				if((ss.top && ss.pair != null && ((TileEntityShellStorage)ss.pair).occupied || ss.occupied) && ss.worldObj.isRemote && isPlayer(ss.getPlayerName()))
-				{
-					double dist = getDistance(i, j, k);
+			if ((shellStorage.top && shellStorage.pair != null && ((TileEntityShellStorage)shellStorage.pair).occupied || shellStorage.occupied) && shellStorage.worldObj.isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
+				double dist = getDistance(x, y, z);
 
-					if(dist < (ss.top ? 1.1D : 0.6D))
-					{
-						this.setBlockBounds(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-					}
+				if (dist < (shellStorage.top ? 1.1D : 0.6D)) {
+					this.setBlockBounds(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 				}
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
-		{
+		else if (tileEntity instanceof TileEntityTreadmill) {
 			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.4F, 1.0F);
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
-	public double getDistance(int i, int j, int k)
-	{
-		EntityPlayer ent = Minecraft.getMinecraft().thePlayer;
+	public double getDistance(int x, int y, int z) {
+		EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 
-		double d3 = ent.posX - (i + 0.5D);
-		double d4 = ent.boundingBox.minY - j;
-		double d5 = ent.posZ - (k + 0.5D);
+		double d3 = player.posX - (x + 0.5D);
+		double d4 = player.boundingBox.minY - y;
+		double d5 = player.posZ - (z + 0.5D);
 
-		return (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+		return (double) MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World world, int i, int j, int k, Entity ent) 
-	{
-		if(!(ent instanceof EntityPlayer) || (ent instanceof FakePlayer))
-		{
+	public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+		//Ignore non players and fake players
+		if (!(entity instanceof EntityPlayer) || (entity instanceof FakePlayer)) {
 			return;
 		}
 
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
-		{
-			TileEntityDualVertical dv = (TileEntityDualVertical)te;
-			if(dv.top)
-			{
-				TileEntity te1 = world.getBlockTileEntity(i, j - 1, k);
-				if(te1 instanceof TileEntityDualVertical)
-				{
-					this.onEntityCollidedWithBlock(world, i, j - 1, k, ent);
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+			if (dualVertical.top) {
+				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				if (tileEntityPair instanceof TileEntityDualVertical) {
+					this.onEntityCollidedWithBlock(world, x, y - 1, z, entity);
 				}
 			}
-			else
-			{
-				if(dv instanceof TileEntityShellStorage)
-				{
-					TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-					if(!ss.occupied && !world.isRemote && !ss.syncing && ss.resyncPlayer <= -10)
-					{
-						double d3 = ent.posX - (i + 0.5D);
-						double d4 = ent.boundingBox.minY - j;
-						double d5 = ent.posZ - (k + 0.5D);
-						double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+			else {
+				if (dualVertical instanceof TileEntityShellStorage) {
+					TileEntityShellStorage shellStorage = (TileEntityShellStorage) dualVertical;
+					if (!shellStorage.occupied && !world.isRemote && !shellStorage.syncing && shellStorage.resyncPlayer <= -10) {
+						double d3 = entity.posX - (x + 0.5D);
+						double d4 = entity.boundingBox.minY - y;
+						double d5 = entity.posZ - (z + 0.5D);
+						double dist = (double) MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
 
-						if(dist < 0.3D && ss.isPowered())
-						{
-							EntityPlayer player = (EntityPlayer)ent;
+						if (dist < 0.3D && shellStorage.isPowered()) {
+							EntityPlayer player = (EntityPlayer)entity;
 
-							if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false))
-							{
+							if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false)) {
 								player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
 							}
-							else
-							{
-								PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(i, j, k), (Player)player);
-
-								player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
+							else {
+								PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(x, y, z), (Player) player);
+								player.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (shellStorage.face - 2) * 90F, 0F);
 							}
 
-							ss.setPlayerName(player.getCommandSenderName());
-
-							ss.occupied = true;
-
-							world.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-							world.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+							//Mark this as in use
+							shellStorage.setPlayerName(player.getCommandSenderName());
+							shellStorage.occupied = true;
+							world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord, shellStorage.zCoord);
+							world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord + 1, shellStorage.zCoord);
 						}
 					}
 				}
@@ -429,128 +337,86 @@ public class BlockDualVertical extends BlockContainer
 	}
 
 	@Override
-	public void addCollisionBoxesToList(World world, int i, int j, int k, AxisAlignedBB aabb, List list, Entity ent)
-	{
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
-		{
-			TileEntityDualVertical dv = (TileEntityDualVertical)te;
+	public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List list, Entity entity) {
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			boolean top = false;
-			if(dv.top)
-			{
-				TileEntity te1 = world.getBlockTileEntity(i, j - 1, k);
-				if(te1 instanceof TileEntityDualVertical)
-				{
-					dv = (TileEntityDualVertical)te1;
+			if (dualVertical.top) {
+				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				if (tileEntityPair instanceof TileEntityDualVertical) {
+					dualVertical = (TileEntityDualVertical) tileEntityPair;
 				}
 				top = true;
 			}
 
-			if(dv instanceof TileEntityShellConstructor)
-			{
-				TileEntityShellConstructor ss = (TileEntityShellConstructor)dv;
-				if(ss.doorOpen)
-				{
-					float thickness = 0.05F;
-					if(ss.face != 0)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 1)
-					{
-						this.setBlockBounds(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 2)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 3)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(top)
-					{
-						this.setBlockBounds(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
+			if (dualVertical instanceof TileEntityShellConstructor) {
+				TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVertical;
+				if (shellConstructor.doorOpen) {
+					this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, x, y, z, aabb, list, entity);
 				}
-				else
-				{
-					super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);	
+				else {
+					super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
 				}
 			}
-			else if(dv instanceof TileEntityShellStorage)
-			{
-				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-				if((!ss.occupied || (world.isRemote && this.isPlayer(ss.getPlayerName()))) && !ss.syncing)
-				{
-					float thickness = 0.05F;
-					if(ss.face != 0)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 1)
-					{
-						this.setBlockBounds(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 2)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(ss.face != 3)
-					{
-						this.setBlockBounds(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
-					if(top)
-					{
-						this.setBlockBounds(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
-						super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
-					}
+			else if (dualVertical instanceof TileEntityShellStorage) {
+				TileEntityShellStorage shellStorage = (TileEntityShellStorage)dualVertical;
+				if ((!shellStorage.occupied || (world.isRemote && this.isLocalPlayer(shellStorage.getPlayerName()))) && !shellStorage.syncing) {
+					this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, x, y, z, aabb, list, entity);
 				}
-				else
-				{
-					super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);	
+				else {
+					super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
 				}
 			}
 		}
-		else if(te instanceof TileEntityTreadmill)
-		{
+		else if(tileEntity instanceof TileEntityTreadmill) {
 			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 0.175F, 1.0F);
-			super.addCollisionBoxesToList(world, i, j, k, aabb, list, ent);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
 		}
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 	}
 
+	//This makes the sides solid but not the front
+	private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop,  World world, int x, int y, int z, AxisAlignedBB aabb, List list, Entity entity) {
+		if (dualVertical.face != 0) {
+			this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
+		}
+		if (dualVertical.face != 1) {
+			this.setBlockBounds(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
+		}
+		if (dualVertical.face != 2) {
+			this.setBlockBounds(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
+		}
+		if (dualVertical.face != 3) {
+			this.setBlockBounds(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
+		}
+		if (isTop) {
+			this.setBlockBounds(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
+			super.addCollisionBoxesToList(world, x, y, z, aabb, list, entity);
+		}
+	}
+
 	@SideOnly(Side.CLIENT)
-	public boolean isPlayer(String playerName) {
+	public boolean isLocalPlayer(String playerName) {
 		return playerName != null && playerName.equalsIgnoreCase(Minecraft.getMinecraft().thePlayer.getCommandSenderName());
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int i, int j, int k, int par5)
-	{
-		TileEntity te = world.getBlockTileEntity(i, j, k);
-		if(te instanceof TileEntityDualVertical)
-		{
-			TileEntityDualVertical sc = (TileEntityDualVertical)te;
-			if(!sc.top && !world.isBlockOpaqueCube(i, j - 1, k))
-			{
-				world.setBlockToAir(i, j, k);
+	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID) {
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+			if (!dualVertical.top && !world.isBlockOpaqueCube(x, y - 1, z)) {
+				world.setBlockToAir(x, y, z);
 			}
 		}
-		if(te instanceof TileEntityTreadmill)
-		{
-			if(world.getBlockTileEntity(i, j - 1, k) instanceof TileEntityTreadmill)
-			{
-				world.setBlockToAir(i, j, k);
+		if (tileEntity instanceof TileEntityTreadmill) {
+			if (world.getBlockTileEntity(x, y - 1, z) instanceof TileEntityTreadmill) {
+				world.setBlockToAir(x, y, z);
 			}
 		}
 	}
