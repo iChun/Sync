@@ -76,9 +76,9 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				float prog = SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F;
 				
 				
-				modelConstructor.rand.setSeed(sc.playerName.hashCode());
+				modelConstructor.rand.setSeed(sc.getPlayerName().hashCode());
 				modelConstructor.txBiped = rl;
-				modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.playerName.equalsIgnoreCase("")); //0.95F;
+				modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.getPlayerName().equalsIgnoreCase("")); //0.95F;
 				
 				GL11.glDisable(GL11.GL_CULL_FACE);
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);

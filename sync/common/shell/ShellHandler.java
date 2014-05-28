@@ -65,7 +65,7 @@ public class ShellHandler {
 		}
 		
 		for (TileEntityDualVertical dv1 : remove) {
-			removeShell(dv1.playerName, dv1);
+			removeShell(dv1.getPlayerName(), dv1);
 		}
 	}
 	

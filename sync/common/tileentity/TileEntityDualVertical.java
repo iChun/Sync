@@ -36,8 +36,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 @Optional.Interface(iface = "IEnergyHandler", modid = "ThermalExpansion")
-public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler
-{
+public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler {
 
 	public TileEntityDualVertical pair;
 	public boolean top;
@@ -45,26 +44,22 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	public boolean vacating;
 	public boolean isHomeUnit;
 
-	public String playerName;
+	protected String playerName;
 	public String name;
-
-	public int resyncPlayer;
-	public int canSavePlayer;
 	public TileEntityDualVertical resyncOrigin;
-
 	public NBTTagCompound playerNBT;
-
 	public ResourceLocation locationSkin;
 
 	public boolean resync;
+	public int resyncPlayer;
+	public int canSavePlayer;
 
 	public final static int animationTime = 40;
 
 	protected int powReceived;
 	protected int rfIntake;
 
-	public TileEntityDualVertical()
-	{
+	public TileEntityDualVertical() {
 		pair = null;
 		top = false;
 		vacating = false;
@@ -197,6 +192,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						player.clearActivePotions();
 
 						//Basically we need to create the NBT required for a new player as the current data in this shell is invalid/missing
+						//TODO use clonePlayer
 						if (!playerNBT.hasKey("Inventory")) {
 							NBTTagCompound tag = new NBTTagCompound();
 							boolean keepInv = worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
@@ -250,10 +246,10 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)this;
 
-						ShellHandler.removeShell(sc.playerName, sc);
+						ShellHandler.removeShell(sc.getPlayerName(), sc);
 
 						sc.constructionProgress = 0.0F;
-						sc.playerName = "";
+						sc.setPlayerName("");
 						sc.playerNBT = new NBTTagCompound();
 
 						worldObj.markBlockForUpdate(sc.xCoord, sc.yCoord, sc.zCoord);
@@ -478,5 +474,15 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	public Block getBlockType()
 	{
 		return Sync.blockDualVertical;
+	}
+
+	//Setters and getters
+	public void setPlayerName(String playerName) {
+		if (playerName == null) playerName = "";
+		this.playerName = playerName;
+	}
+
+	public String getPlayerName() {
+		return this.playerName;
 	}
 }

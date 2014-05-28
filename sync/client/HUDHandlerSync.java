@@ -37,12 +37,12 @@ public class HUDHandlerSync implements IWailaDataProvider {
     public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
         if (accessor.getTileEntity() instanceof TileEntityShellConstructor) {
             TileEntityShellConstructor tileEntityShellConstructor = (TileEntityShellConstructor) accessor.getTileEntity();
-            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.playerName.equals("") ? "None" : tileEntityShellConstructor.playerName));
+            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.getPlayerName().equals("") ? "None" : tileEntityShellConstructor.getPlayerName()));
             if (config.getConfig("sync.showprogress")) currenttip.add(StatCollector.translateToLocal("sync.waila.progress") + ": " + String.valueOf((int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / SessionState.shellConstructionPowerRequirement * 100)) + "%");
         }
         else if (accessor.getTileEntity() instanceof TileEntityShellStorage) {
             TileEntityShellStorage tileEntityShellStorage = (TileEntityShellStorage) accessor.getTileEntity();
-            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellStorage.playerName.equals("") ? "None" : tileEntityShellStorage.playerName));
+            if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellStorage.getPlayerName().equals("") ? "None" : tileEntityShellStorage.getPlayerName()));
 			if (config.getConfig("sync.showactive")) currenttip.add(StatCollector.translateToLocal("sync.waila.active") + ": " + (tileEntityShellStorage.isPowered() ? StatCollector.translateToLocal("gui.yes") : StatCollector.translateToLocal("gui.no")));
         }
         else if (accessor.getTileEntity() instanceof TileEntityTreadmill) {

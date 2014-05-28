@@ -131,14 +131,14 @@ public class BlockDualVertical extends BlockContainer
 			{
 				TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
 
-				if(sc.playerName.equalsIgnoreCase(""))
+				if(sc.getPlayerName().equalsIgnoreCase(""))
 				{
 					if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
 					{
 						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
 						return true;
 					}
-					sc.playerName = player.username;
+					sc.setPlayerName(player.username);
 
 					if(!world.isRemote)
 					{	
@@ -179,7 +179,7 @@ public class BlockDualVertical extends BlockContainer
 					world.markBlockForUpdate(sc.xCoord, sc.yCoord + 1, sc.zCoord);
 					return true;
 				}
-				else if(sc.playerName.equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
+				else if(sc.getPlayerName().equalsIgnoreCase(player.username) && player.capabilities.isCreativeMode && !world.isRemote)
 				{
 					sc.constructionProgress = SessionState.shellConstructionPowerRequirement;
 
@@ -228,7 +228,7 @@ public class BlockDualVertical extends BlockContainer
 
 						if(!world.isRemote)
 						{
-							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
 							if(player1 != null)
 							{
 								ShellHandler.updatePlayerOfShells(player1, null, true);
@@ -245,7 +245,7 @@ public class BlockDualVertical extends BlockContainer
 
 						if(!world.isRemote)
 						{
-							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+							EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
 							if(player1 != null)
 							{
 								ShellHandler.updatePlayerOfShells(player1, null, true);
@@ -338,7 +338,7 @@ public class BlockDualVertical extends BlockContainer
 			{
 				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
 
-				if((ss.top && ss.pair != null && ((TileEntityShellStorage)ss.pair).occupied || ss.occupied) && ss.worldObj.isRemote && isPlayer(ss.playerName))
+				if((ss.top && ss.pair != null && ((TileEntityShellStorage)ss.pair).occupied || ss.occupied) && ss.worldObj.isRemote && isPlayer(ss.getPlayerName()))
 				{
 					double dist = getDistance(i, j, k);
 
@@ -370,7 +370,7 @@ public class BlockDualVertical extends BlockContainer
 	@Override
 	public void onEntityCollidedWithBlock(World world, int i, int j, int k, Entity ent) 
 	{
-		if(!(ent instanceof EntityPlayer))
+		if(!(ent instanceof EntityPlayer) || (ent instanceof FakePlayer))
 		{
 			return;
 		}
@@ -403,7 +403,7 @@ public class BlockDualVertical extends BlockContainer
 						{
 							EntityPlayer player = (EntityPlayer)ent;
 
-							if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false))
+							if(Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false))
 							{
 								player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
 							}
@@ -414,7 +414,7 @@ public class BlockDualVertical extends BlockContainer
 								player.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (ss.face - 2) * 90F, 0F);
 							}
 
-							ss.playerName = player.username;
+							ss.setPlayerName(player.getCommandSenderName());
 
 							ss.occupied = true;
 
@@ -485,7 +485,7 @@ public class BlockDualVertical extends BlockContainer
 			else if(dv instanceof TileEntityShellStorage)
 			{
 				TileEntityShellStorage ss = (TileEntityShellStorage)dv;
-				if((!ss.occupied || (world.isRemote && isPlayer(ss.playerName))) && !ss.syncing)
+				if((!ss.occupied || (world.isRemote && this.isPlayer(ss.getPlayerName()))) && !ss.syncing)
 				{
 					float thickness = 0.05F;
 					if(ss.face != 0)
@@ -529,9 +529,8 @@ public class BlockDualVertical extends BlockContainer
 	}
 
 	@SideOnly(Side.CLIENT)
-	public boolean isPlayer(String playerName)
-	{
-		return playerName.equalsIgnoreCase(Minecraft.getMinecraft().thePlayer.username);
+	public boolean isPlayer(String playerName) {
+		return playerName != null && playerName.equalsIgnoreCase(Minecraft.getMinecraft().thePlayer.getCommandSenderName());
 	}
 
 	@Override
@@ -575,9 +574,9 @@ public class BlockDualVertical extends BlockContainer
 					}
 					TileEntityDualVertical bottom = dv1.top ? dv : dv1;
 
-					if(!bottom.playerName.equalsIgnoreCase("") && !bottom.playerName.equalsIgnoreCase(player.username))
+					if(!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()))
 					{
-						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", player.username, bottom.playerName));
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", player.getCommandSenderName(), bottom.getPlayerName()));
 					}
 				}
 			}
@@ -605,11 +604,11 @@ public class BlockDualVertical extends BlockContainer
 
 				if(!world.isRemote)
 				{
-					ShellHandler.removeShell(dv.top ? dv1.playerName : dv.playerName, dv.top ? dv1 : dv);
+					ShellHandler.removeShell(dv.top ? dv1.getPlayerName() : dv.getPlayerName(), dv.top ? dv1 : dv);
 					//ChunkLoadHandler.removeShellAsChunkloader(dv.top ? dv1 : dv);
 					if(bottom.resyncPlayer > 30 && bottom.resyncPlayer < 60)
 					{
-						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.playerName);
+						EntityPlayerMP player1 = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
 						if(player1 != null)
 						{
 							if(dv.playerNBT.hasKey("Inventory"))
@@ -623,9 +622,10 @@ public class BlockDualVertical extends BlockContainer
 							DamageSource.outOfWorld.damageType = name;
 						}
 					}
+					//TODO review this code
 					else if(bottom instanceof TileEntityShellStorage && bottom.resyncPlayer == -10 && ((TileEntityShellStorage)dv).syncing && dv.playerNBT.hasKey("Inventory"))
 					{
-						FakePlayer fake = new FakePlayer(world, dv.playerName);
+						FakePlayer fake = new FakePlayer(world, dv.getPlayerName());
 						fake.readFromNBT(dv.playerNBT);                        
 						fake.setLocationAndAngles(i + 0.5D, j, k + 0.5D, (dv.face - 2) * 90F, 0F);
 						new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
@@ -660,7 +660,7 @@ public class BlockDualVertical extends BlockContainer
 					else if(bottom instanceof TileEntityShellConstructor)
 					{
 						TileEntityShellConstructor sc = (TileEntityShellConstructor)bottom;
-						if(!sc.playerName.equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
+						if(!sc.getPlayerName().equalsIgnoreCase("") && sc.constructionProgress >= SessionState.shellConstructionPowerRequirement)
 						{
 							Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(bottom.xCoord, bottom.yCoord, bottom.zCoord, bottom.face);
 							PacketDispatcher.sendPacketToAllAround(bottom.xCoord, bottom.yCoord, bottom.zCoord, 64D, dv.worldObj.provider.dimensionId, shellDeathPacket);

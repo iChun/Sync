@@ -86,7 +86,7 @@ public class MapPacketHandler
 							TileEntityDualVertical originShell = (TileEntityDualVertical)oriTe;
 							TileEntityDualVertical targetShell = (TileEntityDualVertical)te;
 							
-							if(originShell.playerName.equalsIgnoreCase(player.username) && targetShell.playerName.equalsIgnoreCase(player.username))
+							if(originShell.getPlayerName().equalsIgnoreCase(player.username) && targetShell.getPlayerName().equalsIgnoreCase(player.username))
 							{
 								if(targetShell instanceof TileEntityShellConstructor)
 								{
@@ -110,7 +110,7 @@ public class MapPacketHandler
 								if(originShell instanceof TileEntityShellStorage)
 								{
 									TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
-									ss.playerName = player.username;
+									ss.setPlayerName(player.getCommandSenderName());
 									ss.occupied = true;
 									ss.occupationTime = TileEntityDualVertical.animationTime;
 									ss.syncing = true;

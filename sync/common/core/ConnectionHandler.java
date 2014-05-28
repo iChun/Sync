@@ -150,7 +150,7 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 				if (tileEntityDualVertical.resyncOrigin != null && tileEntityDualVertical.resyncOrigin instanceof TileEntityShellStorage) {
 					TileEntityShellStorage ss = (TileEntityShellStorage)tileEntityDualVertical.resyncOrigin;
 
-					ss.playerName = "";
+					ss.setPlayerName("");
 					ss.occupied = false;
 					ss.occupationTime = 0;
 					ss.syncing = false;

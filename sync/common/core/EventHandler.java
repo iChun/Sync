@@ -17,13 +17,16 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.FakePlayer;
+import net.minecraftforge.event.Event;
 import net.minecraftforge.event.EventPriority;
 import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -34,29 +37,23 @@ import sync.common.tileentity.TileEntityTreadmill;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-public class EventHandler
-{
+public class EventHandler {
 
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
-	public void onMouseEvent(MouseEvent event)
-	{
-		if(Sync.proxy.tickHandlerClient.radialShow)
-		{
-			if(!Sync.proxy.tickHandlerClient.shells.isEmpty())
-			{
+	public void onMouseEvent(MouseEvent event) {
+		if (Sync.proxy.tickHandlerClient.radialShow) {
+			if (!Sync.proxy.tickHandlerClient.shells.isEmpty()) {
 				Sync.proxy.tickHandlerClient.radialDeltaX += event.dx / 100D;
 				Sync.proxy.tickHandlerClient.radialDeltaY += event.dy / 100D;
 
 				double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
-				if(mag > 1.0D)
-				{
+				if(mag > 1.0D) {
 					Sync.proxy.tickHandlerClient.radialDeltaX /= mag;
 					Sync.proxy.tickHandlerClient.radialDeltaY /= mag;
 				}
 			}
-			if(event.button == 0 || event.button == 1)
-			{
+			if (event.button == 0 || event.button == 1) {
 				event.setCanceled(true);
 			}
 		}
@@ -64,17 +61,14 @@ public class EventHandler
 
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
-	public void onRenderPlayer(RenderPlayerEvent.Pre event)
-	{
-		if(Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.username) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) < 118)
-		{
+	public void onRenderPlayer(RenderPlayerEvent.Pre event) {
+		if (Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.getCommandSenderName()) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.getCommandSenderName()) < 118) {
 			event.entityPlayer.lastTickPosX = event.entityPlayer.prevPosX = event.entityPlayer.posX;
 			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer != Minecraft.getMinecraft().thePlayer && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) > 60 ? 500D : event.entityPlayer.posY;
 			event.entityPlayer.lastTickPosZ = event.entityPlayer.prevPosZ = event.entityPlayer.posZ;
 			event.entityPlayer.renderYawOffset = event.entityPlayer.rotationYaw;
 			event.entityPlayer.deathTime = 0;
-			if(!event.entityPlayer.isEntityAlive())
-			{
+			if (!event.entityPlayer.isEntityAlive()) {
 				event.entityPlayer.setHealth(1);
 			}
 			event.setCanceled(true);
@@ -83,10 +77,8 @@ public class EventHandler
 
 	@SideOnly(Side.CLIENT)
 	@ForgeSubscribe
-	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event)
-	{
-		if(event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow)
-		{
+	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event) {
+		if (event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow) {
 			event.setCanceled(true);
 		}
 	}
@@ -111,8 +103,6 @@ public class EventHandler
 					PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
 
 					tpPosition.resyncPlayer = 120;
-
-					//TODO Figure out what the hell this next stuff does. Removing it seems to affect nothing
 					EntityPlayer dvInstance = null;
 
 					if (tpPosition instanceof TileEntityShellStorage) {
@@ -154,7 +144,7 @@ public class EventHandler
 					player.setHealth(20);
 
 					if (!ShellHandler.syncInProgress.containsKey(player.username)) {
-						player.getEntityData().setBoolean("isDeathSyncing", true);
+						player.getEntityData().setBoolean("isDeathSyncing", true); //TODO remove this tag
 						ShellHandler.syncInProgress.put(player.username, tpPosition);
 					}
 				}
@@ -163,74 +153,59 @@ public class EventHandler
 	}
 
 	@ForgeSubscribe(priority = EventPriority.HIGHEST)
-	public void onEntityAttacked(LivingAttackEvent event)
-	{
-		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
-		{
-			if(ShellHandler.syncInProgress.containsKey(((EntityPlayer)event.entityLiving).username))
-			{
+	public void onEntityAttacked(LivingAttackEvent event) {
+		//Prevent damage during sync
+		if (event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld) {
+			if (ShellHandler.syncInProgress.containsKey(((EntityPlayer) event.entityLiving).getCommandSenderName())) {
 				event.setCanceled(true);
 			}
 		}
 	}
 
 	@ForgeSubscribe(priority = EventPriority.HIGHEST)
-	public void onEntityHurt(LivingHurtEvent event)
-	{
-		if(event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld)
-		{
-			if(ShellHandler.syncInProgress.containsKey(((EntityPlayer)event.entityLiving).username))
-			{
+	public void onEntityHurt(LivingHurtEvent event) {
+		//Prevent damage during sync
+		if (event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld) {
+			if (ShellHandler.syncInProgress.containsKey(((EntityPlayer) event.entityLiving).getCommandSenderName())) {
 				event.setCanceled(true);
 			}
 		}
 	}
 
 	@ForgeSubscribe
-	public void onItemPickup(EntityItemPickupEvent event)
-	{
-		if(ShellHandler.syncInProgress.containsKey(event.entityPlayer.username))
-		{
+	public void onItemPickup(EntityItemPickupEvent event) {
+		//Don't allow players to pickup items during sync
+		if (ShellHandler.syncInProgress.containsKey(event.entityPlayer.getCommandSenderName())) {
 			event.setCanceled(true);
 		}
 	}
 
 	@ForgeSubscribe
-	public void onEntityInteract(EntityInteractEvent event)
-	{
-		if(TileEntityTreadmill.isEntityValidForTreadmill(event.target))
-		{
-			TileEntity te = event.target.worldObj.getBlockTileEntity((int)Math.floor(event.target.posX), (int)Math.floor(event.target.posY), (int)Math.floor(event.target.posZ));
-			if(te instanceof TileEntityTreadmill)
-			{
-				TileEntityTreadmill tm = (TileEntityTreadmill)te;
+	public void onEntityInteract(EntityInteractEvent event) {
+		if (TileEntityTreadmill.isEntityValidForTreadmill(event.target)) {
+			TileEntity tileEntity = event.target.worldObj.getBlockTileEntity((int) Math.floor(event.target.posX), (int) Math.floor(event.target.posY), (int) Math.floor(event.target.posZ));
+			if (tileEntity instanceof TileEntityTreadmill) {
+				TileEntityTreadmill tm = (TileEntityTreadmill) tileEntity;
 
-				if(tm.back)
-				{
+				if (tm.back) {
 					tm = tm.pair;
 				}
-				if(tm != null && tm.latchedEnt == event.target)
-				{
+				if (tm != null && tm.latchedEnt == event.target) {
 					double velo = 1.3D;
-					switch(tm.face)
-					{
-						case 0:
-						{
+					switch (tm.face) {
+						case 0: {
 							tm.latchedEnt.motionZ = velo;
 							break;
 						}
-						case 1:
-						{
+						case 1: {
 							tm.latchedEnt.motionX = -velo;
 							break;
 						}
-						case 2:
-						{
+						case 2: {
 							tm.latchedEnt.motionZ = -velo;
 							break;
 						}
-						case 3:
-						{
+						case 3: {
 							tm.latchedEnt.motionX = velo;
 							break;
 						}
@@ -242,6 +217,22 @@ public class EventHandler
 					event.setCanceled(true);
 				}
 			}
+		}
+	}
+
+	@ForgeSubscribe
+	public void onItemToss(ItemTossEvent e) {
+		//Don't allow item drops whilst syncing to prevent dupe issues
+		if (ShellHandler.syncInProgress.containsKey(e.player.getCommandSenderName())) {
+			e.setCanceled(true);
+		}
+	}
+
+	@ForgeSubscribe
+	public void onPlayerOpenContainer(PlayerOpenContainerEvent e) {
+		//Don't show any containers during sync
+		if (ShellHandler.syncInProgress.containsKey(e.entityPlayer.getCommandSenderName())) {
+			e.setResult(Event.Result.DENY);
 		}
 	}
 
