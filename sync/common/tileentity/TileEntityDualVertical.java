@@ -40,7 +40,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
 	public TileEntityDualVertical pair;
 	public boolean top;
-	public int face;
+	public int face; //TODO use forgedirection or vanilla in 1.7?
 	public boolean vacating;
 	public boolean isHomeUnit;
 

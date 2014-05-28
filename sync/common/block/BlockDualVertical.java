@@ -22,6 +22,7 @@ import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.FakePlayer;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
@@ -558,5 +559,36 @@ public class BlockDualVertical extends BlockContainer {
 			return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (SessionState.shellConstructionPowerRequirement / 15));
 		}
 		else return 0;
+	}
+
+	@Override
+	public boolean isBlockSolidOnSide(World world, int x, int y, int z, ForgeDirection side) {
+		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		if (tileEntity instanceof TileEntityDualVertical) {
+			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
+			if (side == ForgeDirection.DOWN || side == ForgeDirection.UP) return true;
+			if (!(tileEntity instanceof TileEntityShellConstructor)) {
+				System.out.println(side);
+				System.out.println(dualVertical.face);
+				switch (dualVertical.face) {
+					case 0: {
+						return side == ForgeDirection.SOUTH;
+					}
+					case 1: {
+						return side == ForgeDirection.WEST;
+					}
+					case 2: {
+						return side == ForgeDirection.NORTH;
+					}
+					case 3: {
+						return side == ForgeDirection.EAST;
+					}
+					default: {
+						return false;
+					}
+				}
+			}
+		}
+		return false;
 	}
 }
