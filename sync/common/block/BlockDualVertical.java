@@ -406,7 +406,7 @@ public class BlockDualVertical extends BlockContainer {
 
 	@SideOnly(Side.CLIENT)
 	public boolean isLocalPlayer(String playerName) {
-		return playerName != null && playerName.equalsIgnoreCase(Minecraft.getMinecraft().thePlayer.getCommandSenderName());
+		return playerName != null && Minecraft.getMinecraft().thePlayer != null && playerName.equalsIgnoreCase(Minecraft.getMinecraft().thePlayer.getCommandSenderName());
 	}
 
 	@Override
