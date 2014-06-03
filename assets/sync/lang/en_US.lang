@@ -11,3 +11,6 @@ sync.waila.progress=Build Progress
 sync.waila.entity=Entity Name
 sync.waila.active=Active
 sync.waila.powerout=Generating
+chat.command.clear.success=%s has cleared %s sync progress
+chat.command.clear.usage=/Sync clear <player> | Clears a players sync progress. Only use if the player is stuck in "limbo"!
+chat.command.sync.usage=/Sync <clear>

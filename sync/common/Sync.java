@@ -154,6 +154,11 @@ public class Sync
 		SessionState.allowCrossDimensional = allowCrossDimensional;
 		SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
 	}
+
+	@EventHandler
+	public void serverStarting(FMLServerStartingEvent event) {
+		event.registerServerCommand(new CommandSync());
+	}
 	
 	@EventHandler
 	public void serverStarted(FMLServerStartedEvent event)
