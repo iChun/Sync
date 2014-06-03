@@ -552,8 +552,6 @@ public class BlockDualVertical extends BlockContainer {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			if (side == ForgeDirection.DOWN || side == ForgeDirection.UP) return true;
 			if (!(tileEntity instanceof TileEntityShellConstructor)) {
-				System.out.println(side);
-				System.out.println(dualVertical.face);
 				switch (dualVertical.face) {
 					case 0: {
 						return side == ForgeDirection.SOUTH;

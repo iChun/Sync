@@ -8,8 +8,6 @@ import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemInWorldManager;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.NetLoginHandler;
 import net.minecraft.network.packet.NetHandler;
@@ -19,26 +17,20 @@ import net.minecraft.server.MinecraftServer;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
-import sync.common.tileentity.TileEntityShellConstructor;
-import sync.common.tileentity.TileEntityShellStorage;
 
-public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
-{
+public class ConnectionHandler implements IConnectionHandler, IPlayerTracker {
 
 	@Override
-	public void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager) //client: remove server 
-	{
-		onClientConnection();
+	public void connectionOpened(NetHandler netClientHandler, String server, int port, INetworkManager manager) { //client: remote server
+		this.onClientConnection();
 	}
 
 	@Override
-	public void connectionOpened(NetHandler netClientHandler, MinecraftServer server, INetworkManager manager) //client: local server
-	{
-		onClientConnection();
+	public void connectionOpened(NetHandler netClientHandler, MinecraftServer server, INetworkManager manager) { //client: local server
+		this.onClientConnection();
 	}
 	
-	public void onClientConnection()
-	{
+	public void onClientConnection() {
 		Sync.proxy.tickHandlerClient.radialShow = false;
 		Sync.proxy.tickHandlerClient.zoom = false;
 		Sync.proxy.tickHandlerClient.lockTime = 0;
@@ -50,21 +42,18 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 	}
 
 	@Override
-	public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager) 
-	{
+	public String connectionReceived(NetLoginHandler netHandler, INetworkManager manager) {
 		return null;
 	}
 
 	@Override
-	public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login)  //client
-	{
-	}
+	public void clientLoggedIn(NetHandler clientHandler, INetworkManager manager, Packet1Login login) { } //Client
 
+	//Server
 	@Override
-	public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) //server
-	{
+	public void playerLoggedIn(Player player, NetHandler netHandler, INetworkManager manager) {
 		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), player);
-		ShellHandler.updatePlayerOfShells((EntityPlayer)player, null, true);
+		ShellHandler.updatePlayerOfShells((EntityPlayer) player, null, true);
 
 		//Check if the player was mid death sync
 		EntityPlayerMP entityPlayerMP = (EntityPlayerMP) player;
@@ -77,61 +66,29 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 				PacketDispatcher.sendPacketToPlayer(zoomPacket, player);
 
 				tpPosition.resyncPlayer = 120;
-				EntityPlayer dvInstance = null;
 
-				if (tpPosition instanceof TileEntityShellStorage) {
-					dvInstance = ((TileEntityShellStorage)tpPosition).playerInstance;
-				}
-				else if (tpPosition instanceof TileEntityShellConstructor) {
-					dvInstance = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), tpPosition.worldObj, entityPlayerMP.getCommandSenderName(), new ItemInWorldManager(tpPosition.worldObj));
-					((EntityPlayerMP)dvInstance).playerNetServerHandler = ((EntityPlayerMP)player).playerNetServerHandler;
-				}
+				MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true);
+				PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true));
 
-				if (dvInstance != null) {
-					NBTTagCompound tag = new NBTTagCompound();
+				entityPlayerMP.setHealth(20);
 
-					if(tpPosition.getPlayerNBT() != null && tpPosition.getPlayerNBT().hasKey("Inventory")) {
-						dvInstance.readFromNBT(tpPosition.getPlayerNBT());
-					}
-
-					dvInstance.setLocationAndAngles(tpPosition.xCoord + 0.5D, tpPosition.yCoord, tpPosition.zCoord + 0.5D, (tpPosition.face - 2) * 90F, 0F);
-
-					boolean keepInv = entityPlayerMP.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
-
-					tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
-
-					dvInstance.clonePlayer(entityPlayerMP, false);
-					dvInstance.entityId = entityPlayerMP.entityId;
-
-					tpPosition.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
-
-					dvInstance.writeToNBT(tag);
-					tag.setInteger("sync_playerGameMode", tpPosition.getPlayerNBT().getInteger("sync_playerGameMode"));
-					tpPosition.setPlayerNBT(tag);
-				}
-
-				MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.username, true);
-				PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.username, true));
-
-				entityPlayerMP.setHealth(1);
-
-				if (!ShellHandler.syncInProgress.containsKey(entityPlayerMP.username)) {
-					ShellHandler.syncInProgress.put(entityPlayerMP.username, tpPosition);
+				if (!ShellHandler.syncInProgress.containsKey(entityPlayerMP.getCommandSenderName())) {
+					ShellHandler.syncInProgress.put(entityPlayerMP.getCommandSenderName(), tpPosition);
 				}
 			}
-			else{
+			else {
 				entityPlayerMP.setDead();
 				entityPlayerMP.setHealth(0);
+				entityPlayerMP.getEntityData().setBoolean("isDeathSyncing", false);
+				ShellHandler.syncInProgress.remove(entityPlayerMP.getCommandSenderName());
 			}
 		}
 	}
 
 	@Override
-	public void connectionClosed(INetworkManager manager) //both 
-	{
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-		{
-			onClientConnection();
+	public void connectionClosed(INetworkManager manager) {
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+			this.onClientConnection();
 		}
 	}
 
@@ -141,24 +98,21 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker
 	@Override
 	public void onPlayerLogout(EntityPlayer player) {
 		//If player was syncing then reset the sync
-		if (ShellHandler.syncInProgress.containsKey(player.username)) {
-			TileEntityDualVertical tileEntityDualVertical = ShellHandler.syncInProgress.get(player.username);
+		if (ShellHandler.syncInProgress.containsKey(player.getCommandSenderName())) {
+			TileEntityDualVertical tileEntityDualVertical = ShellHandler.syncInProgress.get(player.getCommandSenderName());
+			Sync.logger.fine(String.format("%s logged out mid-sync whilst sync process was at %s", player.getCommandSenderName(), tileEntityDualVertical.resyncPlayer));
+			//If they're still syncing away (ie camera zoom out), just reset it all
 			if (tileEntityDualVertical.resyncPlayer > 60) {
 				tileEntityDualVertical.resyncPlayer = -10;
 				//If they're syncing from an existing shell, reset that shell. They should only ever sync from a shell storage but lets check to be safe
-				//TODO This won't work if server has been restarted as the syncInProgress list would have been reset. Handle with NBT Tag like isDeathSyncing?
-				if (tileEntityDualVertical.resyncOrigin != null && tileEntityDualVertical.resyncOrigin instanceof TileEntityShellStorage) {
-					TileEntityShellStorage ss = (TileEntityShellStorage)tileEntityDualVertical.resyncOrigin;
-
-					ss.setPlayerName("");
-					ss.occupied = false;
-					ss.occupationTime = 0;
-					ss.syncing = false;
-					ss.setPlayerNBT(new NBTTagCompound());
-					ss.worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-					ss.worldObj.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+				if (tileEntityDualVertical.resyncOrigin != null) {
+					tileEntityDualVertical.reset();
+					tileEntityDualVertical.worldObj.markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord, tileEntityDualVertical.zCoord);
+					tileEntityDualVertical.worldObj.markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord + 1, tileEntityDualVertical.zCoord);
 				}
 			}
+			//Remove player from syncing list
+			ShellHandler.syncInProgress.remove(player.getCommandSenderName());
 		}
 	}
 

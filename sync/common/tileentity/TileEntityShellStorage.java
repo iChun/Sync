@@ -192,6 +192,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		this.playerInstance = null;
 		this.vacating = false;
 		this.occupied = false;
+		this.occupationTime = 0;
 		this.prevPlayerName = "";
 	}
 
