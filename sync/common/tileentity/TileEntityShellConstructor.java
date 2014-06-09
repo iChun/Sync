@@ -14,7 +14,7 @@ import sync.common.shell.ShellHandler;
 
 import java.util.List;
 
-@Optional.Interface(iface = "IEnergyInfo", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "ThermalExpansion")
 public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo {
 	public float constructionProgress;
 	public int doorTime;
@@ -165,6 +165,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	
 	// TE methods
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
@@ -189,45 +190,53 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public boolean canInterface(ForgeDirection from)
 	{
 		return !top;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getMaxEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getEnergyPerTick() {
 		return powReceived;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getMaxEnergyPerTick() {
 		return 24;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getEnergy() {
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getMaxEnergy() {
 		return 0;
 	}

@@ -1,5 +1,6 @@
 package sync.common.tileentity;
 
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
@@ -197,6 +198,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
 		if (Sync.shellStoragePowerRequirement == 0) {
 			return 0;
@@ -212,21 +214,25 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public boolean canInterface(ForgeDirection from) {
 		return !top;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getEnergyStored(ForgeDirection from) {
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getMaxEnergyStored(ForgeDirection from) {
 		return 0;
 	}

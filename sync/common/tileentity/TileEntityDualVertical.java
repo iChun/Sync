@@ -35,7 +35,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-@Optional.Interface(iface = "IEnergyHandler", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "ThermalExpansion")
 public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler {
 
 	public TileEntityDualVertical pair;

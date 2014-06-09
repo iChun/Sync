@@ -25,7 +25,7 @@ import sync.common.Sync;
 
 import java.util.List;
 
-@Optional.Interface(iface = "IEnergyHandler", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "ThermalExpansion")
 public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;
@@ -423,30 +423,35 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 	
 	// TE methods
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public boolean canInterface(ForgeDirection from)
 	{
 		return !back;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
+	@Optional.Method(modid = "ThermalExpansion")
 	public int getMaxEnergyStored(ForgeDirection from)
 	{
 		return 0;
