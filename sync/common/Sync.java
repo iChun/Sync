@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 				)
 public class Sync 
 {
-	public static final String version = "2.2.2";
+	public static final String version = "2.2.3";
 	
 	@Instance("Sync")
 	public static Sync instance;
@@ -113,6 +113,7 @@ public class Sync
 		
 		hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
 
+		//TODO rename this and make this clear.
 		ratioRF = addCommentAndReturnInt(config, "gameplay", "ratioRF", "Redstone Flux : Piggawatt ratio.", 2);
 		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)

@@ -171,28 +171,40 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						//Clear active potion effects before syncing
 						player.clearActivePotions();
 
-						//Copy data needed from player
-						NBTTagCompound tag = this.getPlayerNBT();
-						boolean keepInv = this.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
-						this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
+						if (!getPlayerNBT().hasKey("Inventory")) {
+							//Copy data needed from player
+							NBTTagCompound tag = new NBTTagCompound();
+							boolean keepInv = this.worldObj.getGameRules().getGameRuleBooleanValue("keepInventory");
+							this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
-						//Setup location for dummy
-						EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
-						dummy.playerNetServerHandler = player.playerNetServerHandler;
-						dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
-						dummy.fallDistance = 0F;
+							//Setup location for dummy
+							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+							dummy.playerNetServerHandler = player.playerNetServerHandler;
+							dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
+							dummy.fallDistance = 0F;
 
-						//Clone data
-						dummy.clonePlayer(player, false);
-						dummy.dimension = player.dimension;
-						dummy.entityId = player.entityId;
+							//Clone data
+							dummy.clonePlayer(player, false);
+							dummy.dimension = player.dimension;
+							dummy.entityId = player.entityId;
 
-						this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+							this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
-						//Set data
-						dummy.writeToNBT(tag);
-						tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-						this.setPlayerNBT(tag);
+							//Set data
+							dummy.writeToNBT(tag);
+							tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+							this.setPlayerNBT(tag);
+						}
+						//Sync Forge persistent data as it's supposed to carry over on death
+						NBTTagCompound persistentData = player.getEntityData();
+						if (persistentData != null) {
+							NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
+							forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+							forgeData.setBoolean("isDeathSyncing", false);
+							playerNBT.setCompoundTag("ForgeData", forgeData);
+						}
+						//Also sync ender chest.
+						playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
 						//Update the players NBT stuff
 						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(this.getPlayerNBT());
@@ -205,6 +217,20 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 				}
 				if (this.resyncPlayer == 0) {
 					ShellHandler.removeShell(this.getPlayerName(), this);
+
+					if(this.getClass() == TileEntityShellStorage.class)
+					{
+						TileEntityShellStorage ss = (TileEntityShellStorage)this;
+						ss.occupied = true;
+					}
+				}
+				if(resyncPlayer == -10)
+				{
+					if(this.getClass() == TileEntityShellStorage.class)
+					{
+						TileEntityShellStorage ss = (TileEntityShellStorage)this;
+						ss.occupied = true;
+					}
 				}
 			}
 			if (this.canSavePlayer > 0) {
