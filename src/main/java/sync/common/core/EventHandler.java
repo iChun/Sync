@@ -5,15 +5,12 @@ import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
@@ -29,6 +26,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import org.apache.logging.log4j.Level;
 import sync.common.Sync;
+import sync.common.packet.PacketPlayerDeath;
 import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -101,12 +99,11 @@ public class EventHandler {
             TileEntityDualVertical tpPosition = EventHandler.getClosestRespawnShell(entityPlayerMP);
 
             if (tpPosition != null) {
-                PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera((int) Math.floor(entityPlayerMP.posX), (int) Math.floor(entityPlayerMP.posY), (int) Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true), event.player);
+                PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera((int)Math.floor(entityPlayerMP.posX), (int)Math.floor(entityPlayerMP.posY), (int)Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true), event.player);
 
                 tpPosition.resyncPlayer = 120;
 
-                MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true);
-                PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true));
+                PacketHandler.sendToAll(Sync.channels, new PacketPlayerDeath(entityPlayerMP.getCommandSenderName(), true));
 
                 entityPlayerMP.setHealth(20);
 
@@ -169,7 +166,7 @@ public class EventHandler {
 					tpPosition.resyncPlayer = 120;
 
 					//Create the death animation packet
-					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(event.entityLiving.getCommandSenderName(), true));
+                    PacketHandler.sendToAll(Sync.channels, new PacketPlayerDeath(event.entityLiving.getCommandSenderName(), true));
 
 					player.setHealth(20);
 

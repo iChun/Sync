@@ -2,7 +2,6 @@ package sync.client.core;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
-import cpw.mods.fml.common.network.PacketDispatcher;
 import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGameOver;
@@ -14,7 +13,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
@@ -26,13 +24,16 @@ import org.lwjgl.opengl.GL12;
 import sync.client.model.ModelShellConstructor;
 import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
-import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
 import sync.common.packet.PacketSyncRequest;
+import sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityShellStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map.Entry;
 
 public class TickHandlerClient
@@ -191,8 +192,7 @@ public class TickHandlerClient
                     }
                     if(zoomTimer == 0)
                     {
-                        Packet131MapData updatePlayerPacket = MapPacketHandler.createUpdatePlayerOnZoomFinishPacket(mc.thePlayer.posX, mc.thePlayer.posY - mc.thePlayer.yOffset, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch);
-                        PacketDispatcher.sendPacketToServer(updatePlayerPacket);//
+                        PacketHandler.sendToServer(Sync.channels, new PacketUpdatePlayerOnZoomFinish(mc.thePlayer.posX, mc.thePlayer.posY - mc.thePlayer.yOffset, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch));
 
                         mc.thePlayer.sendPlayerAbilities();
                     }
@@ -227,8 +227,8 @@ public class TickHandlerClient
                 }
             }
         }
-		//		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
-	}
+        //		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
+    }
 
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event)
@@ -451,7 +451,7 @@ public class TickHandlerClient
                 }
             }
         }
-	}
+    }
 
     public void updateZoom(EntityLivingBase ent, float f, boolean revert)
     {
@@ -561,308 +561,308 @@ public class TickHandlerClient
     }
 
     private void drawShellInfo(ShellState state, boolean selected)
-	{
-		if(Sync.showAllShellInfoInGui <= 0)
-		{
-			return;
-		}
-		if(radialShow)
-		{
-			GL11.glPushMatrix();
-
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(770, 771);
-
-			GL11.glTranslatef(0F, 0F, 100F);
-
-			if(state != null)
-			{
-				float scaleee = 0.75F;
-				GL11.glScalef(scaleee, scaleee, scaleee);
-				String prefix = (selected ? EnumChatFormatting.YELLOW.toString() : "");
-				String string;
-				if(!state.name.equalsIgnoreCase(""))
-				{
-					string = state.name;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
-				}
-				if(Sync.showAllShellInfoInGui == 2)
-				{
-					GL11.glScalef(scaleee, scaleee, scaleee);
-
-					string = Integer.toString(state.xCoord);
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.xCoord < 0 ? 2 : 8, -52, 16777215);
-					string = Integer.toString(state.yCoord);
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.yCoord < 0 ? 2 : 8, -42, 16777215);
-					string = Integer.toString(state.zCoord);
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.zCoord < 0 ? 2 : 8, -32, 16777215);
-					string = state.dimName;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, 8, -22, 16777215);
-				}
-				if(state.isHome)
-				{
-					Minecraft.getMinecraft().getTextureManager().bindTexture(txHome);
-
-					double pX = 10.5D;
-					double pY = -10.5D;
-					double size = 12D;
-
-					GL11.glColor4f(0.95F, 0.95F, 0.95F, 1.0F);
-
-					Tessellator tessellator = Tessellator.instance;
-					tessellator.setColorRGBA(240, 240, 240, 255);
-
-					tessellator.startDrawingQuads();
-					tessellator.addVertexWithUV(pX, pY + size, 0.0D, 0.0D, 0.999D);
-					tessellator.addVertexWithUV(pX + size, pY + size, 0.0D, 1.0D, 0.999D);
-					tessellator.addVertexWithUV(pX + size, pY, 0.0D, 1.0D, 0.0D);
-					tessellator.addVertexWithUV(pX, pY, 0.0D, 0.0D, 0.0D);
-					tessellator.draw();
-				}
-			}
-
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-			GL11.glDisable(GL11.GL_BLEND);
-
-			GL11.glPopMatrix();
-		}
-	}
-
-	private void drawShellConstructionPercentage(ShellState state)
-	{
-		if(radialShow)
-		{
-			GL11.glPushMatrix();
-
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(770, 771);
-
-			GL11.glTranslatef(0F, 0F, 100F);
-
-			if(state != null)
-			{
-				if(state.buildProgress < SessionState.shellConstructionPowerRequirement)
-				{
-					GL11.glPushMatrix();
-					float scaleee = 1.5F;
-					GL11.glScalef(scaleee, scaleee, scaleee);
-					String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
-
-					GL11.glPopMatrix();
-				}
-				else if(state.isConstructor)
-				{
-					GL11.glPushMatrix();
-					float scaleee = 0.75F;
-					GL11.glScalef(scaleee, scaleee, scaleee);
-					String name = I18n.format("gui.done");
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
-
-					GL11.glPopMatrix();
-				}
-			}
-
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-			GL11.glDisable(GL11.GL_BLEND);
-
-			GL11.glPopMatrix();
-		}
-	}
-
-
-	private void drawSelectedShellText(ScaledResolution reso, ShellState state)
-	{
-		if(radialShow)
-		{
-			GL11.glPushMatrix();
-
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(770, 771);
-
-			GL11.glTranslatef(reso.getScaledWidth() / 2F, (reso.getScaledHeight() - 20) / 2F, 100F);
-
-			if(state != null)
-			{
-				GL11.glPushMatrix();
-				float scaleee = 1F;
-				GL11.glScalef(scaleee, scaleee, scaleee);
-				int height = 5;
-				if(state.name.equalsIgnoreCase(""))
-				{
-					String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height, 16777215);
-					name = EnumChatFormatting.YELLOW.toString() + state.dimName;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
-				}
-				else
-				{
-					String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
-					name = EnumChatFormatting.YELLOW.toString() + state.name;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
-					name = EnumChatFormatting.YELLOW.toString() + state.dimName;
-					Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
-				}
-				GL11.glPopMatrix();
-			}
-			else
-			{
-				String name = I18n.format("gui.cancel");
-				Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
-			}
+    {
+        if(Sync.showAllShellInfoInGui <= 0)
+        {
+            return;
+        }
+        if(radialShow)
+        {
+            GL11.glPushMatrix();
+
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(770, 771);
+
+            GL11.glTranslatef(0F, 0F, 100F);
+
+            if(state != null)
+            {
+                float scaleee = 0.75F;
+                GL11.glScalef(scaleee, scaleee, scaleee);
+                String prefix = (selected ? EnumChatFormatting.YELLOW.toString() : "");
+                String string;
+                if(!state.name.equalsIgnoreCase(""))
+                {
+                    string = state.name;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
+                }
+                if(Sync.showAllShellInfoInGui == 2)
+                {
+                    GL11.glScalef(scaleee, scaleee, scaleee);
+
+                    string = Integer.toString(state.xCoord);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.xCoord < 0 ? 2 : 8, -52, 16777215);
+                    string = Integer.toString(state.yCoord);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.yCoord < 0 ? 2 : 8, -42, 16777215);
+                    string = Integer.toString(state.zCoord);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.zCoord < 0 ? 2 : 8, -32, 16777215);
+                    string = state.dimName;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, 8, -22, 16777215);
+                }
+                if(state.isHome)
+                {
+                    Minecraft.getMinecraft().getTextureManager().bindTexture(txHome);
+
+                    double pX = 10.5D;
+                    double pY = -10.5D;
+                    double size = 12D;
+
+                    GL11.glColor4f(0.95F, 0.95F, 0.95F, 1.0F);
+
+                    Tessellator tessellator = Tessellator.instance;
+                    tessellator.setColorRGBA(240, 240, 240, 255);
+
+                    tessellator.startDrawingQuads();
+                    tessellator.addVertexWithUV(pX, pY + size, 0.0D, 0.0D, 0.999D);
+                    tessellator.addVertexWithUV(pX + size, pY + size, 0.0D, 1.0D, 0.999D);
+                    tessellator.addVertexWithUV(pX + size, pY, 0.0D, 1.0D, 0.0D);
+                    tessellator.addVertexWithUV(pX, pY, 0.0D, 0.0D, 0.0D);
+                    tessellator.draw();
+                }
+            }
+
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+            GL11.glDisable(GL11.GL_BLEND);
+
+            GL11.glPopMatrix();
+        }
+    }
+
+    private void drawShellConstructionPercentage(ShellState state)
+    {
+        if(radialShow)
+        {
+            GL11.glPushMatrix();
+
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(770, 771);
+
+            GL11.glTranslatef(0F, 0F, 100F);
+
+            if(state != null)
+            {
+                if(state.buildProgress < SessionState.shellConstructionPowerRequirement)
+                {
+                    GL11.glPushMatrix();
+                    float scaleee = 1.5F;
+                    GL11.glScalef(scaleee, scaleee, scaleee);
+                    String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
+
+                    GL11.glPopMatrix();
+                }
+                else if(state.isConstructor)
+                {
+                    GL11.glPushMatrix();
+                    float scaleee = 0.75F;
+                    GL11.glScalef(scaleee, scaleee, scaleee);
+                    String name = I18n.format("gui.done");
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
+
+                    GL11.glPopMatrix();
+                }
+            }
+
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+            GL11.glDisable(GL11.GL_BLEND);
+
+            GL11.glPopMatrix();
+        }
+    }
+
+
+    private void drawSelectedShellText(ScaledResolution reso, ShellState state)
+    {
+        if(radialShow)
+        {
+            GL11.glPushMatrix();
+
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(770, 771);
+
+            GL11.glTranslatef(reso.getScaledWidth() / 2F, (reso.getScaledHeight() - 20) / 2F, 100F);
+
+            if(state != null)
+            {
+                GL11.glPushMatrix();
+                float scaleee = 1F;
+                GL11.glScalef(scaleee, scaleee, scaleee);
+                int height = 5;
+                if(state.name.equalsIgnoreCase(""))
+                {
+                    String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height, 16777215);
+                    name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
+                }
+                else
+                {
+                    String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
+                    name = EnumChatFormatting.YELLOW.toString() + state.name;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
+                    name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
+                }
+                GL11.glPopMatrix();
+            }
+            else
+            {
+                String name = I18n.format("gui.cancel");
+                Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
+            }
 
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-			GL11.glDisable(GL11.GL_BLEND);
+            GL11.glDisable(GL11.GL_BLEND);
 
-			GL11.glPopMatrix();
-		}
-	}
+            GL11.glPopMatrix();
+        }
+    }
 
-	private void drawEntityOnScreen(ShellState state, EntityLivingBase ent, int posX, int posY, float scale, float par4, float par5, float renderTick, boolean isSelected) 
-	{
-		if(ent != null)
-		{
-			boolean hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
+    private void drawEntityOnScreen(ShellState state, EntityLivingBase ent, int posX, int posY, float scale, float par4, float par5, float renderTick, boolean isSelected)
+    {
+        if(ent != null)
+        {
+            boolean hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
 
-			Minecraft.getMinecraft().gameSettings.hideGUI = true;
+            Minecraft.getMinecraft().gameSettings.hideGUI = true;
 
-			GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-			GL11.glPushMatrix();
-
-			GL11.glDisable(GL11.GL_ALPHA_TEST);
-
-			GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+            GL11.glEnable(GL11.GL_COLOR_MATERIAL);
+            GL11.glPushMatrix();
+
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
+
+            GL11.glTranslatef((float)posX, (float)posY, 50.0F);
 
-			if(Sync.showAllShellInfoInGui == 2)
-			{
-				GL11.glTranslatef(-8F, 0.0F, 0.0F);	
-			}
-
-			GL11.glScalef(-scale, scale, scale);
-			GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
-			float f2 = ent.renderYawOffset;
-			float f3 = ent.rotationYaw;
-			float f4 = ent.rotationPitch;
-			float f5 = ent.rotationYawHead;
-
-			GL11.glRotatef(135.0F, 0.0F, 1.0F, 0.0F);
-			RenderHelper.enableStandardItemLighting();
-			GL11.glRotatef(-135.0F, 0.0F, 1.0F, 0.0F);
-			GL11.glRotatef(-((float)Math.atan((double)(par5 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(15.0F, 1.0F, 0.0F, 0.0F);
-			GL11.glRotatef(25.0F, 0.0F, 1.0F, 0.0F);
-
-			ent.renderYawOffset = (float)Math.atan((double)(par4 / 40.0F)) * 20.0F;
-			ent.rotationYaw = (float)Math.atan((double)(par4 / 40.0F)) * 40.0F;
-			ent.rotationPitch = -((float)Math.atan((double)(par5 / 40.0F))) * 20.0F;
-			ent.rotationYawHead = ent.renderYawOffset;
-			GL11.glTranslatef(0.0F, ent.yOffset, 0.0F);
+            if(Sync.showAllShellInfoInGui == 2)
+            {
+                GL11.glTranslatef(-8F, 0.0F, 0.0F);
+            }
+
+            GL11.glScalef(-scale, scale, scale);
+            GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+            float f2 = ent.renderYawOffset;
+            float f3 = ent.rotationYaw;
+            float f4 = ent.rotationPitch;
+            float f5 = ent.rotationYawHead;
+
+            GL11.glRotatef(135.0F, 0.0F, 1.0F, 0.0F);
+            RenderHelper.enableStandardItemLighting();
+            GL11.glRotatef(-135.0F, 0.0F, 1.0F, 0.0F);
+            GL11.glRotatef(-((float)Math.atan((double)(par5 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef(15.0F, 1.0F, 0.0F, 0.0F);
+            GL11.glRotatef(25.0F, 0.0F, 1.0F, 0.0F);
+
+            ent.renderYawOffset = (float)Math.atan((double)(par4 / 40.0F)) * 20.0F;
+            ent.rotationYaw = (float)Math.atan((double)(par4 / 40.0F)) * 40.0F;
+            ent.rotationPitch = -((float)Math.atan((double)(par5 / 40.0F))) * 20.0F;
+            ent.rotationYawHead = ent.renderYawOffset;
+            GL11.glTranslatef(0.0F, ent.yOffset, 0.0F);
 
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-			float viewY = RenderManager.instance.playerViewY;
-			RenderManager.instance.playerViewY = 180.0F;
-			if(!(state.isConstructor && state.buildProgress < SessionState.shellConstructionPowerRequirement))
-			{
-				RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
-			}
-			else
-			{
-				GL11.glPushMatrix();
+            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+            float viewY = RenderManager.instance.playerViewY;
+            RenderManager.instance.playerViewY = 180.0F;
+            if(!(state.isConstructor && state.buildProgress < SessionState.shellConstructionPowerRequirement))
+            {
+                RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+            }
+            else
+            {
+                GL11.glPushMatrix();
 
-				float bodyScale = 0.5F;
+                float bodyScale = 0.5F;
 
-				GL11.glScalef(bodyScale, -bodyScale, -bodyScale);
+                GL11.glScalef(bodyScale, -bodyScale, -bodyScale);
 
-				GL11.glTranslatef(0.0F, -1.48F, 0.0F);
+                GL11.glTranslatef(0.0F, -1.48F, 0.0F);
 
-				Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
+                Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
 
-				modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.getCommandSenderName().hashCode());
-				modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-				modelShellConstructor.renderConstructionProgress(SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
+                modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.getCommandSenderName().hashCode());
+                modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
+                modelShellConstructor.renderConstructionProgress(SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
 
-				GL11.glPopMatrix();
-			}
+                GL11.glPopMatrix();
+            }
 
-			GL11.glTranslatef(0.0F, -0.22F, 0.0F);
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
-			Tessellator.instance.setBrightness(240);
+            GL11.glTranslatef(0.0F, -0.22F, 0.0F);
+            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
+            Tessellator.instance.setBrightness(240);
 
-			RenderManager.instance.playerViewY = viewY;
-			ent.renderYawOffset = f2;
-			ent.rotationYaw = f3;
-			ent.rotationPitch = f4;
-			ent.rotationYawHead = f5;
+            RenderManager.instance.playerViewY = viewY;
+            ent.renderYawOffset = f2;
+            ent.rotationYaw = f3;
+            ent.rotationPitch = f4;
+            ent.rotationYawHead = f5;
 
-			GL11.glPopMatrix();
+            GL11.glPopMatrix();
 
-			RenderHelper.disableStandardItemLighting();
+            RenderHelper.disableStandardItemLighting();
 
-			GL11.glPushMatrix();
+            GL11.glPushMatrix();
 
-			GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+            GL11.glTranslatef((float)posX, (float)posY, 50.0F);
 
-			drawShellInfo(state, isSelected);
+            drawShellInfo(state, isSelected);
 
-			drawShellConstructionPercentage(state);
+            drawShellConstructionPercentage(state);
 
-			GL11.glPopMatrix();
+            GL11.glPopMatrix();
 
-			GL11.glEnable(GL11.GL_ALPHA_TEST);
+            GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-			GL11.glDisable(GL12.GL_RESCALE_NORMAL);
-			OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+            OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
 
-			Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
-		}
-	}
+            Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
+        }
+    }
 
-	public boolean lmbDown;
-	public boolean rmbDown;
+    public boolean lmbDown;
+    public boolean rmbDown;
 
-	public boolean radialShow;
-	public float radialPlayerYaw;
-	public float radialPlayerPitch;
-	public double radialDeltaX;
-	public double radialDeltaY;
-	public int radialTime;
+    public boolean radialShow;
+    public float radialPlayerYaw;
+    public float radialPlayerPitch;
+    public double radialDeltaX;
+    public double radialDeltaY;
+    public int radialTime;
 
-	public long clock;
+    public long clock;
 
-	public int zoomFace;
-	public int zoomTimer;
-	public int zoomTimeout;
-	public boolean zoom;
-	public int zoomX;
-	public int zoomY;
-	public int zoomZ;
-	public int zoomDimension;
+    public int zoomFace;
+    public int zoomTimer;
+    public int zoomTimeout;
+    public boolean zoom;
+    public int zoomX;
+    public int zoomY;
+    public int zoomZ;
+    public int zoomDimension;
 
-	public float zoomPrevYaw;
-	public float zoomPrevPitch;
+    public float zoomPrevYaw;
+    public float zoomPrevPitch;
 
-	public double zoomPrevX;
-	public double zoomPrevY;
-	public double zoomPrevZ;
-	public boolean zoomDeath;
+    public double zoomPrevX;
+    public double zoomPrevY;
+    public double zoomPrevZ;
+    public boolean zoomDeath;
 
-	public boolean hideGui;
+    public boolean hideGui;
 
-	public int lockTime;
-	public TileEntityShellStorage lockedStorage = null;
-	public ArrayList<ShellState> shells = new ArrayList<ShellState>();
+    public int lockTime;
+    public TileEntityShellStorage lockedStorage = null;
+    public ArrayList<ShellState> shells = new ArrayList<ShellState>();
 
-	public ModelShellConstructor modelShellConstructor = new ModelShellConstructor();
+    public ModelShellConstructor modelShellConstructor = new ModelShellConstructor();
 
-	public HashMap<String, Integer> refusePlayerRender = new HashMap<String, Integer>();
-	public boolean forceRender;
+    public HashMap<String, Integer> refusePlayerRender = new HashMap<String, Integer>();
+    public boolean forceRender;
 
-	public ResourceLocation txHome = new ResourceLocation("sync", "textures/icon/home.png");
+    public ResourceLocation txHome = new ResourceLocation("sync", "textures/icon/home.png");
 }

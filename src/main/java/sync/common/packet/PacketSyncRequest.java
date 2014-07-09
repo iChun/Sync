@@ -77,6 +77,7 @@ public class PacketSyncRequest extends AbstractPacket
     @Override
     public void execute(Side side, EntityPlayer player)
     {
+        //Receive sync request from client;
         boolean valid = false;
 
         WorldServer worldOri = DimensionManager.getWorld(dimID);

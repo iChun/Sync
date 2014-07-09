@@ -32,52 +32,7 @@ import sync.common.tileentity.TileEntityShellStorage;
 import java.io.*;
 
 public class MapPacketHandler
-	implements ITinyPacketHandler
 {
-
-	@Override
-	public void handle(NetHandler handler, Packet131MapData mapData) 
-	{
-		if(handler instanceof NetServerHandler)
-		{
-			handleServerPacket((NetServerHandler)handler, mapData.uniqueID, mapData.itemData, (EntityPlayerMP)handler.getPlayer());
-		}
-		else
-		{
-			handleClientPacket((NetClientHandler)handler, mapData.uniqueID, mapData.itemData);
-		}
-	}
-
-	private void handleServerPacket(NetServerHandler handler, short id, byte[] data, EntityPlayerMP player) 
-	{
-		DataInputStream stream = new DataInputStream(new ByteArrayInputStream(data));
-		try
-		{
-			switch(id)
-			{
-				case 0:
-				{
-					//Receive sync request from client;
-					
-					break;
-				}
-				case 1:
-				{
-					player.setLocationAndAngles(stream.readDouble(), stream.readDouble(), stream.readDouble(), stream.readFloat(), stream.readFloat());
-					
-					FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().syncPlayerInventory(player);
-					
-					ShellHandler.updatePlayerOfShells(player, null, true);
-					
-					break;
-				}
-			}
-		}
-		catch(IOException ignored)
-		{
-		}
-	}
-	
 	//TODO Side Split
 	
 	@SideOnly(Side.CLIENT)
@@ -263,46 +218,6 @@ public class MapPacketHandler
 		}
 	}
 
-	//Packet ID 0
-	//Sent from client to server
-	public static Packet131MapData createSyncRequestPacket(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID) {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-
-		try {
-			stream.writeInt(xCoord);
-			stream.writeInt(yCoord);
-			stream.writeInt(zCoord);
-			stream.writeInt(dimID);
-			stream.writeInt(shellPosX);
-			stream.writeInt(shellPosY);
-			stream.writeInt(shellPosZ);
-			stream.writeInt(shellDimID);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-		return new Packet131MapData((short)Sync.getNetId(), (short)0, bytes.toByteArray());
-	}
-
-	//Packet ID 1
-	//Sent from client to server
-	public static Packet131MapData createUpdatePlayerOnZoomFinishPacket(double posX, double posY, double posZ, float rotationYaw, float rotationPitch) {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-
-		try {
-			stream.writeDouble(posX);
-			stream.writeDouble(posY);
-			stream.writeDouble(posZ);
-			stream.writeFloat(rotationYaw);
-			stream.writeFloat(rotationPitch);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		return new Packet131MapData((short)Sync.getNetId(), (short)1, bytes.toByteArray());
-	}
-
 	//Packet ID 2
 	//Sent from server to client TODO: Merge this and the createShellData packet
 	public static Packet131MapData createRemoveShellDataPacket(TileEntityDualVertical dv) {
@@ -354,22 +269,6 @@ public class MapPacketHandler
 		}
 
 		return new Packet131MapData((short)Sync.getNetId(), (short)6, bytes.toByteArray());
-	}
-
-	//Packet ID 7
-	//Sent from server to client
-	public static Packet131MapData createPlayerDeathPacket(String playerName, boolean doDeathAnimation) {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-
-		try {
-			stream.writeUTF(playerName);
-			stream.writeBoolean(doDeathAnimation);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-		return new Packet131MapData((short)Sync.getNetId(), (short)7, bytes.toByteArray());
 	}
 
 	//Packet ID 8
