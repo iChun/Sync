@@ -16,8 +16,8 @@ import net.minecraft.network.NetServerHandler;
 import net.minecraft.network.packet.NetHandler;
 import net.minecraft.network.packet.Packet131MapData;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import sync.api.SyncStartEvent;
@@ -78,15 +78,15 @@ public class MapPacketHandler
 					
 					if(worldOri != null && world != null)
 					{
-						TileEntity oriTe = worldOri.getBlockTileEntity(oriX, oriY, oriZ);
-						TileEntity te = world.getBlockTileEntity(x, y, z);
+						TileEntity oriTe = worldOri.getTileEntity(oriX, oriY, oriZ);
+						TileEntity te = world.getTileEntity(x, y, z);
 						
 						if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
 						{
 							TileEntityDualVertical originShell = (TileEntityDualVertical)oriTe;
 							TileEntityDualVertical targetShell = (TileEntityDualVertical)te;
 							
-							if(originShell.getPlayerName().equalsIgnoreCase(player.username) && targetShell.getPlayerName().equalsIgnoreCase(player.username))
+							if(originShell.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && targetShell.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()))
 							{
 								if(targetShell instanceof TileEntityShellConstructor)
 								{
@@ -134,11 +134,11 @@ public class MapPacketHandler
 								targetShell.resyncPlayer = 120;
 								originShell.canSavePlayer = -1;
 								targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
-								ShellHandler.syncInProgress.put(player.username, targetShell);
+								ShellHandler.syncInProgress.put(player.getCommandSenderName(), targetShell);
 								
 								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
 
-								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.username, false));
+								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.getCommandSenderName(), false));
 								
 								valid = true;
 							}
@@ -207,7 +207,7 @@ public class MapPacketHandler
 					int y = stream.readInt();
 					int z = stream.readInt();
 
-					TileEntity te = mc.theWorld.getBlockTileEntity(x, y, z);
+					TileEntity te = mc.theWorld.getTileEntity(x, y, z);
 					
 					if(te instanceof TileEntityShellStorage)
 					{
@@ -262,7 +262,7 @@ public class MapPacketHandler
 						mc.thePlayer.deathTime = 0;
 					}
 					
-					mc.playerController.setGameType(EnumGameType.getByID(tag.getInteger("sync_playerGameMode")));
+					mc.playerController.setGameType(WorldSettings.GameType.getByID(tag.getInteger("sync_playerGameMode")));
 					break;
 				}
 				case 7:
@@ -300,7 +300,7 @@ public class MapPacketHandler
 					
 					if(mc.theWorld.blockExists(x, y, z))
 					{
-						TileEntity te = mc.theWorld.getBlockTileEntity(x, y, z);
+						TileEntity te = mc.theWorld.getTileEntity(x, y, z);
 						if(te instanceof TileEntityDualVertical)
 						{
 							EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
@@ -363,7 +363,7 @@ public class MapPacketHandler
 						Sync.proxy.tickHandlerClient.shells.add(state);
 					}
 
-					state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.username);
+					state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.getCommandSenderName());
 
 					if(!state.isConstructor)
 					{

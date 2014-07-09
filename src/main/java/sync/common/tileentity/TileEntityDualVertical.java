@@ -1,6 +1,7 @@
 package sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
+import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -11,19 +12,19 @@ import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemInWorldManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet131MapData;
-import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.management.ItemInWorldManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.EnumGameType;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.WorldSettings;
+import net.minecraftforge.common.DimensionManager;
 import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
 import sync.common.core.MapPacketHandler;
@@ -83,7 +84,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	@Override
 	public void updateEntity() {
 		if (this.resync) {
-			TileEntity tileEntity = worldObj.getBlockTileEntity(this.xCoord, this.yCoord + (this.top ? -1 : 1), this.zCoord);
+			TileEntity tileEntity = worldObj.getTileEntity(this.xCoord, this.yCoord + (this.top ? -1 : 1), this.zCoord);
 			if (tileEntity != null && tileEntity.getClass() == this.getClass()) {
 				TileEntityDualVertical dualVertical = (TileEntityDualVertical)tileEntity;
 				dualVertical.pair = this;
@@ -178,7 +179,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 							this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
 							//Setup location for dummy
-							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), player.getCommandSenderName(), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), new GameProfile("MorphFakePlayer", player.getCommandSenderName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
 							dummy.playerNetServerHandler = player.playerNetServerHandler;
 							dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
 							dummy.fallDistance = 0F;
@@ -186,7 +187,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 							//Clone data
 							dummy.clonePlayer(player, false);
 							dummy.dimension = player.dimension;
-							dummy.entityId = player.entityId;
+							dummy.setEntityId(player.getEntityId());
 
 							this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
 
@@ -199,9 +200,9 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						NBTTagCompound persistentData = player.getEntityData();
 						if (persistentData != null) {
 							NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
-							forgeData.setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+							forgeData.setTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
 							forgeData.setBoolean("isDeathSyncing", false);
-							playerNBT.setCompoundTag("ForgeData", forgeData);
+							playerNBT.setTag("ForgeData", forgeData);
 						}
 						//Also sync ender chest.
 						playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
@@ -211,7 +212,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						player.readFromNBT(this.getPlayerNBT());
 
 						ShellHandler.syncInProgress.remove(this.getPlayerName());
-						player.theItemInWorldManager.initializeGameType(EnumGameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
+						player.theItemInWorldManager.initializeGameType(WorldSettings.GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
 						PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
 					}
 				}
@@ -259,7 +260,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 			{
 				if(!(i == xCoord && k == zCoord))
 				{
-					TileEntity te = worldObj.getBlockTileEntity(i, yCoord, k);
+					TileEntity te = worldObj.getTileEntity(i, yCoord, k);
 					if(te instanceof TileEntityTreadmill && !((TileEntityTreadmill)te).back)
 					{
 						power += ((TileEntityTreadmill)te).powerOutput();
@@ -282,19 +283,19 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		return pass == 0 || pass == 1;
 	}
 
-	@Override
-	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)
-	{
-		readFromNBT(pkt.data);
-	}
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    {
+        readFromNBT(pkt.func_148857_g());
+    }
 
-	@Override
-	public Packet getDescriptionPacket()
-	{
-		NBTTagCompound tag = new NBTTagCompound();
-		writeToNBT(tag);
-		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 0, tag);
-	}
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+    }
 
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
@@ -306,7 +307,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		tag.setBoolean("isHomeUnit", isHomeUnit);
 		tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
 		tag.setString("name", name);
-		tag.setCompoundTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
+		tag.setTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
 		tag.setInteger("rfIntake", rfIntake);
 	}
 
@@ -368,7 +369,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	{
 		NBTTagList list = new NBTTagList();
 
-		NBTTagList nbttaglist = tag.getTagList("Inventory");
+		NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
 
 		int currentItem = tag.getInteger("SelectedItemSlot");
 
@@ -376,7 +377,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
 		for (int i = 0; i < nbttaglist.tagCount(); ++i)
 		{
-			NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
 			int j = nbttagcompound.getByte("Slot") & 255;
 			ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
 
@@ -413,11 +414,11 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
 	public static void addShowableEquipToPlayer(EntityPlayer player, NBTTagCompound tag)
 	{
-		NBTTagList nbttaglist = tag.getTagList("Inventory");
+		NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
 
 		for (int i = 0; i < nbttaglist.tagCount(); ++i)
 		{
-			NBTTagCompound nbttagcompound = (NBTTagCompound)nbttaglist.tagAt(i);
+			NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
 			int j = nbttagcompound.getByte("Slot") & 255;
 			ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
 
@@ -432,7 +433,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
+		return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
 	}
 
 	@Override

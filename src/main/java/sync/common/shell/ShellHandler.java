@@ -5,6 +5,7 @@ import com.google.common.collect.SetMultimap;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import net.minecraft.entity.player.EntityPlayer;
+import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
@@ -34,7 +35,7 @@ public class ShellHandler {
 			dualVertical.getWorldObj().markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord);
 			dualVertical.getWorldObj().markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord + 1, dualVertical.zCoord);
 		}
-		else Sync.logger.warning(String.format("Attempted to remove a shell but something was null for %s at %s", playerName, dualVertical));
+		else Sync.logger.log(Level.WARN, String.format("Attempted to remove a shell but something was null for %s at %s", playerName, dualVertical));
 	}
 
 	public static boolean isShellAlreadyRegistered(TileEntityDualVertical dualVertical) {
@@ -52,7 +53,7 @@ public class ShellHandler {
 			for (Map.Entry<String, TileEntityDualVertical> e : playerShells.entries()) {
 				if (e.getKey().equalsIgnoreCase(player.getCommandSenderName())) {
 					TileEntityDualVertical dualVertical = e.getValue();
-					if (dualVertical.getWorldObj().getBlockTileEntity(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord) == dualVertical) {
+					if (dualVertical.getWorldObj().getTileEntity(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord) == dualVertical) {
 						dvs.add(dualVertical);
 					}
 					else {

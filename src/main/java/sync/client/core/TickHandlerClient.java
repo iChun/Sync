@@ -200,7 +200,7 @@ public class TickHandlerClient implements ITickHandler {
 			{
 				if(zoomTimer == 60)
 				{
-					TileEntity te = world.getBlockTileEntity(zoomX, zoomY, zoomZ);
+					TileEntity te = world.getTileEntity(zoomX, zoomY, zoomZ);
 					if(te instanceof TileEntityShellStorage)
 					{
 						TileEntityShellStorage ss = (TileEntityShellStorage)te;
@@ -246,7 +246,7 @@ public class TickHandlerClient implements ITickHandler {
 				double d5 = mc.thePlayer.posZ - (lockedStorage.zCoord + 0.5D);
 				double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
 
-				if(dist >= 0.3D || world.getBlockTileEntity(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord) != lockedStorage)
+				if(dist >= 0.3D || world.getTileEntity(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord) != lockedStorage)
 				{
 					radialShow = false;
 					lockedStorage = null;

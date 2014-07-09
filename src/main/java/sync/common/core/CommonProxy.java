@@ -28,7 +28,7 @@ public class CommonProxy
 	{
 		Sync.creativeTabSync = new CreativeTabSync();
 		
-		Sync.blockDualVertical = (new BlockDualVertical()).setLightValue(0.5F).setHardness(2.0F).setUnlocalizedName("Sync_ShellConstructor");
+		Sync.blockDualVertical = (new BlockDualVertical()).setLightLevel(0.5F).setHardness(2.0F).setBlockName("Sync_ShellConstructor");
 		
 		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer()).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync);
 		Sync.itemPlaceholder = (new ItemPlaceholder()).setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
@@ -54,10 +54,6 @@ public class CommonProxy
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
 		GameRegistry.registerTileEntity(TileEntityTreadmill.class, "Sync_TETreadmill");
-		
-		LanguageRegistry.instance().addStringLocalization("itemGroup.sync", "Sync");
-		
-		LanguageRegistry.addName(Sync.blockDualVertical, "Shell Constructor");
 		
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(System.currentTimeMillis());

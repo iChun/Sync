@@ -1,5 +1,6 @@
 package sync.common.tileentity;
 
+import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -8,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 
@@ -52,7 +53,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				{
 					playerInstance.readFromNBT(playerNBT);
 				}
-				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 			}
 		}
 		if(top && pair != null)
@@ -85,7 +86,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					playerName = "";
 					
 					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-					worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+					worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 				}
 			}
 			else
@@ -94,7 +95,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				playerName = "";
 				
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 			}
 		}
 		if(syncing && occupationTime > 0)
@@ -107,7 +108,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					if(!worldObj.isRemote && !top )
 					{
 						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-						worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+						worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 						ShellHandler.removeShell(playerName, this);
 					}
 					vacating = false;
@@ -119,7 +120,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ShellHandler.isShellAlreadyRegistered(this))
 				{
 					ShellHandler.addShell(playerName, this, true);
-					worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+					worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 				}
 			}
 		}
@@ -129,12 +130,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			{
 				ShellHandler.removeShell(playerName, this);
 				hasPower = false;
-				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
 				ShellHandler.addShell(playerName, this, true);
 				hasPower = true;
-				worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 			}
 
 			if (powerAmount() >= Sync.shellStoragePowerRequirement && !hasPower) {
@@ -154,7 +155,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	@SideOnly(Side.CLIENT)
 	public static EntityPlayer createPlayer(World world, String playerName) 
 	{
-		return new EntityOtherPlayerMP(world, playerName);
+        return new EntityOtherPlayerMP(world, new GameProfile("SyncClientDummyPlayer", playerName));
 	}
 
 	public boolean isPowered() {
@@ -198,7 +199,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
 		if (Sync.shellStoragePowerRequirement == 0) {
 			return 0;
@@ -214,25 +215,25 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public boolean canInterface(ForgeDirection from) {
+	@Optional.Method(modid = "CoFHCore")
+	public boolean canConnectEnergy(ForgeDirection from) {
 		return !top;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getEnergyStored(ForgeDirection from) {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getMaxEnergyStored(ForgeDirection from) {
 		return 0;
 	}

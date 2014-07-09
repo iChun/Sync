@@ -203,7 +203,7 @@ public class BlockDualVertical extends BlockContainer {
 
 			if (treadmill != null && treadmill.latchedEnt == null) {
 				double radius = 7D; //Radius
-				List list = world.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getAABBPool().getAABB((double)x - radius, (double)y - radius, (double)z - radius, (double)x + radius, (double)y + radius, (double)z + radius));
+				List list = world.getEntitiesWithinAABB(EntityLiving.class, AxisAlignedBB.getBoundingBox((double)x - radius, (double)y - radius, (double)z - radius, (double)x + radius, (double)y + radius, (double)z + radius));
 
 				if (list != null && !list.isEmpty()) {
                     for (Object obj : list) {
@@ -394,7 +394,7 @@ public class BlockDualVertical extends BlockContainer {
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-			if (!dualVertical.top && !world.isBlockOpaqueCube(x, y - 1, z)) {
+			if (!dualVertical.top && !world.getBlock(x, y - 1, z).isOpaqueCube()) {
 				world.setBlockToAir(x, y, z);
 			}
 		}

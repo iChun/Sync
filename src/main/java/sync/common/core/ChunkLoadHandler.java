@@ -28,7 +28,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 	{
 		for(Ticket ticket : tickets) {
 			if (ticket != null) {
-				TileEntity te = world.getBlockTileEntity(ticket.getModData().getInteger("shellX"), ticket.getModData().getInteger("shellY"), ticket.getModData().getInteger("shellZ"));
+				TileEntity te = world.getTileEntity(ticket.getModData().getInteger("shellX"), ticket.getModData().getInteger("shellY"), ticket.getModData().getInteger("shellZ"));
 				if(te instanceof TileEntityDualVertical) {
 					TileEntityDualVertical dv = (TileEntityDualVertical) te;
 
@@ -69,10 +69,10 @@ public class ChunkLoadHandler implements LoadingCallback {
 	public static void addShellAsChunkloader(TileEntityDualVertical dv) {
 		if (dv != null) {
 			ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dv.xCoord >> 4, dv.zCoord >> 4);
-			if (!isAlreadyChunkLoaded(chunkCoordIntPair, dv.worldObj.provider.dimensionId)) {
+			if (!isAlreadyChunkLoaded(chunkCoordIntPair, dv.getWorldObj().provider.dimensionId)) {
 				Ticket ticket = shellTickets.get(dv);
 				if (ticket == null) {
-					ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.worldObj, ForgeChunkManager.Type.NORMAL);
+					ticket = ForgeChunkManager.requestTicket(Sync.instance, dv.getWorldObj(), ForgeChunkManager.Type.NORMAL);
 				}
 				if (ticket != null) {
 					ticket.getModData().setInteger("shellX", dv.xCoord);
@@ -103,7 +103,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 
 	public static boolean isAlreadyChunkLoaded(TileEntityDualVertical dualVertical) {
 		ChunkCoordIntPair chunkCoordIntPair = new ChunkCoordIntPair(dualVertical.xCoord >> 4, dualVertical.zCoord >> 4);
-		return shellTickets.containsKey(dualVertical) || isAlreadyChunkLoaded(chunkCoordIntPair, dualVertical.worldObj.provider.dimensionId);
+		return shellTickets.containsKey(dualVertical) || isAlreadyChunkLoaded(chunkCoordIntPair, dualVertical.getWorldObj().provider.dimensionId);
 	}
 
 	public static boolean isAlreadyChunkLoaded(ChunkCoordIntPair chunkCoordIntPair, int dimID) {

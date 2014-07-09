@@ -14,7 +14,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
@@ -79,7 +78,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 				}
 				else
 				{
-					AxisAlignedBB aabb = AxisAlignedBB.getAABBPool().getAABB(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
+					AxisAlignedBB aabb = AxisAlignedBB.getBoundingBox(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
 					List list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
 
                     for (Object aList : list) {
@@ -143,7 +142,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 		}
 		if(!worldObj.isRemote && !back)
 		{
-			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D) : AxisAlignedBB.getAABBPool().getAABB(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
+			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.boundingBox.contract(0.1D, 0.1D, 0.1D) : AxisAlignedBB.getBoundingBox(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
 			List list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
 	
 			if(latchedEnt != null)
@@ -267,7 +266,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 		}
 	}
 
-    @Optional.Method(modid = "ThermalExpansion")
+    @Optional.Method(modid = "CoFHCore")
     private void sendRFEnergyToNearbyDevices() {
         float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
         int handlerCount = 0;
@@ -282,7 +281,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
             if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
             {
                 IEnergyHandler energy = (IEnergyHandler) te;
-                if(energy.canInterface(dir.getOpposite()))
+                if(energy.canConnectEnergy(dir.getOpposite()))
                 {
                     handlerCount++;
                     //Test if they can recieve power via simulate
@@ -408,7 +407,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return AxisAlignedBB.getAABBPool().getAABB(xCoord - 1, yCoord, zCoord - 1, xCoord + 2, yCoord + 1, zCoord + 2);
+		return AxisAlignedBB.getBoundingBox(xCoord - 1, yCoord, zCoord - 1, xCoord + 2, yCoord + 1, zCoord + 2);
 	}
 
 	@Override
@@ -424,35 +423,35 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 	
 	// TE methods
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public boolean canInterface(ForgeDirection from)
+	@Optional.Method(modid = "CoFHCore")
+	public boolean canConnectEnergy(ForgeDirection from)
 	{
 		return !back;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getMaxEnergyStored(ForgeDirection from)
 	{
 		return 0;

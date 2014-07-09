@@ -1,13 +1,13 @@
 package sync.common.tileentity;
 
-import cofh.api.tileentity.IEnergyInfo;
+import cofh.api.core.IEnergyInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Optional;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import sync.common.Sync;
 import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
@@ -15,7 +15,8 @@ import sync.common.shell.ShellHandler;
 import java.util.List;
 
 @Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "ThermalExpansion")
-public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo {
+public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
+{
 	public float constructionProgress;
 	public int doorTime;
 	public int rfBuffer;
@@ -71,7 +72,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			*/
 
 			//Notifies neighbours of block update, used for comparator
-			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_96440_m(xCoord, yCoord, zCoord, worldObj.getBlockId(xCoord, yCoord, zCoord));
+			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 		}
 		if(!top)
 		{
@@ -165,7 +166,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	
 	// TE methods
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
 		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
@@ -190,54 +191,54 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public boolean canInterface(ForgeDirection from)
+	@Optional.Method(modid = "CoFHCore")
+	public boolean canConnectEnergy(ForgeDirection from)
 	{
 		return !top;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
+	@Optional.Method(modid = "CoFHCore")
 	public int getMaxEnergyStored(ForgeDirection from)
 	{
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public int getEnergyPerTick() {
+	@Optional.Method(modid = "CoFHCore")
+	public int getInfoEnergyPerTick() {
 		return powReceived;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public int getMaxEnergyPerTick() {
+	@Optional.Method(modid = "CoFHCore")
+	public int getInfoMaxEnergyPerTick() {
 		return 24;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public int getEnergy() {
+	@Optional.Method(modid = "CoFHCore")
+	public int getInfoEnergyStored() {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "ThermalExpansion")
-	public int getMaxEnergy() {
+	@Optional.Method(modid = "CoFHCore")
+	public int getInfoMaxEnergyStored() {
 		return 0;
 	}
 }

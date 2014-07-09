@@ -16,6 +16,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -59,7 +60,7 @@ public class EventHandler {
 	public void onRenderPlayer(RenderPlayerEvent.Pre event) {
 		if (Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.getCommandSenderName()) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.getCommandSenderName()) < 118) {
 			event.entityPlayer.lastTickPosX = event.entityPlayer.prevPosX = event.entityPlayer.posX;
-			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer != Minecraft.getMinecraft().thePlayer && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.username) > 60 ? 500D : event.entityPlayer.posY;
+			event.entityPlayer.lastTickPosY = event.entityPlayer.prevPosY = event.entityPlayer != Minecraft.getMinecraft().thePlayer && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.getCommandSenderName()) > 60 ? 500D : event.entityPlayer.posY;
 			event.entityPlayer.lastTickPosZ = event.entityPlayer.prevPosZ = event.entityPlayer.posZ;
 			event.entityPlayer.renderYawOffset = event.entityPlayer.rotationYaw;
 			event.entityPlayer.deathTime = 0;
