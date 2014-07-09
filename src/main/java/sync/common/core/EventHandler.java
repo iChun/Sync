@@ -1,5 +1,8 @@
 package sync.common.core;
 
+import cpw.mods.fml.common.eventhandler.Event;
+import cpw.mods.fml.common.eventhandler.EventPriority;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -13,10 +16,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
-import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.event.Event;
-import net.minecraftforge.event.EventPriority;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -36,7 +35,7 @@ import java.util.Map.Entry;
 public class EventHandler {
 
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onMouseEvent(MouseEvent event) {
 		if (Sync.proxy.tickHandlerClient.radialShow) {
 			if (!Sync.proxy.tickHandlerClient.shells.isEmpty()) {
@@ -56,7 +55,7 @@ public class EventHandler {
 	}
 
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onRenderPlayer(RenderPlayerEvent.Pre event) {
 		if (Sync.proxy.tickHandlerClient.refusePlayerRender.containsKey(event.entityPlayer.getCommandSenderName()) && !Sync.proxy.tickHandlerClient.forceRender && Sync.proxy.tickHandlerClient.refusePlayerRender.get(event.entityPlayer.getCommandSenderName()) < 118) {
 			event.entityPlayer.lastTickPosX = event.entityPlayer.prevPosX = event.entityPlayer.posX;
@@ -72,14 +71,14 @@ public class EventHandler {
 	}
 
 	@SideOnly(Side.CLIENT)
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event) {
 		if (event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow) {
 			event.setCanceled(true);
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event) {
 		//If we allow death syncing
 		if (SessionState.deathMode > 0) {
@@ -101,20 +100,20 @@ public class EventHandler {
 					tpPosition.resyncPlayer = 120;
 
 					//Create the death animation packet
-					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(((EntityPlayer)event.entityLiving).username, true));
+					PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(event.entityLiving.getCommandSenderName(), true));
 
 					player.setHealth(20);
 
-					if (!ShellHandler.syncInProgress.containsKey(player.username)) {
+					if (!ShellHandler.syncInProgress.containsKey(player.getCommandSenderName())) {
 						player.getEntityData().setBoolean("isDeathSyncing", true); //TODO remove this tag
-						ShellHandler.syncInProgress.put(player.username, tpPosition);
+						ShellHandler.syncInProgress.put(player.getCommandSenderName(), tpPosition);
 					}
 				}
 			}
 		}
 	}
 
-	@ForgeSubscribe(priority = EventPriority.HIGHEST)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onEntityAttacked(LivingAttackEvent event) {
 		//Prevent damage during sync
 		if (event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld) {
@@ -124,7 +123,7 @@ public class EventHandler {
 		}
 	}
 
-	@ForgeSubscribe(priority = EventPriority.HIGHEST)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onEntityHurt(LivingHurtEvent event) {
 		//Prevent damage during sync
 		if (event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld) {
@@ -134,7 +133,7 @@ public class EventHandler {
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onItemPickup(EntityItemPickupEvent event) {
 		//Don't allow players to pickup items during sync
 		if (ShellHandler.syncInProgress.containsKey(event.entityPlayer.getCommandSenderName())) {
@@ -142,10 +141,10 @@ public class EventHandler {
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onEntityInteract(EntityInteractEvent event) {
 		if (TileEntityTreadmill.isEntityValidForTreadmill(event.target)) {
-			TileEntity tileEntity = event.target.worldObj.getBlockTileEntity((int) Math.floor(event.target.posX), (int) Math.floor(event.target.posY), (int) Math.floor(event.target.posZ));
+			TileEntity tileEntity = event.target.worldObj.getTileEntity((int)Math.floor(event.target.posX), (int)Math.floor(event.target.posY), (int)Math.floor(event.target.posZ));
 			if (tileEntity instanceof TileEntityTreadmill) {
 				TileEntityTreadmill tm = (TileEntityTreadmill) tileEntity;
 
@@ -174,7 +173,7 @@ public class EventHandler {
 					}
 					tm.latchedEnt = null;
 					tm.timeRunning = 0;
-					tm.worldObj.markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
+					tm.getWorldObj().markBlockForUpdate(tm.xCoord, tm.yCoord, tm.zCoord);
 
 					event.setCanceled(true);
 				}
@@ -182,7 +181,7 @@ public class EventHandler {
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onItemToss(ItemTossEvent e) {
 		//Don't allow item drops whilst syncing to prevent dupe issues
 		if (ShellHandler.syncInProgress.containsKey(e.player.getCommandSenderName())) {
@@ -190,7 +189,7 @@ public class EventHandler {
 		}
 	}
 
-	@ForgeSubscribe
+	@SubscribeEvent
 	public void onPlayerOpenContainer(PlayerOpenContainerEvent e) {
 		//Don't show any containers during sync
 		if (ShellHandler.syncInProgress.containsKey(e.entityPlayer.getCommandSenderName())) {
@@ -205,9 +204,9 @@ public class EventHandler {
 
 		//Shells are chunk loaded so look through the tickets for the players shells
 		for (Entry<String, TileEntityDualVertical> e : ShellHandler.playerShells.entries()) {
-			if (e.getKey().equalsIgnoreCase(player.username)) {
+			if (e.getKey().equalsIgnoreCase(player.getCommandSenderName())) {
 				TileEntityDualVertical dv1 = e.getValue();
-				if (dv1.worldObj.getBlockTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1) {
+				if (dv1.getWorldObj().getTileEntity(dv1.xCoord, dv1.yCoord, dv1.zCoord) == dv1) {
 					dvs.add(dv1);
 				}
 				else {
@@ -235,7 +234,7 @@ public class EventHandler {
 			}
 
 			double dvDist = player.getDistance(dv.xCoord + 0.5D, dv.yCoord, dv.zCoord + 0.5D);
-			if (dv.worldObj.provider.dimensionId == player.dimension) {
+			if (dv.getWorldObj().provider.dimensionId == player.dimension) {
 				if (dv.isHomeUnit) {
 					if (homeDist == -1D || dvDist < homeDist) {
 						nearestHome = dv;

@@ -3,6 +3,8 @@ package sync.common.core;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import sync.client.core.TickHandlerClient;
@@ -26,10 +28,10 @@ public class CommonProxy
 	{
 		Sync.creativeTabSync = new CreativeTabSync();
 		
-		Sync.blockDualVertical = (new BlockDualVertical(Sync.idBlockShellConstructor)).setLightValue(0.5F).setHardness(2.0F).setUnlocalizedName("Sync_ShellConstructor");
+		Sync.blockDualVertical = (new BlockDualVertical()).setLightValue(0.5F).setHardness(2.0F).setUnlocalizedName("Sync_ShellConstructor");
 		
-		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer(Sync.idItemBlockPlacer)).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync);
-		Sync.itemPlaceholder = (new ItemPlaceholder(Sync.idItemSyncCore)).setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
+		Sync.itemBlockPlacer = (new ItemSyncBlockPlacer()).setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync);
+		Sync.itemPlaceholder = (new ItemPlaceholder()).setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
 		
 //		GameRegistry.addShapelessRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 0),
 //				new Object[] { new ItemStack(Block.dirt) });
@@ -37,13 +39,13 @@ public class CommonProxy
 //				new Object[] { new ItemStack(Item.stick) });
 		
 		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 0),
-                "OCO", "GGG", "ORO", 'O', Block.obsidian, 'C', Sync.itemPlaceholder, 'G', Block.thinGlass, 'R', Item.redstone);
+                "OCO", "GGG", "ORO", 'O', Blocks.obsidian, 'C', Sync.itemPlaceholder, 'G', Blocks.glass_pane, 'R', Items.redstone);
 
 		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 1),
-                "OCO", "GIG", "OPO", 'O', Block.obsidian, 'C', Sync.itemPlaceholder, 'G', Block.thinGlass, 'R', Item.redstone, 'I', Block.blockIron, 'P', Block.pressurePlateIron);
+                "OCO", "GIG", "OPO", 'O', Blocks.obsidian, 'C', Sync.itemPlaceholder, 'G', Blocks.glass_pane, 'R', Items.redstone, 'I', Blocks.iron_block, 'P', Blocks.heavy_weighted_pressure_plate);
 
 		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 2),
-                "  D", "CCI", "OOR", 'O', Block.obsidian, 'C', new ItemStack(Block.carpet, 1, 15), 'I', Block.fenceIron, 'D', Block.daylightSensor, 'R', Item.redstone);
+                "  D", "CCI", "OOR", 'O', Blocks.obsidian, 'C', new ItemStack(Blocks.carpet, 1, 15), 'I', Blocks.iron_bars, 'D', Blocks.daylight_detector, 'R', Items.redstone);
 		
 		GameRegistry.registerBlock(Sync.blockDualVertical, "Sync_ShellConstructor");
 		GameRegistry.registerItem(Sync.itemBlockPlacer, "Sync_BlockPlacer");

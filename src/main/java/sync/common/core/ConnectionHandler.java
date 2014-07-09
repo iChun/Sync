@@ -107,8 +107,8 @@ public class ConnectionHandler implements IConnectionHandler, IPlayerTracker {
 				//If they're syncing from an existing shell, reset that shell. They should only ever sync from a shell storage but lets check to be safe
 				if (tileEntityDualVertical.resyncOrigin != null) {
 					tileEntityDualVertical.reset();
-					tileEntityDualVertical.worldObj.markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord, tileEntityDualVertical.zCoord);
-					tileEntityDualVertical.worldObj.markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord + 1, tileEntityDualVertical.zCoord);
+					tileEntityDualVertical.getWorldObj().markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord, tileEntityDualVertical.zCoord);
+					tileEntityDualVertical.getWorldObj().markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord + 1, tileEntityDualVertical.zCoord);
 				}
 			}
 			//Remove player from syncing list

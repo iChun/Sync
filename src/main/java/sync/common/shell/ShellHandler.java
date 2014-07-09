@@ -31,8 +31,8 @@ public class ShellHandler {
 			playerShells.remove(playerName, dualVertical);
 			ChunkLoadHandler.removeShellAsChunkloader(dualVertical);
 			dualVertical.reset();
-			dualVertical.worldObj.markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord);
-			dualVertical.worldObj.markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord + 1, dualVertical.zCoord);
+			dualVertical.getWorldObj().markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord);
+			dualVertical.getWorldObj().markBlockForUpdate(dualVertical.xCoord, dualVertical.yCoord + 1, dualVertical.zCoord);
 		}
 		else Sync.logger.warning(String.format("Attempted to remove a shell but something was null for %s at %s", playerName, dualVertical));
 	}
@@ -50,9 +50,9 @@ public class ShellHandler {
 			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createClearShellListPacket((byte) 0), (Player)player);
 
 			for (Map.Entry<String, TileEntityDualVertical> e : playerShells.entries()) {
-				if (e.getKey().equalsIgnoreCase(player.username)) {
+				if (e.getKey().equalsIgnoreCase(player.getCommandSenderName())) {
 					TileEntityDualVertical dualVertical = e.getValue();
-					if (dualVertical.worldObj.getBlockTileEntity(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord) == dualVertical) {
+					if (dualVertical.getWorldObj().getBlockTileEntity(dualVertical.xCoord, dualVertical.yCoord, dualVertical.zCoord) == dualVertical) {
 						dvs.add(dualVertical);
 					}
 					else {

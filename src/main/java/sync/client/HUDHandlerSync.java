@@ -47,7 +47,7 @@ public class HUDHandlerSync implements IWailaDataProvider {
         }
         else if (accessor.getTileEntity() instanceof TileEntityTreadmill) {
             TileEntityTreadmill tileEntityTreadmill = (TileEntityTreadmill) accessor.getTileEntity();
-            if (config.getConfig("sync.showentity")) currenttip.add(StatCollector.translateToLocal("sync.waila.entity") + ": " + (tileEntityTreadmill.latchedEnt != null ? tileEntityTreadmill.latchedEnt.getEntityName() : "None"));
+            if (config.getConfig("sync.showentity")) currenttip.add(StatCollector.translateToLocal("sync.waila.entity") + ": " + (tileEntityTreadmill.latchedEnt != null ? tileEntityTreadmill.latchedEnt.getCommandSenderName() : "None"));
 			if (config.getConfig("sync.showpower.output")) {
 				DecimalFormat decimalFormat = new DecimalFormat("##.##");
 				currenttip.add(StatCollector.translateToLocal("sync.waila.powerout") + ": " + decimalFormat.format(tileEntityTreadmill.powerOutput()) + "PW");

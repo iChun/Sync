@@ -8,7 +8,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
@@ -24,14 +24,12 @@ import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.FakePlayer;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
-import sync.common.network.FakeNetServerHandler;
-import sync.common.network.FakeNetworkManager;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -45,12 +43,12 @@ public class BlockDualVertical extends BlockContainer {
 
 	public static int renderPass;
 
-	public BlockDualVertical(int id) {
-		super(id, Material.iron);
+	public BlockDualVertical() {
+		super(Material.iron);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World world)  {
+	public TileEntity createNewTileEntity(World world, int i)  {
 		return new TileEntityShellConstructor();
 	}
 
@@ -67,7 +65,7 @@ public class BlockDualVertical extends BlockContainer {
 				return new TileEntityTreadmill();
 			}
 			default: {
-				return this.createNewTileEntity(world);
+				return this.createNewTileEntity(world, metadata);
 			}
 		}
 	}
@@ -97,18 +95,19 @@ public class BlockDualVertical extends BlockContainer {
 		return 0;
 	}
 
-	@Override
-	public void registerIcons(IconRegister iconRegister) {
+    @SideOnly(Side.CLIENT)
+    @Override
+	public void registerBlockIcons(IIconRegister iconRegister) {
 		this.blockIcon = iconRegister.registerIcon("sync:dvBlockPlaceholder");
 	}
 
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitVecX, float hitVecY, float hitVecZ) {
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical && !(player instanceof FakePlayer)) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			if (dualVertical.top) {
-				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				TileEntity tileEntityPair = world.getTileEntity(x, y - 1, z);
 				if (tileEntityPair instanceof TileEntityDualVertical) {
 					dualVertical = (TileEntityDualVertical) tileEntityPair;
 				}
@@ -120,7 +119,7 @@ public class BlockDualVertical extends BlockContainer {
 
 				//If nothing is there
 				if (shellConstructor.getPlayerName().equalsIgnoreCase("")) {
-					if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.username, false)) {
+					if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false)) {
 						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
 						return true;
 					}
@@ -245,7 +244,7 @@ public class BlockDualVertical extends BlockContainer {
 	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
 		this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
 
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityShellStorage) {
 			TileEntityShellStorage shellStorage = (TileEntityShellStorage) tileEntity;
 
@@ -280,11 +279,11 @@ public class BlockDualVertical extends BlockContainer {
 			return;
 		}
 
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			if (dualVertical.top) {
-				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				TileEntity tileEntityPair = world.getTileEntity(x, y - 1, z);
 				if (tileEntityPair instanceof TileEntityDualVertical) {
 					this.onEntityCollidedWithBlock(world, x, y - 1, z, entity);
 				}
@@ -323,12 +322,12 @@ public class BlockDualVertical extends BlockContainer {
 
 	@Override
 	public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List list, Entity entity) {
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			boolean top = false;
 			if (dualVertical.top) {
-				TileEntity tileEntityPair = world.getBlockTileEntity(x, y - 1, z);
+				TileEntity tileEntityPair = world.getTileEntity(x, y - 1, z);
 				if (tileEntityPair instanceof TileEntityDualVertical) {
 					dualVertical = (TileEntityDualVertical) tileEntityPair;
 				}
@@ -392,7 +391,7 @@ public class BlockDualVertical extends BlockContainer {
 
 	@Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID) {
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			if (!dualVertical.top && !world.isBlockOpaqueCube(x, y - 1, z)) {
@@ -400,7 +399,7 @@ public class BlockDualVertical extends BlockContainer {
 			}
 		}
 		if (tileEntity instanceof TileEntityTreadmill) {
-			if (world.getBlockTileEntity(x, y - 1, z) instanceof TileEntityTreadmill) {
+			if (world.getTileEntity(x, y - 1, z) instanceof TileEntityTreadmill) {
 				world.setBlockToAir(x, y, z);
 			}
 		}
@@ -409,10 +408,10 @@ public class BlockDualVertical extends BlockContainer {
 	@Override
 	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z) {
 		if (!world.isRemote) {
-			TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+			TileEntity tileEntity = world.getTileEntity(x, y, z);
 			if (tileEntity instanceof TileEntityDualVertical) {
 				TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-				TileEntity tileEntityPair = world.getBlockTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
+				TileEntity tileEntityPair = world.getTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
 				if (tileEntityPair instanceof TileEntityDualVertical) {
 					TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
 					if (dualVerticalPair.pair == dualVertical) {
@@ -442,10 +441,10 @@ public class BlockDualVertical extends BlockContainer {
 
 	@Override
 	public void breakBlock(World world, int x, int y, int z, int blockID, int blockMeta) {
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-			TileEntity tileEntityPair = world.getBlockTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
+			TileEntity tileEntityPair = world.getTileEntity(x, y + (dualVertical.top ? -1 : 1), z);
 			if (tileEntityPair instanceof TileEntityDualVertical) {
 				TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
 				//Confirm they are linked then remove
@@ -474,7 +473,6 @@ public class BlockDualVertical extends BlockContainer {
 						FakePlayer fake = new FakePlayer(world, dualVertical.getPlayerName());
 						fake.readFromNBT(dualVertical.getPlayerNBT());
 						fake.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (dualVertical.face - 2) * 90F, 0F);
-						new FakeNetServerHandler(FMLCommonHandler.instance().getMinecraftServerInstance(), new FakeNetworkManager(), fake);
 
 						fake.captureDrops = true;
 						fake.capturedDrops.clear();
@@ -503,7 +501,7 @@ public class BlockDualVertical extends BlockContainer {
 		}
 		else if (tileEntity instanceof TileEntityTreadmill) {
 			TileEntityTreadmill treadmill = (TileEntityTreadmill) tileEntity;
-			TileEntity tileEntityPair = world.getBlockTileEntity(treadmill.back ? (treadmill.face == 1 ? x + 1 : treadmill.face == 3 ? x - 1 : x) : (treadmill.face == 1 ? x - 1 : treadmill.face == 3 ? x + 1 : x), y, treadmill.back ? (treadmill.face == 0 ? z - 1 : treadmill.face == 2 ? z + 1 : z) : (treadmill.face == 0 ? z + 1 : treadmill.face == 2 ? z - 1 : z));
+			TileEntity tileEntityPair = world.getTileEntity(treadmill.back ? (treadmill.face == 1 ? x + 1 : treadmill.face == 3 ? x - 1 : x) : (treadmill.face == 1 ? x - 1 : treadmill.face == 3 ? x + 1 : x), y, treadmill.back ? (treadmill.face == 0 ? z - 1 : treadmill.face == 2 ? z + 1 : z) : (treadmill.face == 0 ? z + 1 : treadmill.face == 2 ? z - 1 : z));
 
 			if (tileEntityPair instanceof TileEntityTreadmill) {
 				TileEntityTreadmill treadmillPair = (TileEntityTreadmill)tileEntityPair;
@@ -538,8 +536,8 @@ public class BlockDualVertical extends BlockContainer {
 
 	@Override
 	public int getComparatorInputOverride(World par1World, int par2, int par3, int par4, int par5) {
-		if (par1World.getBlockTileEntity(par2, par3, par4) instanceof TileEntityDualVertical) {
-			TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) par1World.getBlockTileEntity(par2, par3, par4);
+		if (par1World.getTileEntity(par2, par3, par4) instanceof TileEntityDualVertical) {
+			TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) par1World.getTileEntity(par2, par3, par4);
 			return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (SessionState.shellConstructionPowerRequirement / 15));
 		}
 		else return 0;
@@ -547,7 +545,7 @@ public class BlockDualVertical extends BlockContainer {
 
 	@Override
 	public boolean isBlockSolidOnSide(World world, int x, int y, int z, ForgeDirection side) {
-		TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
 			if (side == ForgeDirection.DOWN || side == ForgeDirection.UP) return true;

@@ -2,20 +2,20 @@ package sync.common.item;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.item.Item;
 
 public class ItemPlaceholder extends Item 
 {
 
-	public ItemPlaceholder(int par1) 
+	public ItemPlaceholder()
 	{
-		super(par1);
+		super();
 	}
 
     @SideOnly(Side.CLIENT)
     @Override
-    public void registerIcons(IconRegister par1IconRegister)
+    public void registerIcons(IIconRegister par1IconRegister)
     {
         this.itemIcon = par1IconRegister.registerIcon("sync:syncCore");
     }

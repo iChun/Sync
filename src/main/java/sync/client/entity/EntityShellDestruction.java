@@ -82,7 +82,7 @@ public class EntityShellDestruction extends EntityLivingBase
 	}
 
 	@Override
-	public ItemStack getCurrentItemOrArmor(int i) {
+	public ItemStack getEquipmentInSlot(int i) {
 		return null;
 	}
 

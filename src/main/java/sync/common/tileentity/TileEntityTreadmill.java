@@ -15,12 +15,13 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.Packet132TileEntityData;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraftforge.common.util.ForgeDirection;
 import sync.common.Sync;
 
 import java.util.List;
@@ -58,7 +59,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 	{
 		if(resync)
 		{
-			TileEntity te = worldObj.getBlockTileEntity(back ? (face == 1 ? xCoord + 1 : face == 3 ? xCoord - 1 : xCoord) : (face == 1 ? xCoord - 1 : face == 3 ? xCoord + 1 : xCoord), yCoord, back ? (face == 0 ? zCoord - 1 : face == 2 ? zCoord + 1 : zCoord) : (face == 0 ? zCoord + 1 : face == 2 ? zCoord - 1 : zCoord));
+			TileEntity te = worldObj.getTileEntity(back ? (face == 1 ? xCoord + 1 : face == 3 ? xCoord - 1 : xCoord) : (face == 1 ? xCoord - 1 : face == 3 ? xCoord + 1 : xCoord), yCoord, back ? (face == 0 ? zCoord - 1 : face == 2 ? zCoord + 1 : zCoord) : (face == 0 ? zCoord + 1 : face == 2 ? zCoord - 1 : zCoord));
 			if(te != null && te.getClass() == this.getClass())
 			{
 				TileEntityTreadmill sc = (TileEntityTreadmill)te;
@@ -277,7 +278,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
             {
                 continue;
             }
-            TileEntity te = worldObj.getBlockTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
+            TileEntity te = worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
             if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
             {
                 IEnergyHandler energy = (IEnergyHandler) te;
@@ -368,26 +369,26 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 	}
 	
 	@Override
-	public void onDataPacket(INetworkManager net, Packet132TileEntityData pkt)
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
 	{
-		readFromNBT(pkt.data);
+		readFromNBT(pkt.func_148857_g());
 	}
-	
-	@Override
-	public Packet getDescriptionPacket()
-	{
-		NBTTagCompound tag = new NBTTagCompound();
-		writeToNBT(tag);
-		return new Packet132TileEntityData(xCoord, yCoord, zCoord, 0, tag);
-	}
-	
+
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+    }
+
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
 	{
 		super.writeToNBT(tag);
 		tag.setBoolean("back", back);
 		tag.setInteger("face", face);
-		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.entityId : -1);
+		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.getEntityId() : -1);
 		tag.setInteger("timeRunning", timeRunning);
 	}
 	 

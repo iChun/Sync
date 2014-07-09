@@ -66,18 +66,6 @@ public class TickHandlerClient implements ITickHandler {
 		}
 	}
 
-	@Override
-	public EnumSet<TickType> ticks() 
-	{
-		return EnumSet.of(TickType.CLIENT, TickType.RENDER);
-	}
-
-	@Override
-	public String getLabel() 
-	{
-		return "Sync_TickHandlerClient";
-	}
-
 	public void worldTick(Minecraft mc, WorldClient world)
 	{
 		if(radialTime > 0)
