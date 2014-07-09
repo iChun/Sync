@@ -5,7 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.texture.TextureObject;
+import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
@@ -50,7 +50,7 @@ public class RenderShellDestruction extends Render
         
         if(skins == null)
         {
-        	TextureObject obj = Minecraft.getMinecraft().getTextureManager().getTexture(sd.txLocation);
+            ITextureObject obj = Minecraft.getMinecraft().getTextureManager().getTexture(sd.txLocation);
         	if(obj instanceof ThreadDownloadImageData)
         	{
 				try

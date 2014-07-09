@@ -125,7 +125,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
 					ss.playerInstance.getRNG().setSeed(randSeed);
 						
-					if((Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.username.equalsIgnoreCase("soaryn") || Sync.isChristmasOrNewYear) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
+					if((Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("soaryn") || Sync.isChristmasOrNewYear) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
 					{
 						ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
 						ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
@@ -173,7 +173,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 				
 				if(!ss.getName().equalsIgnoreCase(""))
 				{
-					FontRenderer fontrenderer = this.getFontRenderer();
+					FontRenderer fontrenderer = this.func_147498_b();
 					float ff = 1.6F;
 					float f1 = 0.016666668F * ff;
 					GL11.glPushMatrix();

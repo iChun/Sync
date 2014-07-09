@@ -179,7 +179,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 							this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
 							//Setup location for dummy
-							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), new GameProfile("MorphFakePlayer", player.getCommandSenderName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+							EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), new GameProfile("SyncFakePlayer", player.getCommandSenderName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
 							dummy.playerNetServerHandler = player.playerNetServerHandler;
 							dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
 							dummy.fallDistance = 0F;

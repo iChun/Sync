@@ -1,10 +1,12 @@
 package sync.common.block;
 
+import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -23,8 +25,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.FakePlayer;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
@@ -120,7 +123,7 @@ public class BlockDualVertical extends BlockContainer {
 				//If nothing is there
 				if (shellConstructor.getPlayerName().equalsIgnoreCase("")) {
 					if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false)) {
-						player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+						player.addChatMessage(new ChatComponentTranslation("sync.isMorphed"));
 						return true;
 					}
 					shellConstructor.setPlayerName(player.getCommandSenderName());
@@ -248,7 +251,7 @@ public class BlockDualVertical extends BlockContainer {
 		if (tileEntity instanceof TileEntityShellStorage) {
 			TileEntityShellStorage shellStorage = (TileEntityShellStorage) tileEntity;
 
-			if ((shellStorage.top && shellStorage.pair != null && ((TileEntityShellStorage)shellStorage.pair).occupied || shellStorage.occupied) && shellStorage.worldObj.isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
+			if ((shellStorage.top && shellStorage.pair != null && ((TileEntityShellStorage)shellStorage.pair).occupied || shellStorage.occupied) && shellStorage.getWorldObj().isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
 				double dist = getDistance(x, y, z);
 
 				if (dist < (shellStorage.top ? 1.1D : 0.6D)) {
@@ -301,7 +304,7 @@ public class BlockDualVertical extends BlockContainer {
 							EntityPlayer player = (EntityPlayer)entity;
 
 							if (Sync.hasMorphMod && morph.api.Api.hasMorph(player.getCommandSenderName(), false)) {
-								player.sendChatToPlayer(ChatMessageComponent.createFromTranslationKey("sync.isMorphed"));
+								player.addChatMessage(new ChatComponentTranslation("sync.isMorphed"));
 							}
 							else {
 								PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createPlayerEnterStoragePacket(x, y, z), (Player) player);
@@ -415,13 +418,13 @@ public class BlockDualVertical extends BlockContainer {
 				if (tileEntityPair instanceof TileEntityDualVertical) {
 					TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
 					if (dualVerticalPair.pair == dualVertical) {
-						world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Sync.blockDualVertical.blockID);
+						world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Block.getIdFromBlock(Sync.blockDualVertical));
 						world.setBlockToAir(x, y + (dualVertical.top ? -1 : 1), z);
 					}
 					TileEntityDualVertical bottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
 					if (!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getCommandSenderName())) {
-						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(ChatMessageComponent.createFromTranslationWithSubstitutions("sync.breakShellUnit", player.getCommandSenderName(), bottom.getPlayerName()));
+						FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendChatMsg(new ChatComponentTranslation("sync.breakShellUnit", player.getCommandSenderName(), bottom.getPlayerName()));
 					}
 
 					if (!player.capabilities.isCreativeMode) {
@@ -449,7 +452,7 @@ public class BlockDualVertical extends BlockContainer {
 				TileEntityDualVertical dualVerticalPair = (TileEntityDualVertical) tileEntityPair;
 				//Confirm they are linked then remove
 				if (dualVerticalPair.pair == dualVertical) {
-					world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Sync.blockDualVertical.blockID);
+					world.playAuxSFX(2001, x, y + (dualVertical.top ? -1 : 1), z, Block.getIdFromBlock(Sync.blockDualVertical));
 					world.setBlockToAir(x, y + (dualVertical.top ? -1 : 1), z);
 				}
 				TileEntityDualVertical dualVerticalBottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
@@ -470,7 +473,7 @@ public class BlockDualVertical extends BlockContainer {
 					}*/
 					//TODO Should we treat this as an actual player death in terms of drops?
 					if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
-						FakePlayer fake = new FakePlayer(world, dualVertical.getPlayerName());
+						FakePlayer fake = new FakePlayer((WorldServer)world, new GameProfile("SyncFakePlayer", dualVertical.getPlayerName()));
 						fake.readFromNBT(dualVertical.getPlayerNBT());
 						fake.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (dualVertical.face - 2) * 90F, 0F);
 
@@ -506,7 +509,7 @@ public class BlockDualVertical extends BlockContainer {
 			if (tileEntityPair instanceof TileEntityTreadmill) {
 				TileEntityTreadmill treadmillPair = (TileEntityTreadmill)tileEntityPair;
 				if (treadmillPair.pair == treadmill) {
-					world.playAuxSFX(2001, treadmillPair.xCoord, treadmillPair.yCoord, treadmillPair.zCoord, Sync.blockDualVertical.blockID);
+					world.playAuxSFX(2001, treadmillPair.xCoord, treadmillPair.yCoord, treadmillPair.zCoord, Block.getIdFromBlock(Sync.blockDualVertical));
 					world.setBlockToAir(treadmillPair.xCoord, treadmillPair.yCoord, treadmillPair.zCoord);
 				}
 

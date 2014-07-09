@@ -60,6 +60,7 @@ public class CommonProxy
 		
 		if(calendar.get(Calendar.MONTH) + 1 == 12 && calendar.get(Calendar.DAY_OF_MONTH) == 25 || calendar.get(Calendar.MONTH) + 1 == 1 && calendar.get(Calendar.DAY_OF_MONTH) == 1)
 		{
+            //TODO move this to iChunUtil?
 			Sync.isChristmasOrNewYear = true;
 		}
 	}

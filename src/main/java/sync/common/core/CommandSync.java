@@ -3,7 +3,7 @@ package sync.common.core;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatMessageComponent;
+import net.minecraft.util.ChatComponentTranslation;
 import sync.common.shell.ShellHandler;
 
 public class CommandSync extends CommandBase {
@@ -30,11 +30,11 @@ public class CommandSync extends CommandBase {
 				}
 			}
 			else {
-				iCommandSender.sendChatToPlayer(new ChatMessageComponent().addKey("chat.command.clear.usage"));
+				iCommandSender.addChatMessage(new ChatComponentTranslation("chat.command.clear.usage"));
 			}
 		}
 		else {
-			iCommandSender.sendChatToPlayer(new ChatMessageComponent().addKey("chat.command.sync.usage"));
+			iCommandSender.addChatMessage(new ChatComponentTranslation("chat.command.sync.usage"));
 		}
 	}
 }

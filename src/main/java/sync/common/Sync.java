@@ -118,8 +118,9 @@ public class Sync
 
         config.save();
 
-        MinecraftForge.EVENT_BUS.register(new sync.common.core.EventHandler());
-        GameRegistry.registerPlayerTracker(new ConnectionHandler());
+        sync.common.core.EventHandler handler = new sync.common.core.EventHandler();
+        FMLCommonHandler.instance().bus().register(handler);
+        MinecraftForge.EVENT_BUS.register(handler);
 
         //Following new modding convention, blocks and items are initialized in pre-init
         proxy.initMod();

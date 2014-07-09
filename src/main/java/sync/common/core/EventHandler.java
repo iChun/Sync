@@ -3,6 +3,8 @@ package sync.common.core;
 import cpw.mods.fml.common.eventhandler.Event;
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
@@ -24,6 +26,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
+import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -71,7 +74,78 @@ public class EventHandler {
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event)
+    {
+        Sync.proxy.tickHandlerClient.radialShow = false;
+        Sync.proxy.tickHandlerClient.zoom = false;
+        Sync.proxy.tickHandlerClient.lockTime = 0;
+        Sync.proxy.tickHandlerClient.zoomTimer = -10;
+        Sync.proxy.tickHandlerClient.zoomTimeout = 0;
+        Sync.proxy.tickHandlerClient.shells.clear();
+        Sync.proxy.tickHandlerClient.refusePlayerRender.clear();
+        Sync.proxy.tickHandlerClient.lockedStorage = null;
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), event.player);
+        ShellHandler.updatePlayerOfShells((EntityPlayer) event.player, null, true);
+
+        //Check if the player was mid death sync
+        EntityPlayerMP entityPlayerMP = (EntityPlayerMP) event.player;
+        if (entityPlayerMP.getEntityData().hasKey("isDeathSyncing") && entityPlayerMP.getEntityData().getBoolean("isDeathSyncing")) {
+            TileEntityDualVertical tpPosition = EventHandler.getClosestRespawnShell(entityPlayerMP);
+
+            if (tpPosition != null) {
+                Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
+                        (int) Math.floor(entityPlayerMP.posX), (int) Math.floor(entityPlayerMP.posY), (int) Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true);
+                PacketDispatcher.sendPacketToPlayer(zoomPacket, event.player);
+
+                tpPosition.resyncPlayer = 120;
+
+                MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true);
+                PacketDispatcher.sendPacketToAllPlayers(MapPacketHandler.createPlayerDeathPacket(entityPlayerMP.getCommandSenderName(), true));
+
+                entityPlayerMP.setHealth(20);
+
+                if (!ShellHandler.syncInProgress.containsKey(entityPlayerMP.getCommandSenderName())) {
+                    ShellHandler.syncInProgress.put(entityPlayerMP.getCommandSenderName(), tpPosition);
+                }
+            }
+            else {
+                entityPlayerMP.setDead();
+                entityPlayerMP.setHealth(0);
+                entityPlayerMP.getEntityData().setBoolean("isDeathSyncing", false);
+                ShellHandler.syncInProgress.remove(entityPlayerMP.getCommandSenderName());
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        //If player was syncing then reset the sync
+        if (ShellHandler.syncInProgress.containsKey(event.player.getCommandSenderName())) {
+            TileEntityDualVertical tileEntityDualVertical = ShellHandler.syncInProgress.get(event.player.getCommandSenderName());
+            Sync.logger.log(Level.INFO, String.format("%s logged out mid-sync whilst sync process was at %s", event.player.getCommandSenderName(), tileEntityDualVertical.resyncPlayer));
+            //If they're still syncing away (ie camera zoom out), just reset it all
+            if (tileEntityDualVertical.resyncPlayer > 60) {
+                tileEntityDualVertical.resyncPlayer = -10;
+                //If they're syncing from an existing shell, reset that shell. They should only ever sync from a shell storage but lets check to be safe
+                if (tileEntityDualVertical.resyncOrigin != null) {
+                    tileEntityDualVertical.reset();
+                    tileEntityDualVertical.getWorldObj().markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord, tileEntityDualVertical.zCoord);
+                    tileEntityDualVertical.getWorldObj().markBlockForUpdate(tileEntityDualVertical.xCoord, tileEntityDualVertical.yCoord + 1, tileEntityDualVertical.zCoord);
+                }
+            }
+            //Remove player from syncing list
+            ShellHandler.syncInProgress.remove(event.player.getCommandSenderName());
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onRenderGameOverlayPre(RenderGameOverlayEvent.Pre event) {
 		if (event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS && Sync.proxy.tickHandlerClient.radialShow) {

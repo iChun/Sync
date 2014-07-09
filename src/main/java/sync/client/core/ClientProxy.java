@@ -2,8 +2,7 @@ package sync.client.core;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
-import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.common.FMLCommonHandler;
 import net.minecraftforge.client.MinecraftForgeClient;
 import sync.client.entity.EntityShellDestruction;
 import sync.client.render.RenderBlockPlacerItem;
@@ -36,7 +35,7 @@ public class ClientProxy extends CommonProxy
 	{
 		super.initTickHandlers();
 		tickHandlerClient = new TickHandlerClient();
-		TickRegistry.registerTickHandler(tickHandlerClient, Side.CLIENT);
+        FMLCommonHandler.instance().bus().register(tickHandlerClient);
 	}
 	
 }
