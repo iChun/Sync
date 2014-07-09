@@ -3,7 +3,7 @@ package sync.common.item;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -19,9 +19,9 @@ import java.util.List;
 
 public class ItemSyncBlockPlacer extends Item
 {
-	public ItemSyncBlockPlacer(int par1) 
+	public ItemSyncBlockPlacer()
 	{
-		super(par1);
+		super();
 		maxStackSize = 1;
 		setMaxDamage(0);
 		setHasSubtypes(true);
@@ -29,7 +29,7 @@ public class ItemSyncBlockPlacer extends Item
 	
 	@SideOnly(Side.CLIENT)
 	@Override
-	public void registerIcons(IconRegister reg)
+	public void registerIcons(IIconRegister reg)
 	{
 		this.itemIcon = reg.registerIcon("sync:shellConstructorPlacer");
 	}
@@ -37,11 +37,11 @@ public class ItemSyncBlockPlacer extends Item
     @SuppressWarnings("unchecked")
     @SideOnly(Side.CLIENT)
     @Override
-    public void getSubItems(int par1, CreativeTabs tab, List itemList)
+    public void getSubItems(Item item, CreativeTabs tab, List itemList)
     {
-        itemList.add(new ItemStack(par1, 1, 0));
-        itemList.add(new ItemStack(par1, 1, 1));
-        itemList.add(new ItemStack(par1, 1, 2));
+        itemList.add(new ItemStack(item, 1, 0));
+        itemList.add(new ItemStack(item, 1, 1));
+        itemList.add(new ItemStack(item, 1, 2));
     }
     
     @Override
@@ -123,13 +123,13 @@ public class ItemSyncBlockPlacer extends Item
                 int ii = face == 1 ? i - 1 : face == 3 ? i + 1 : i;
                 int kk = face == 0 ? k + 1 : face == 2 ? k - 1 : k;
                 
-                boolean flag = !(world.getBlockTileEntity(i, j - 1, k) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, null, is) && !(world.getBlockTileEntity(ii, j - 1, kk) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, null, is);
+                boolean flag = !(world.getTileEntity(i, j - 1, k) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, i, j, k, false, side, null, is) && !(world.getBlockTileEntity(ii, j - 1, kk) instanceof TileEntityTreadmill) && world.canPlaceEntityOnSide(block.blockID, ii, j, kk, false, side, null, is);
                 if(flag)
                 {
                 	if(world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(ii, j, kk, block.blockID, is.getItemDamage(), 3))
                 	{
-	                	TileEntity te = world.getBlockTileEntity(i, j, k);
-	                	TileEntity te1 = world.getBlockTileEntity(ii, j, kk);
+	                	TileEntity te = world.getTileEntity(i, j, k);
+	                	TileEntity te1 = world.getTileEntity(ii, j, kk);
 
 	                	if(te instanceof TileEntityTreadmill && te1 instanceof TileEntityTreadmill)
 	                	{
@@ -156,8 +156,8 @@ public class ItemSyncBlockPlacer extends Item
 	            {
 	                if (world.setBlock(i, j, k, block.blockID, is.getItemDamage(), 3) && world.setBlock(i, j + 1, k, block.blockID, is.getItemDamage(), 3))
 	                {
-	                	TileEntity te = world.getBlockTileEntity(i, j, k);
-	                	TileEntity te1 = world.getBlockTileEntity(i, j + 1, k);
+	                	TileEntity te = world.getTileEntity(i, j, k);
+	                	TileEntity te1 = world.getTileEntity(i, j + 1, k);
 	                	if(te instanceof TileEntityDualVertical && te1 instanceof TileEntityDualVertical)
 	                	{
 	                		TileEntityDualVertical sc = (TileEntityDualVertical)te;
