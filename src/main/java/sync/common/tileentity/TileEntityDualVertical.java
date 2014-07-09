@@ -4,9 +4,11 @@ import cofh.api.energy.IEnergyHandler;
 import com.mojang.authlib.GameProfile;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Optional;
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ichun.common.core.network.PacketHandler;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,6 +30,7 @@ import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
+import sync.common.packet.PacketNBT;
 import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
 import sync.common.shell.TeleporterShell;
@@ -207,12 +210,11 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 						playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
 						//Update the players NBT stuff
-						Packet131MapData nbtPacket = MapPacketHandler.createNBTPacket(this.getPlayerNBT());
 						player.readFromNBT(this.getPlayerNBT());
 
 						ShellHandler.syncInProgress.remove(this.getPlayerName());
 						player.theItemInWorldManager.initializeGameType(WorldSettings.GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
-						PacketDispatcher.sendPacketToPlayer(nbtPacket, (Player)player);
+                        PacketHandler.sendToPlayer(Sync.channels, new PacketNBT(this.getPlayerNBT()), player);
 					}
 				}
 				if (this.resyncPlayer == 0) {
@@ -326,42 +328,34 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 		resync = true;
 	}
 
-	public byte[] createShellStateData() 
+	public void writeShellStateData(ByteBuf buffer)
 	{
 		if(top && pair != null)
 		{
-			return pair.createShellStateData();
+			pair.writeShellStateData(buffer);
+            return;
 		}
 
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-		try
-		{
-			stream.writeInt(xCoord);
-			stream.writeInt(yCoord);
-			stream.writeInt(zCoord);
-			stream.writeInt(worldObj.provider.dimensionId);
+        buffer.writeInt(xCoord);
+        buffer.writeInt(yCoord);
+        buffer.writeInt(zCoord);
+        buffer.writeInt(worldObj.provider.dimensionId);
 
-			stream.writeFloat(getBuildProgress());
-			stream.writeFloat(powerAmount());
+        buffer.writeFloat(getBuildProgress());
+        buffer.writeFloat(powerAmount());
 
-			stream.writeUTF(name);
-			stream.writeUTF(worldObj.provider.getDimensionName());
+        ByteBufUtils.writeUTF8String(buffer, name);
+        ByteBufUtils.writeUTF8String(buffer, worldObj.provider.getDimensionName());
 
-			stream.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
+        buffer.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
 
-			stream.writeBoolean(isHomeUnit);
+        buffer.writeBoolean(isHomeUnit);
 
-			NBTTagCompound invTag = new NBTTagCompound();
+        NBTTagCompound invTag = new NBTTagCompound();
 
-			invTag.setTag("Inventory", generateShowableEquipTags(playerNBT));
+        invTag.setTag("Inventory", generateShowableEquipTags(playerNBT));
 
-			Sync.writeNBTTagCompound(invTag, stream);
-		}
-		catch(IOException ignored)
-		{
-		}
-		return bytes.toByteArray();
+        ByteBufUtils.writeTag(buffer, invTag);
 	}
 
 	public static NBTTagList generateShowableEquipTags(NBTTagCompound tag)

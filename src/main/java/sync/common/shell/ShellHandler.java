@@ -2,13 +2,14 @@ package sync.common.shell;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import ichun.common.core.network.PacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
 import sync.common.core.MapPacketHandler;
+import sync.common.packet.PacketClearShellList;
+import sync.common.packet.PacketShellState;
 import sync.common.tileentity.TileEntityDualVertical;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class ShellHandler {
 		
 		if (all) {
 			//Tell player client to clear current list
-			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createClearShellListPacket((byte) 0), (Player)player);
+            PacketHandler.sendToPlayer(Sync.channels, new PacketClearShellList(), player);
 
 			for (Map.Entry<String, TileEntityDualVertical> e : playerShells.entries()) {
 				if (e.getKey().equalsIgnoreCase(player.getCommandSenderName())) {
@@ -69,7 +70,7 @@ public class ShellHandler {
 		
 		for (TileEntityDualVertical dv1 : dvs) {
 			if (dv1.top) continue;
-			PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createShellStatePacket(dv1), (Player)player);
+            PacketHandler.sendToPlayer(Sync.channels, new PacketShellState(dv1, false), player);
 		}
 		
 		for (TileEntityDualVertical dv1 : remove) {
@@ -79,6 +80,6 @@ public class ShellHandler {
 	
 	public static void updatePlayerOfShellRemoval(EntityPlayer player, TileEntityDualVertical dv) {
 		if (dv.top) return;
-		PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createRemoveShellDataPacket(dv), (Player)player);
+        PacketHandler.sendToPlayer(Sync.channels, new PacketShellState(dv, true), player);
 	}
 }

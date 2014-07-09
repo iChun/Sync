@@ -15,10 +15,7 @@ import sync.common.block.BlockDualVertical;
 import sync.common.creativetab.CreativeTabSync;
 import sync.common.item.ItemPlaceholder;
 import sync.common.item.ItemSyncBlockPlacer;
-import sync.common.packet.PacketPlayerDeath;
-import sync.common.packet.PacketSyncRequest;
-import sync.common.packet.PacketUpdatePlayerOnZoomFinish;
-import sync.common.packet.PacketZoomCamera;
+import sync.common.packet.*;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
@@ -70,7 +67,7 @@ public class CommonProxy
 			Sync.isChristmasOrNewYear = true;
 		}
 
-        Sync.channels = ChannelHandler.getChannelHandlers("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class);
+        Sync.channels = ChannelHandler.getChannelHandlers("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class, PacketPlayerEnterStorage.class, PacketShellDeath.class, PacketSession.class, PacketClearShellList.class, PacketShellState.class, PacketNBT.class);
     }
 
 	public void initTickHandlers() 

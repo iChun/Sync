@@ -27,6 +27,7 @@ import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.packet.PacketPlayerDeath;
+import sync.common.packet.PacketSession;
 import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
@@ -90,7 +91,7 @@ public class EventHandler {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
-        PacketDispatcher.sendPacketToPlayer(MapPacketHandler.createConfigDataPacket(), event.player);
+        PacketHandler.sendToPlayer(Sync.channels, new PacketSession(), event.player);
         ShellHandler.updatePlayerOfShells((EntityPlayer) event.player, null, true);
 
         //Check if the player was mid death sync
