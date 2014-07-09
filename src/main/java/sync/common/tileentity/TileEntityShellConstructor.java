@@ -84,7 +84,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 				}
 				if(!worldObj.isRemote && doorTime == TileEntityShellStorage.animationTime)
 				{
-					List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getAABBPool().getAABB(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
+					List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
 					if(list.isEmpty())
 					{
 						doorOpen = false;

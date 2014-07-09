@@ -3,6 +3,7 @@ package sync.client.core;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.PacketDispatcher;
+import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
@@ -27,6 +28,7 @@ import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
+import sync.common.packet.PacketSyncRequest;
 import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityShellStorage;
 
@@ -117,8 +119,7 @@ public class TickHandlerClient
                     }
                     if(selected != null && selected.buildProgress >= SessionState.shellConstructionPowerRequirement && lockedStorage != null)
                     {
-                        Packet131MapData syncRequestPacket = MapPacketHandler.createSyncRequestPacket(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord, lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension);
-                        PacketDispatcher.sendPacketToServer(syncRequestPacket);
+                        PacketHandler.sendToServer(Sync.channels, new PacketSyncRequest(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord, lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
                     }
 
                     radialShow = false;

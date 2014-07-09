@@ -393,7 +393,7 @@ public class BlockDualVertical extends BlockContainer {
 	}
 
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, int blockID) {
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
@@ -409,7 +409,7 @@ public class BlockDualVertical extends BlockContainer {
 	}
 
 	@Override
-	public boolean removeBlockByPlayer(World world, EntityPlayer player, int x, int y, int z) {
+	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
 		if (!world.isRemote) {
 			TileEntity tileEntity = world.getTileEntity(x, y, z);
 			if (tileEntity instanceof TileEntityDualVertical) {
@@ -439,11 +439,11 @@ public class BlockDualVertical extends BlockContainer {
 				}
 			}
 		}
-		return super.removeBlockByPlayer(world, player, x, y, z);
+		return super.removedByPlayer(world, player, x, y, z);
 	}
 
 	@Override
-	public void breakBlock(World world, int x, int y, int z, int blockID, int blockMeta) {
+	public void breakBlock(World world, int x, int y, int z, Block block, int blockMeta) {
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
@@ -489,13 +489,13 @@ public class BlockDualVertical extends BlockContainer {
 							}
 						}
 						Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, dualVerticalBottom.face);
-						PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.worldObj.provider.dimensionId, shellDeathPacket);
+						PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.getWorldObj().provider.dimensionId, shellDeathPacket);
 					}
 					else if (dualVerticalBottom instanceof TileEntityShellConstructor) {
 						TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVerticalBottom;
 						if (!shellConstructor.getPlayerName().equalsIgnoreCase("") && shellConstructor.constructionProgress >= SessionState.shellConstructionPowerRequirement) {
 							Packet131MapData shellDeathPacket = MapPacketHandler.createShellDeathPacket(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, dualVerticalBottom.face);
-							PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.worldObj.provider.dimensionId, shellDeathPacket);
+							PacketDispatcher.sendPacketToAllAround(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D, dualVertical.getWorldObj().provider.dimensionId, shellDeathPacket);
 						}
 					}
 					ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
@@ -524,7 +524,7 @@ public class BlockDualVertical extends BlockContainer {
 				}
 			}
 		}
-		super.breakBlock(world, x, y, z, blockID, blockMeta);
+		super.breakBlock(world, x, y, z, block, blockMeta);
 	}
 
 	@Override
@@ -547,7 +547,7 @@ public class BlockDualVertical extends BlockContainer {
 	}
 
 	@Override
-	public boolean isBlockSolidOnSide(World world, int x, int y, int z, ForgeDirection side) {
+	public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side) {
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if (tileEntity instanceof TileEntityDualVertical) {
 			TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;

@@ -8,6 +8,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ichun.common.core.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,6 +30,7 @@ import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
 import sync.common.core.MapPacketHandler;
 import sync.common.core.SessionState;
+import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
 import sync.common.shell.TeleporterShell;
 
@@ -36,7 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public abstract class TileEntityDualVertical extends TileEntity implements IEnergyHandler {
 
 	public TileEntityDualVertical pair;
@@ -144,8 +146,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 							player.fallDistance = 0F;
 						}
 
-						Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(this.xCoord, this.yCoord, this.zCoord, this.worldObj.provider.dimensionId, this.face, true, false);
-						PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
+                        PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera(this.xCoord, this.yCoord, this.zCoord, this.worldObj.provider.dimensionId, this.face, true, false), player);
 					}
 				}
 				//Beginning of kicking the player out

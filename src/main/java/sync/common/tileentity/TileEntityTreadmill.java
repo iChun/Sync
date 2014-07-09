@@ -25,7 +25,7 @@ import sync.common.Sync;
 
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 {
 	public TileEntityTreadmill pair;
@@ -241,7 +241,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 					}
 					
 					//Still running. This sends RF power to nearby IEnergyHandlers
-                    if (Sync.hasThermalExpansion) {
+                    if (Sync.hasCoFHCore) {
                         this.sendRFEnergyToNearbyDevices();
                     }
 				}

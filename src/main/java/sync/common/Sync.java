@@ -7,6 +7,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import ichun.common.iChunUtil;
@@ -30,6 +31,7 @@ import org.apache.logging.log4j.Logger;
 import sync.common.core.*;
 import sync.common.shell.ShellHandler;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,6 +51,8 @@ public class Sync
     public static CommonProxy proxy;
 
     public static Logger logger = LogManager.getLogger("Sync");
+
+    public static EnumMap<Side, FMLEmbeddedChannel> channels;
 
     public static CreativeTabs creativeTabSync;
 
@@ -81,7 +85,7 @@ public class Sync
     public static boolean isChristmasOrNewYear;
 
     public static boolean hasMorphMod;
-    public static boolean hasThermalExpansion;
+    public static boolean hasCoFHCore;
 
     public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
 
@@ -134,7 +138,7 @@ public class Sync
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 
         hasMorphMod = Loader.isModLoaded("Morph");
-        hasThermalExpansion = Loader.isModLoaded("ThermalExpansion");
+        hasCoFHCore = Loader.isModLoaded("CoFHCore");
 
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" );
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );

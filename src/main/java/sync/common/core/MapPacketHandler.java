@@ -59,95 +59,6 @@ public class MapPacketHandler
 				{
 					//Receive sync request from client;
 					
-					boolean valid = false;
-					
-					int oriX = stream.readInt();
-					int oriY = stream.readInt();
-					int oriZ = stream.readInt();
-					
-					int oriDim = stream.readInt();
-					
-					int x = stream.readInt();
-					int y = stream.readInt();
-					int z = stream.readInt();
-					
-					int dim = stream.readInt();
-					
-					WorldServer worldOri = DimensionManager.getWorld(oriDim);
-					WorldServer world = DimensionManager.getWorld(dim);
-					
-					if(worldOri != null && world != null)
-					{
-						TileEntity oriTe = worldOri.getTileEntity(oriX, oriY, oriZ);
-						TileEntity te = world.getTileEntity(x, y, z);
-						
-						if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
-						{
-							TileEntityDualVertical originShell = (TileEntityDualVertical)oriTe;
-							TileEntityDualVertical targetShell = (TileEntityDualVertical)te;
-							
-							if(originShell.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && targetShell.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()))
-							{
-								if(targetShell instanceof TileEntityShellConstructor)
-								{
-									TileEntityShellConstructor sc = (TileEntityShellConstructor)targetShell;
-									if(sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
-									{
-										ShellHandler.updatePlayerOfShells(player, null, true);
-										break;
-									}
-								}
-								if(targetShell instanceof TileEntityShellStorage)
-								{
-									TileEntityShellStorage ss = (TileEntityShellStorage)targetShell;
-									if(!ss.syncing)
-									{
-										ShellHandler.updatePlayerOfShells(player, null, true);
-										break;
-									}
-								}
-								
-								if(originShell instanceof TileEntityShellStorage)
-								{
-									TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
-									ss.setPlayerName(player.getCommandSenderName());
-									ss.occupied = true;
-									ss.occupationTime = TileEntityDualVertical.animationTime;
-									ss.syncing = true;
-
-									player.extinguish(); //Remove fire so when you sync back into this shell, you aren't on fire
-									
-									NBTTagCompound tag = new NBTTagCompound();
-									player.writeToNBT(tag);
-									
-									tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
-									
-									ss.setPlayerNBT(tag);
-									
-									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-									worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
-								}
-
-								Packet131MapData zoomPacket = createZoomCameraPacket(oriX, oriY, oriZ, oriDim, originShell.face, false, false);
-								PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
-
-								targetShell.resyncPlayer = 120;
-								originShell.canSavePlayer = -1;
-								targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
-								ShellHandler.syncInProgress.put(player.getCommandSenderName(), targetShell);
-								
-								MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
-
-								PacketDispatcher.sendPacketToAllPlayers(createPlayerDeathPacket(player.getCommandSenderName(), false));
-								
-								valid = true;
-							}
-						}
-					}
-					if(!valid)
-					{
-						ShellHandler.updatePlayerOfShells(player, null, true);
-					}
 					break;
 				}
 				case 1:
@@ -231,20 +142,6 @@ public class MapPacketHandler
 				}
 				case 4:
 				{
-					//zoom state
-					
-					Sync.proxy.tickHandlerClient.zoomX = stream.readInt();
-					Sync.proxy.tickHandlerClient.zoomY = stream.readInt();
-					Sync.proxy.tickHandlerClient.zoomZ = stream.readInt();
-					
-					Sync.proxy.tickHandlerClient.zoomDimension = stream.readInt();
-					
-					Sync.proxy.tickHandlerClient.zoomFace = stream.readInt();
-					Sync.proxy.tickHandlerClient.zoom = stream.readBoolean();
-					
-					Sync.proxy.tickHandlerClient.zoomTimer = 60;
-					
-					Sync.proxy.tickHandlerClient.zoomDeath = stream.readBoolean();
 					break;
 				}
 				case 5:
@@ -267,24 +164,6 @@ public class MapPacketHandler
 				}
 				case 7:
 				{
-					//Player death animation
-					String name = stream.readUTF();
-					Sync.proxy.tickHandlerClient.refusePlayerRender.put(name, 120);
-					if(stream.readBoolean())
-					{
-						EntityPlayer player = mc.theWorld.getPlayerEntityByName(name);
-						
-						if(player != null)
-						{
-							player.deathTime = 0;
-							player.setHealth(1);
-							
-							EntityShellDestruction sd = new EntityShellDestruction(player.worldObj, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, ((AbstractClientPlayer)player).getLocationSkin());
-							sd.setLocationAndAngles(player.posX, player.posY - player.yOffset, player.posZ, 0.0F, 0.0F);
-							player.worldObj.spawnEntityInWorld(sd);
-
-						}
-					}
 					break;
 				}
 				case 8:
@@ -444,27 +323,6 @@ public class MapPacketHandler
 		}
 
 		return new Packet131MapData((short)Sync.getNetId(), (short)3, bytes.toByteArray());
-	}
-
-	//Packet ID 4
-	//Sent from server to client
-	public static Packet131MapData createZoomCameraPacket(int posX, int posY, int posZ, int dimID, int zoomFace, boolean zoom, boolean zoomDeath) {
-		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-		DataOutputStream stream = new DataOutputStream(bytes);
-
-		try {
-			stream.writeInt((int) Math.floor(posX));
-			stream.writeInt((int) Math.floor(posY));
-			stream.writeInt((int) Math.floor(posZ));
-			stream.writeInt(dimID);
-			stream.writeInt(zoomFace);
-			stream.writeBoolean(zoom);
-			stream.writeBoolean(zoomDeath);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return new Packet131MapData((short)Sync.getNetId(), (short)4, bytes.toByteArray());
 	}
 
 	//Packet ID 5

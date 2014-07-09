@@ -9,6 +9,7 @@ import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -28,6 +29,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import org.apache.logging.log4j.Level;
 import sync.common.Sync;
+import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -99,9 +101,7 @@ public class EventHandler {
             TileEntityDualVertical tpPosition = EventHandler.getClosestRespawnShell(entityPlayerMP);
 
             if (tpPosition != null) {
-                Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
-                        (int) Math.floor(entityPlayerMP.posX), (int) Math.floor(entityPlayerMP.posY), (int) Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true);
-                PacketDispatcher.sendPacketToPlayer(zoomPacket, event.player);
+                PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera((int) Math.floor(entityPlayerMP.posX), (int) Math.floor(entityPlayerMP.posY), (int) Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true), event.player);
 
                 tpPosition.resyncPlayer = 120;
 
@@ -164,13 +164,7 @@ public class EventHandler {
 
 				//If we have a valid location to sync into, tell the player to zoom out
 				if (tpPosition != null) {
-					Packet131MapData zoomPacket = MapPacketHandler.createZoomCameraPacket(
-							(int) Math.floor(event.entityLiving.posX),
-							(int) Math.floor(event.entityLiving.posY),
-							(int) Math.floor(event.entityLiving.posZ),
-							event.entityLiving.dimension,
-							-1, false, true);
-					PacketDispatcher.sendPacketToPlayer(zoomPacket, (Player)player);
+					PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera((int) Math.floor(event.entityLiving.posX), (int) Math.floor(event.entityLiving.posY), (int) Math.floor(event.entityLiving.posZ), event.entityLiving.dimension, -1, false, true), player);
 
 					tpPosition.resyncPlayer = 120;
 

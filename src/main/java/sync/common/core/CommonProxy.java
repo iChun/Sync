@@ -2,6 +2,8 @@ package sync.common.core;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import ichun.common.core.network.ChannelHandler;
+import morph.common.Morph;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -13,6 +15,9 @@ import sync.common.block.BlockDualVertical;
 import sync.common.creativetab.CreativeTabSync;
 import sync.common.item.ItemPlaceholder;
 import sync.common.item.ItemSyncBlockPlacer;
+import sync.common.packet.PacketPlayerDeath;
+import sync.common.packet.PacketSyncRequest;
+import sync.common.packet.PacketZoomCamera;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
@@ -63,7 +68,9 @@ public class CommonProxy
             //TODO move this to iChunUtil?
 			Sync.isChristmasOrNewYear = true;
 		}
-	}
+
+        Sync.channels = ChannelHandler.getChannelHandlers("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class);
+    }
 
 	public void initTickHandlers() 
 	{
