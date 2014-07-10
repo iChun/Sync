@@ -10,6 +10,9 @@ import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import ichun.common.core.config.Config;
+import ichun.common.core.config.ConfigHandler;
+import ichun.common.core.config.IConfigUser;
 import ichun.common.iChunUtil;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
@@ -25,6 +28,7 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Property;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +45,7 @@ import java.util.List;
         acceptableRemoteVersions = "[" + iChunUtil.versionMC +".0.0," + iChunUtil.versionMC + ".1.0)"
 )
 public class Sync
+    implements IConfigUser
 {
     public static final String version = iChunUtil.versionMC +".0.0";
 
@@ -56,26 +61,7 @@ public class Sync
 
     public static CreativeTabs creativeTabSync;
 
-    public static int idBlockShellConstructor;
-    public static int idItemBlockPlacer;
-    public static int idItemSyncCore;
-
-    public static int shellConstructionPowerRequirement;
-    public static int shellStoragePowerRequirement;
-
-    public static int allowCrossDimensional;
-    public static int damageGivenOnShellConstruction;
-    public static int overrideDeathIfThereAreAvailableShells;
-    public static int prioritizeHomeShellOnDeath;
-    public static int crossDimensionalSyncingOnDeath;
-
-    public static int allowChunkLoading;
-
-    public static int hardcoreMode;
-
-    public static int showAllShellInfoInGui;
-
-    public static int ratioRF;
+    public static Config config;
 
     public static Block blockDualVertical;
 
@@ -89,38 +75,38 @@ public class Sync
 
     public static final HashMap<Class, Integer> treadmillEntityHashMap = new HashMap<Class, Integer>();
 
+    @Override
+    public boolean onConfigChange(Config cfg, Property prop)
+    {
+        return true;
+    }
+
     @EventHandler
     public void preLoad(FMLPreInitializationEvent event)
     {
-        Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-        config.load();
+        config = ConfigHandler.createConfig(event.getSuggestedConfigurationFile(), "sync", "Sync", logger, instance);
 
-        idBlockShellConstructor = addCommentAndReturnBlockId(config, "ids", "idBlockShellConstructor", "Block ID for the Shell Constructor", 1345);
-        idItemBlockPlacer = addCommentAndReturnItemId(config, "ids", "idItemBlockPlacer", "Item ID for the Sync's Block Placer", 13330);
-        idItemSyncCore = addCommentAndReturnItemId(config, "ids", "idItemSyncCore", "Item ID for the Sync Core", 13331);
+        config.setCurrentCategory("gameplay", "sync.config.cat.gameplay.name", "sync.config.cat.gameplay.comment");
+        config.createIntProperty("shellConstructionPowerRequirement", "sync.config.prop.shellConstructionPowerRequirement.name", "sync.config.prop.shellConstructionPowerRequirement.comment", true, true, 48000, 0, Integer.MAX_VALUE);
+        config.createIntProperty("shellStoragePowerRequirement", "sync.config.prop.shellStoragePowerRequirement.name", "sync.config.prop.shellStoragePowerRequirement.comment", true, false, 0, 0, Integer.MAX_VALUE);
 
-        shellConstructionPowerRequirement = Math.max(addCommentAndReturnInt(config, "gameplay", "shellConstructionPowerRequirement", "Power requirement for Shell Construction", 48000), 0); // Dogs power 4, Pigs power... 2?
-        shellStoragePowerRequirement = addCommentAndReturnInt(config, "gameplay", "shellStoragePowerRequirement", "Power requirement per tick in piggawatts to keep shell storage active.\n0 = No requirement", 0);
+        config.createIntProperty("allowCrossDimensional", "sync.config.prop.allowCrossDimensional.name", "sync.config.prop.allowCrossDimensional.comment", true, true, 1, 0, 2);
+        config.createIntProperty("damageGivenOnShellConstruction", "sync.config.prop.damageGivenOnShellConstruction.name", "sync.config.prop.damageGivenOnShellConstruction.comment", true, false, 2, 0, Integer.MAX_VALUE);
+        config.createIntProperty("overrideDeathIfThereAreAvailableShells", "sync.config.prop.overrideDeathIfThereAreAvailableShells.name", "sync.config.prop.overrideDeathIfThereAreAvailableShells.comment", true, true, 1, 0, 2);
+        config.createIntBoolProperty("prioritizeHomeShellOnDeath", "sync.config.prop.prioritizeHomeShellOnDeath.name", "sync.config.prop.prioritizeHomeShellOnDeath.comment", true, false, true);
+        config.createIntBoolProperty("crossDimensionalSyncingOnDeath", "sync.config.prop.crossDimensionalSyncingOnDeath.name", "sync.config.prop.crossDimensionalSyncingOnDeath.comment", true, false, true);
 
-        allowCrossDimensional = addCommentAndReturnInt(config, "gameplay", "allowCrossDimensional", "Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End", 1);
-        damageGivenOnShellConstruction = Math.max(addCommentAndReturnInt(config, "gameplay", "damageGivenOnShellConstruction", "Number of half hearts damage given to the player when a new shell is constructed.", 2), 0);
-        overrideDeathIfThereAreAvailableShells = addCommentAndReturnInt(config, "gameplay", "overrideDeathIfThereAreAvailableShells", "Allow overriding the death of a player if the player has other shells?\nThe player will resync to the nearest shell.\n0 = No\n1 = Yes, but only to storage units\n2 = Yes, to storage and construction units", 1);
-        prioritizeHomeShellOnDeath = addCommentAndReturnInt(config, "gameplay", "prioritizeHomeShellOnDeath", "Prioritize \"Home\" Shells when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
-        crossDimensionalSyncingOnDeath = addCommentAndReturnInt(config, "gameplay", "crossDimensionalSyncingOnDeath", "Allow cross dimensional syncing when a player dies and resyncs?\n0 = No\n1 = Yes", 1);
+        config.createIntBoolProperty("allowChunkLoading", "sync.config.prop.allowChunkLoading.name", "sync.config.prop.allowChunkLoading.comment", true, false, true);
 
-        allowChunkLoading = addCommentAndReturnInt(config, "gameplay", "allowChunkLoading", "Added by request, mod is made to chunkload shells. Untested.\nCould crash your world fatally.\nDisable at own risk.\n0 = No\n1 = Yes", 1);
+        config.createIntProperty("hardcoreMode", "sync.config.prop.hardcoreMode.name", "sync.config.prop.hardcoreMode.comment", true, true, 2, 0, 2);
 
-        hardcoreMode = addCommentAndReturnInt(config, "gameplay", "hardcoreMode", "Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.", 2);
-
-        //TODO rename this and make this clear.
-        ratioRF = addCommentAndReturnInt(config, "gameplay", "ratioRF", "Redstone Flux : Piggawatt ratio.", 2);
+        config.createIntProperty("ratioRF", "sync.config.prop.ratioRF.name", "sync.config.prop.ratioRF.comment", true, false, 2, 0, Integer.MAX_VALUE);
 
         if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
         {
-            showAllShellInfoInGui = addCommentAndReturnInt(config, "clientOnly", "showAllShellInfoInGui", "Show info of all shells in the GUI?\n0 = No\n1 = Just the name will do\n2 = Yes, in all full blown glory!", 1);
+            config.setCurrentCategory("clientOnly", "sync.config.cat.clientOnly.name", "sync.config.cat.clientOnly.comment");
+            config.createIntProperty("showAllShellInfoInGui", "sync.config.prop.showAllShellInfoInGui.name", "sync.config.prop.showAllShellInfoInGui.comment", true, false, 1, 0, 2);
         }
-
-        config.save();
 
         sync.common.core.EventHandler handler = new sync.common.core.EventHandler();
         FMLCommonHandler.instance().bus().register(handler);
@@ -151,9 +137,6 @@ public class Sync
     @EventHandler
     public void serverAboutToStart(FMLServerAboutToStartEvent event)
     {
-        SessionState.shellConstructionPowerRequirement = shellConstructionPowerRequirement;
-        SessionState.allowCrossDimensional = allowCrossDimensional;
-        SessionState.deathMode = overrideDeathIfThereAreAvailableShells;
     }
 
     @EventHandler
@@ -164,7 +147,9 @@ public class Sync
     @EventHandler
     public void serverStarted(FMLServerStartedEvent event)
     {
-        SessionState.hardMode = hardcoreMode == 1 || hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled();
+        Sync.config.resetSession();
+
+        Sync.config.updateSession("hardMode", (Sync.config.getSessionInt("hardcoreMode") == 1 || Sync.config.getSessionInt("hardcoreMode") == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled()) ? 1 : 0);
 
         mapHardmodeRecipe();
     }
@@ -232,6 +217,6 @@ public class Sync
         }
 
         GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
-                "DLD", "QEQ", "MRM", 'D', Blocks.daylight_detector, 'L', Blocks.lapis_block, 'Q', Items.quartz, 'E', (SessionState.hardMode ? Blocks.beacon : Items.ender_pearl), 'M', Items.emerald, 'R', Blocks.redstone_block);
+                "DLD", "QEQ", "MRM", 'D', Blocks.daylight_detector, 'L', Blocks.lapis_block, 'Q', Items.quartz, 'E', (Sync.config.getSessionInt("hardMode") == 1 ? Blocks.beacon : Items.ender_pearl), 'M', Items.emerald, 'R', Blocks.redstone_block);
     }
 }

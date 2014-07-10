@@ -24,7 +24,6 @@ import org.lwjgl.opengl.GL12;
 import sync.client.model.ModelShellConstructor;
 import sync.client.render.TileRendererDualVertical;
 import sync.common.Sync;
-import sync.common.core.SessionState;
 import sync.common.packet.PacketSyncRequest;
 import sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import sync.common.shell.ShellState;
@@ -95,7 +94,7 @@ public class TickHandlerClient
                     {
                         ShellState state = selectedShells.get(i);
 
-                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (SessionState.allowCrossDimensional == 0 || SessionState.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
+                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (Sync.config.getSessionInt("allowCrossDimensional") == 0 || Sync.config.getSessionInt("allowCrossDimensional") == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
                         {
                             selectedShells.remove(i);
                         }
@@ -118,7 +117,7 @@ public class TickHandlerClient
                             break;
                         }
                     }
-                    if(selected != null && selected.buildProgress >= SessionState.shellConstructionPowerRequirement && lockedStorage != null)
+                    if(selected != null && selected.buildProgress >= Sync.config.getSessionInt("shellConstructionPowerRequirement") && lockedStorage != null)
                     {
                         PacketHandler.sendToServer(Sync.channels, new PacketSyncRequest(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord, lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
                     }
@@ -413,7 +412,7 @@ public class TickHandlerClient
                     {
                         ShellState state = selectedShells.get(i);
 
-                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (SessionState.allowCrossDimensional == 0 || SessionState.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
+                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (Sync.config.getSessionInt("allowCrossDimensional") == 0 || Sync.config.getSessionInt("allowCrossDimensional") == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
                         {
                             selectedShells.remove(i);
                         }
@@ -562,7 +561,7 @@ public class TickHandlerClient
 
     private void drawShellInfo(ShellState state, boolean selected)
     {
-        if(Sync.showAllShellInfoInGui <= 0)
+        if(Sync.config.getInt("showAllShellInfoInGui") <= 0)
         {
             return;
         }
@@ -586,7 +585,7 @@ public class TickHandlerClient
                     string = state.name;
                     Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
                 }
-                if(Sync.showAllShellInfoInGui == 2)
+                if(Sync.config.getInt("showAllShellInfoInGui") == 2)
                 {
                     GL11.glScalef(scaleee, scaleee, scaleee);
 
@@ -642,12 +641,12 @@ public class TickHandlerClient
 
             if(state != null)
             {
-                if(state.buildProgress < SessionState.shellConstructionPowerRequirement)
+                if(state.buildProgress < Sync.config.getSessionInt("shellConstructionPowerRequirement"))
                 {
                     GL11.glPushMatrix();
                     float scaleee = 1.5F;
                     GL11.glScalef(scaleee, scaleee, scaleee);
-                    String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / SessionState.shellConstructionPowerRequirement * 100) + "%";
+                    String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / Sync.config.getSessionInt("shellConstructionPowerRequirement") * 100) + "%";
                     Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
 
                     GL11.glPopMatrix();
@@ -737,7 +736,7 @@ public class TickHandlerClient
 
             GL11.glTranslatef((float)posX, (float)posY, 50.0F);
 
-            if(Sync.showAllShellInfoInGui == 2)
+            if(Sync.config.getInt("showAllShellInfoInGui") == 2)
             {
                 GL11.glTranslatef(-8F, 0.0F, 0.0F);
             }
@@ -766,7 +765,7 @@ public class TickHandlerClient
 
             float viewY = RenderManager.instance.playerViewY;
             RenderManager.instance.playerViewY = 180.0F;
-            if(!(state.isConstructor && state.buildProgress < SessionState.shellConstructionPowerRequirement))
+            if(!(state.isConstructor && state.buildProgress < Sync.config.getSessionInt("shellConstructionPowerRequirement")))
             {
                 RenderManager.instance.renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
             }
@@ -784,7 +783,7 @@ public class TickHandlerClient
 
                 modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.getCommandSenderName().hashCode());
                 modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-                modelShellConstructor.renderConstructionProgress(SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
+                modelShellConstructor.renderConstructionProgress(Sync.config.getSessionInt("shellConstructionPowerRequirement") > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.getSessionInt("shellConstructionPowerRequirement")) / (float)Sync.config.getSessionInt("shellConstructionPowerRequirement") : 1.0F, 0.0625F, false, true);
 
                 GL11.glPopMatrix();
             }
@@ -824,6 +823,7 @@ public class TickHandlerClient
         }
     }
 
+    //TODO convert to iChunUtil keybinds
     public boolean lmbDown;
     public boolean rmbDown;
 

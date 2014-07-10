@@ -80,7 +80,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 					ticket.getModData().setInteger("shellZ", dv.zCoord);
 					ForgeChunkManager.forceChunk(ticket, chunkCoordIntPair);
 
-					if (Sync.allowChunkLoading == 0) {
+					if (Sync.config.getInt("allowChunkLoading") == 0) {
 						//Reflecting into Ticket to remove chunk! Sorry! :(
 						try {
 							LinkedHashSet<ChunkCoordIntPair> requestedChunks = ObfuscationReflectionHelper.getPrivateValue(Ticket.class, ticket, "requestedChunks");

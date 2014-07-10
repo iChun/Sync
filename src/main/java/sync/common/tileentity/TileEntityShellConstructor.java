@@ -9,7 +9,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 import sync.common.Sync;
-import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
 
 import java.util.List;
@@ -59,9 +58,9 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 				}
 			}
 			constructionProgress += power;
-			if(constructionProgress > SessionState.shellConstructionPowerRequirement)
+			if(constructionProgress > Sync.config.getSessionInt("shellConstructionPowerRequirement"))
 			{
-				constructionProgress = SessionState.shellConstructionPowerRequirement;
+				constructionProgress = Sync.config.getSessionInt("shellConstructionPowerRequirement");
 			}
 
             /*
@@ -109,7 +108,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		{
 			rfBuffer += Math.abs(powReceived - rfIntake);
 			//If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
-			if((float)rfBuffer / (float)SessionState.shellConstructionPowerRequirement > 0.05F || Math.abs((float)(powReceived - rfIntake) / (float)powReceived) > 0.1F)
+			if((float)rfBuffer / (float)Sync.config.getSessionInt("shellConstructionPowerRequirement") > 0.05F || Math.abs((float)(powReceived - rfIntake) / (float)powReceived) > 0.1F)
 			{
 				rfIntake = powReceived;
 				rfBuffer = 0;
@@ -169,7 +168,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	@Optional.Method(modid = "CoFHCore")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
 	{
-		int powReq = Math.max((int)Math.ceil(SessionState.shellConstructionPowerRequirement - constructionProgress), 0);
+		int powReq = Math.max((int)Math.ceil(Sync.config.getSessionInt("shellConstructionPowerRequirement") - constructionProgress), 0);
 		if(powReq == 0 || playerName.equalsIgnoreCase(""))
 		{
 			return 0;
@@ -185,7 +184,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		}
 		if(!simulate)
 		{
-			powReceived += (float)pow * (float)Sync.ratioRF;
+			powReceived += (float)pow * (float)Sync.config.getInt("ratioRF");
 		}
 		return pow;
 	}

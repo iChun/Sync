@@ -7,7 +7,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.core.ChunkLoadHandler;
-import sync.common.core.MapPacketHandler;
 import sync.common.packet.PacketClearShellList;
 import sync.common.packet.PacketShellState;
 import sync.common.tileentity.TileEntityDualVertical;

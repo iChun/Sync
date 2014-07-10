@@ -13,7 +13,6 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import sync.api.SyncStartEvent;
 import sync.common.Sync;
-import sync.common.core.SessionState;
 import sync.common.shell.ShellHandler;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
@@ -85,8 +84,8 @@ public class PacketSyncRequest extends AbstractPacket
 
         if(worldOri != null && world != null)
         {
-            TileEntity oriTe = worldOri.getTileEntity(shellPosX, shellPosY, shellPosZ);
-            TileEntity te = world.getTileEntity(xCoord, yCoord, zCoord);
+            TileEntity oriTe = world.getTileEntity(xCoord, yCoord, zCoord);
+            TileEntity te = worldOri.getTileEntity(shellPosX, shellPosY, shellPosZ);
 
             if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
             {
@@ -98,7 +97,7 @@ public class PacketSyncRequest extends AbstractPacket
                     if(targetShell instanceof TileEntityShellConstructor)
                     {
                         TileEntityShellConstructor sc = (TileEntityShellConstructor)targetShell;
-                        if(sc.constructionProgress < SessionState.shellConstructionPowerRequirement)
+                        if(sc.constructionProgress < Sync.config.getSessionInt("shellConstructionPowerRequirement"))
                         {
                             ShellHandler.updatePlayerOfShells(player, null, true);
                             return;
@@ -135,7 +134,7 @@ public class PacketSyncRequest extends AbstractPacket
                         worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
                     }
 
-                    PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera(shellPosX, shellPosY, shellPosZ, shellDimID, originShell.face, false, false), player);
+                    PacketHandler.sendToPlayer(Sync.channels, new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);
 
                     targetShell.resyncPlayer = 120;
                     originShell.canSavePlayer = -1;

@@ -12,8 +12,8 @@ import mcp.mobius.waila.api.IWailaDataProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.StatCollector;
+import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
-import sync.common.core.SessionState;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 import sync.common.tileentity.TileEntityTreadmill;
@@ -38,7 +38,7 @@ public class HUDHandlerSync implements IWailaDataProvider {
         if (accessor.getTileEntity() instanceof TileEntityShellConstructor) {
             TileEntityShellConstructor tileEntityShellConstructor = (TileEntityShellConstructor) accessor.getTileEntity();
             if (config.getConfig("sync.showowner")) currenttip.add(StatCollector.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.getPlayerName().equals("") ? "None" : tileEntityShellConstructor.getPlayerName()));
-            if (config.getConfig("sync.showprogress")) currenttip.add(StatCollector.translateToLocal("sync.waila.progress") + ": " + String.valueOf((int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / SessionState.shellConstructionPowerRequirement * 100)) + "%");
+            if (config.getConfig("sync.showprogress")) currenttip.add(StatCollector.translateToLocal("sync.waila.progress") + ": " + String.valueOf((int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / Sync.config.getSessionInt("shellConstructionPowerRequirement") * 100)) + "%");
         }
         else if (accessor.getTileEntity() instanceof TileEntityShellStorage) {
             TileEntityShellStorage tileEntityShellStorage = (TileEntityShellStorage) accessor.getTileEntity();

@@ -30,7 +30,6 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.PlayerDropsEvent;
 import sync.common.Sync;
-import sync.common.core.SessionState;
 import sync.common.packet.PacketPlayerEnterStorage;
 import sync.common.packet.PacketShellDeath;
 import sync.common.shell.ShellHandler;
@@ -131,7 +130,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (!world.isRemote && !player.capabilities.isCreativeMode) {
                         String name = DamageSource.outOfWorld.damageType;
                         DamageSource.outOfWorld.damageType = "shellConstruct";
-                        player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.damageGivenOnShellConstruction);
+                        player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.config.getInt("damageGivenOnShellConstruction"));
                         DamageSource.outOfWorld.damageType = name;
                     }
 
@@ -141,7 +140,7 @@ public class BlockDualVertical extends BlockContainer {
                 }
                 else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getCommandSenderName()) && player.capabilities.isCreativeMode) {
                     if (!world.isRemote) {
-                        shellConstructor.constructionProgress = SessionState.shellConstructionPowerRequirement;
+                        shellConstructor.constructionProgress = Sync.config.getSessionInt("shellConstructionPowerRequirement");
                         ShellHandler.updatePlayerOfShells(player, null, true);
                         world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord, shellConstructor.zCoord);
                         world.markBlockForUpdate(shellConstructor.xCoord, shellConstructor.yCoord + 1, shellConstructor.zCoord);
@@ -492,7 +491,7 @@ public class BlockDualVertical extends BlockContainer {
                     }
                     else if (dualVerticalBottom instanceof TileEntityShellConstructor) {
                         TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVerticalBottom;
-                        if (!shellConstructor.getPlayerName().equalsIgnoreCase("") && shellConstructor.constructionProgress >= SessionState.shellConstructionPowerRequirement) {
+                        if (!shellConstructor.getPlayerName().equalsIgnoreCase("") && shellConstructor.constructionProgress >= Sync.config.getSessionInt("shellConstructionPowerRequirement")) {
                             PacketHandler.sendToAllAround(Sync.channels, new PacketShellDeath(dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, dualVerticalBottom.face), new NetworkRegistry.TargetPoint(dualVertical.getWorldObj().provider.dimensionId, dualVerticalBottom.xCoord, dualVerticalBottom.yCoord, dualVerticalBottom.zCoord, 64D));
                         }
                     }
@@ -539,7 +538,7 @@ public class BlockDualVertical extends BlockContainer {
     public int getComparatorInputOverride(World par1World, int par2, int par3, int par4, int par5) {
         if (par1World.getTileEntity(par2, par3, par4) instanceof TileEntityDualVertical) {
             TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) par1World.getTileEntity(par2, par3, par4);
-            return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (SessionState.shellConstructionPowerRequirement / 15));
+            return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (Sync.config.getSessionInt("shellConstructionPowerRequirement") / 15));
         }
         else return 0;
     }

@@ -17,12 +17,10 @@ import sync.client.model.ModelShellConstructor;
 import sync.client.model.ModelShellStorage;
 import sync.common.Sync;
 import sync.common.block.BlockDualVertical;
-import sync.common.core.SessionState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityShellStorage;
 
-@SuppressWarnings("UnnecessaryBoxing")
 public class TileRendererDualVertical extends TileEntitySpecialRenderer
 {
 
@@ -73,7 +71,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 			{
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
 				
-				float prog = SessionState.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, SessionState.shellConstructionPowerRequirement) / (float)SessionState.shellConstructionPowerRequirement : 1.0F;
+				float prog = Sync.config.getSessionInt("shellConstructionPowerRequirement") > 0 ? MathHelper.clamp_float(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, Sync.config.getSessionInt("shellConstructionPowerRequirement")) / (float)Sync.config.getSessionInt("shellConstructionPowerRequirement") : 1.0F;
 				
 				
 				modelConstructor.rand.setSeed(sc.getPlayerName().hashCode());

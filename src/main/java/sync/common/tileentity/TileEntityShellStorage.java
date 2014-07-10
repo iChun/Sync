@@ -138,12 +138,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
 			}
 
-			if (powerAmount() >= Sync.shellStoragePowerRequirement && !hasPower) {
+			if (powerAmount() >= Sync.config.getInt("shellStoragePowerRequirement") && !hasPower) {
 				hasPower = true;
 				ShellHandler.addShell(playerName, this, true);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 			}
-			if (powerAmount() < Sync.shellStoragePowerRequirement && hasPower) {
+			if (powerAmount() < Sync.config.getInt("shellStoragePowerRequirement") && hasPower) {
 				hasPower = false;
 				ShellHandler.removeShell(playerName, this);
 				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
@@ -201,15 +201,15 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	@Override
 	@Optional.Method(modid = "CoFHCore")
 	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-		if (Sync.shellStoragePowerRequirement == 0) {
+		if (Sync.config.getInt("shellStoragePowerRequirement") == 0) {
 			return 0;
 		}
 		int pow = maxReceive;
-		if (pow > Sync.shellStoragePowerRequirement) {
-			pow = Sync.shellStoragePowerRequirement;
+		if (pow > Sync.config.getInt("shellStoragePowerRequirement")) {
+			pow = Sync.config.getInt("shellStoragePowerRequirement");
 		}
 		if (!simulate) {
-			powReceived += (float)pow * (float)Sync.ratioRF;
+			powReceived += (float)pow * (float)Sync.config.getInt("ratioRF");
 		}
 		return pow;
 	}

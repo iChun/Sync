@@ -78,6 +78,7 @@ public class EventHandler {
     @SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
+        Sync.config.resetSession();
         Sync.proxy.tickHandlerClient.radialShow = false;
         Sync.proxy.tickHandlerClient.zoom = false;
         Sync.proxy.tickHandlerClient.lockTime = 0;
@@ -154,7 +155,7 @@ public class EventHandler {
 	@SubscribeEvent
 	public void onLivingDeath(LivingDeathEvent event) {
 		//If we allow death syncing
-		if (SessionState.deathMode > 0) {
+		if (Sync.config.getSessionInt("overrideDeathIfThereAreAvailableShells") > 0) {
 			//And the player is actually a player on a server
 			if (event.entityLiving instanceof EntityPlayerMP && !(event.entityLiving instanceof FakePlayer) && !event.entityLiving.worldObj.isRemote) {
 				EntityPlayerMP player = (EntityPlayerMP) event.entityLiving;
@@ -295,7 +296,7 @@ public class EventHandler {
 			if (dv instanceof TileEntityShellConstructor) {
 				TileEntityShellConstructor sc = (TileEntityShellConstructor) dv;
 				//If enabled in config and shell is complete, allow sync into constructor
-				if (SessionState.deathMode == 1 || sc.constructionProgress < SessionState.shellConstructionPowerRequirement) {
+				if (Sync.config.getSessionInt("overrideDeathIfThereAreAvailableShells") == 1 || sc.constructionProgress < Sync.config.getSessionInt("shellConstructionPowerRequirement")) {
 					continue;
 				}
 			}
@@ -313,7 +314,7 @@ public class EventHandler {
 					dist = dvDist;
 				}
 			}
-			else if ((SessionState.allowCrossDimensional == 1 && (player.dimension != 1 || SessionState.allowCrossDimensional == 2)) && Sync.crossDimensionalSyncingOnDeath == 1) {
+			else if ((Sync.config.getSessionInt("allowCrossDimensional") == 1 && (player.dimension != 1 || Sync.config.getSessionInt("allowCrossDimensional") == 2)) && Sync.config.getSessionInt("crossDimensionalSyncingOnDeath") == 1) {
 				if (dv.isHomeUnit) {
 					if (crossDimHomeDist == -1D || dvDist < crossDimHomeDist) {
 						nearestCrossDimHome = dv;
@@ -327,7 +328,7 @@ public class EventHandler {
 			}
 		}
 
-		if (Sync.prioritizeHomeShellOnDeath == 1) {
+		if (Sync.config.getInt("prioritizeHomeShellOnDeath") == 1) {
 			if (nearestHome != null) {
 				tpPosition = nearestHome;
 			}

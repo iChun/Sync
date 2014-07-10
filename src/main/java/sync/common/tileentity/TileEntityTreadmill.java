@@ -268,7 +268,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler
 
     @Optional.Method(modid = "CoFHCore")
     private void sendRFEnergyToNearbyDevices() {
-        float power = powerOutput() / (float)Sync.ratioRF; //2PW = 1RF
+        float power = powerOutput() / (float)Sync.config.getInt("ratioRF"); //2PW = 1RF
         int handlerCount = 0;
         IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
         for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)

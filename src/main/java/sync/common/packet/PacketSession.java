@@ -5,7 +5,6 @@ import ichun.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import sync.common.Sync;
-import sync.common.core.SessionState;
 
 public class PacketSession extends AbstractPacket
 {
@@ -14,19 +13,19 @@ public class PacketSession extends AbstractPacket
     @Override
     public void writeTo(ByteBuf buffer, Side side)
     {
-        buffer.writeInt(SessionState.shellConstructionPowerRequirement);
-        buffer.writeInt(SessionState.allowCrossDimensional);
-        buffer.writeInt(SessionState.deathMode);
-        buffer.writeBoolean(SessionState.hardMode);
+        buffer.writeInt(Sync.config.getSessionInt("shellConstructionPowerRequirement"));
+        buffer.writeInt(Sync.config.getSessionInt("allowCrossDimensional"));
+        buffer.writeInt(Sync.config.getSessionInt("overrideDeathIfThereAreAvailableShells"));
+        buffer.writeInt(Sync.config.getSessionInt("hardMode"));
     }
 
     @Override
     public void readFrom(ByteBuf buffer, Side side)
     {
-        SessionState.shellConstructionPowerRequirement = buffer.readInt();
-        SessionState.allowCrossDimensional = buffer.readInt();
-        SessionState.deathMode = buffer.readInt();
-        SessionState.hardMode = buffer.readBoolean();
+        Sync.config.updateSession("shellConstructionPowerRequirement", buffer.readInt());
+        Sync.config.updateSession("allowCrossDimensional", buffer.readInt());
+        Sync.config.updateSession("overrideDeathIfThereAreAvailableShells", buffer.readInt());
+        Sync.config.updateSession("hardMode", buffer.readInt());
     }
 
     @Override

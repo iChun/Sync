@@ -1,7 +1,7 @@
 package sync.common.shell;
 
-import sync.common.core.SessionState;
 import net.minecraft.entity.player.EntityPlayer;
+import sync.common.Sync;
 
 public class ShellState 
 	implements Comparable
@@ -39,12 +39,12 @@ public class ShellState
 	
 	public void tick()
 	{
-		if(buildProgress < SessionState.shellConstructionPowerRequirement)
+		if(buildProgress < Sync.config.getSessionInt("shellConstructionPowerRequirement"))
 		{
 			buildProgress += powerReceived;
-			if(buildProgress > SessionState.shellConstructionPowerRequirement)
+			if(buildProgress > Sync.config.getSessionInt("shellConstructionPowerRequirement"))
 			{
-				buildProgress = SessionState.shellConstructionPowerRequirement;
+				buildProgress = Sync.config.getSessionInt("shellConstructionPowerRequirement");
 			}
 		}
 	}
