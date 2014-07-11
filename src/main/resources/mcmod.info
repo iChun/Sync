@@ -1,0 +1,21 @@
+[
+{
+  "modid" : "Sync",
+  "name" : "Sync",
+  "version" : "${version}",
+  "url" : "http://ichun.us/mods/sync/",
+  "credits" : "",
+  "authors": [
+    "iChun"
+  ],
+  "description": "Sync mod, made for ModJam 3. Allows multiple player instances.",
+  "logoFile" : "",
+  "updateUrl" : "",
+  "parent" : "",
+  "screenshots": [
+  ],
+  "dependancies": [
+    "Forge"
+  ]
+}
+]

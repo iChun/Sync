@@ -14,6 +14,8 @@ import ichun.client.keybind.KeyBind;
 import ichun.common.core.config.Config;
 import ichun.common.core.config.ConfigHandler;
 import ichun.common.core.config.IConfigUser;
+import ichun.common.core.updateChecker.ModVersionChecker;
+import ichun.common.core.updateChecker.ModVersionInfo;
 import ichun.common.iChunUtil;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
@@ -117,6 +119,8 @@ public class Sync
 
         //Following new modding convention, blocks and items are initialized in pre-init
         proxy.initMod();
+
+        ModVersionChecker.register_iChunMod(new ModVersionInfo("Sync", "1.7", version, false));
     }
 
     @EventHandler
