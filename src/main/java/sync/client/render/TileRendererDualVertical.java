@@ -1,5 +1,6 @@
 package sync.client.render;
 
+import ichun.common.core.util.EventCalendar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.FontRenderer;
@@ -123,7 +124,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer
 					int randSeed = Minecraft.getMinecraft().thePlayer.ticksExisted - (Minecraft.getMinecraft().thePlayer.ticksExisted % 100);
 					ss.playerInstance.getRNG().setSeed(randSeed);
 						
-					if((Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("soaryn") || Sync.isChristmasOrNewYear) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
+					if((Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.getCommandSenderName().equalsIgnoreCase("soaryn") || (EventCalendar.isNewYear() || EventCalendar.isAFDay() || EventCalendar.isHalloween() || EventCalendar.isChristmas())) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
 					{
 						ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
 						ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);

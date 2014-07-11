@@ -4,6 +4,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -49,91 +50,7 @@ public class TickHandlerClient
             {
                 radialTime--;
             }
-            if(mc.currentScreen == null)
-            {
-                if(Mouse.isButtonDown(0) && !lmbDown)
-                {
-                    double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
-                    double magAcceptance = 0.8D;
-
-                    double radialAngle = -720F;
-
-                    if(mag > magAcceptance)
-                    {
-                        //is on the radial menu
-                        double aSin = Math.toDegrees(Math.asin(Sync.proxy.tickHandlerClient.radialDeltaX));
-
-                        if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
-                        {
-                            radialAngle = aSin;
-                        }
-                        else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
-                        {
-                            radialAngle = 90D + (90D - aSin);
-                        }
-                        else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
-                        {
-                            radialAngle = 180D - aSin;
-                        }
-                        else if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
-                        {
-                            radialAngle = 270D + (90D + aSin);
-                        }
-                    }
-
-                    if(mag > 0.9999999D)
-                    {
-                        mag = Math.round(mag);
-                    }
-
-                    ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
-
-                    Collections.sort(selectedShells);
-
-                    for(int i = selectedShells.size() - 1; i >= 0; i--)
-                    {
-                        ShellState state = selectedShells.get(i);
-
-                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (Sync.config.getSessionInt("allowCrossDimensional") == 0 || Sync.config.getSessionInt("allowCrossDimensional") == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
-                        {
-                            selectedShells.remove(i);
-                        }
-                        if(lockedStorage != null && lockedStorage.xCoord == state.xCoord && lockedStorage.yCoord == state.yCoord && lockedStorage.zCoord == state.zCoord && lockedStorage.getWorldObj().provider.dimensionId == state.dimension)
-                        {
-                            selectedShells.remove(i);
-                        }
-                    }
-
-                    ShellState selected = null;
-
-                    for(int i = 0; i < selectedShells.size(); i++)
-                    {
-
-                        float leeway = 360F / selectedShells.size();
-
-                        if(mag > magAcceptance * 0.75D && (i == 0 && (radialAngle < (leeway / 2) && radialAngle >= 0F || radialAngle > (360F) - (leeway / 2)) || i != 0 && radialAngle < (leeway * i) + (leeway / 2) && radialAngle > (leeway * i) - (leeway / 2)))
-                        {
-                            selected = selectedShells.get(i);
-                            break;
-                        }
-                    }
-                    if(selected != null && selected.buildProgress >= Sync.config.getSessionInt("shellConstructionPowerRequirement") && lockedStorage != null)
-                    {
-                        PacketHandler.sendToServer(Sync.channels, new PacketSyncRequest(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord, lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
-                    }
-
-                    radialShow = false;
-                    lockedStorage = null;
-                }
-                if(Mouse.isButtonDown(1) && !rmbDown)
-                {
-                    radialShow = false;
-                    lockedStorage = null;
-                }
-                lmbDown = Mouse.isButtonDown(0);
-                rmbDown = Mouse.isButtonDown(1);
-            }
-            else
+            if(mc.currentScreen != null)
             {
                 radialShow = false;
                 lockedStorage = null;
@@ -463,6 +380,11 @@ public class TickHandlerClient
         {
             Minecraft.getMinecraft().thePlayer.setHealth(1);
             Minecraft.getMinecraft().thePlayer.deathTime = 0;
+            Minecraft.getMinecraft().displayGuiScreen(null);
+        }
+
+        if(!revert && Minecraft.getMinecraft().currentScreen != null && !(Minecraft.getMinecraft().currentScreen instanceof GuiGameOver || Minecraft.getMinecraft().currentScreen instanceof GuiChat))
+        {
             Minecraft.getMinecraft().displayGuiScreen(null);
         }
 
@@ -822,10 +744,6 @@ public class TickHandlerClient
             Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
         }
     }
-
-    //TODO convert to iChunUtil keybinds
-    public boolean lmbDown;
-    public boolean rmbDown;
 
     public boolean radialShow;
     public float radialPlayerYaw;

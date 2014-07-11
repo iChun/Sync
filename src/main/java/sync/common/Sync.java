@@ -10,6 +10,7 @@ import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.FMLEmbeddedChannel;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
+import ichun.client.keybind.KeyBind;
 import ichun.common.core.config.Config;
 import ichun.common.core.config.ConfigHandler;
 import ichun.common.core.config.IConfigUser;
@@ -32,7 +33,9 @@ import net.minecraftforge.common.config.Property;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sync.common.core.*;
+import sync.common.core.ChunkLoadHandler;
+import sync.common.core.CommandSync;
+import sync.common.core.CommonProxy;
 import sync.common.shell.ShellHandler;
 
 import java.util.EnumMap;
@@ -45,7 +48,7 @@ import java.util.List;
         acceptableRemoteVersions = "[" + iChunUtil.versionMC +".0.0," + iChunUtil.versionMC + ".1.0)"
 )
 public class Sync
-    implements IConfigUser
+        implements IConfigUser
 {
     public static final String version = iChunUtil.versionMC +".0.0";
 
@@ -67,8 +70,6 @@ public class Sync
 
     public static Item itemBlockPlacer;
     public static Item itemPlaceholder;
-
-    public static boolean isChristmasOrNewYear;
 
     public static boolean hasMorphMod;
     public static boolean hasCoFHCore;
@@ -104,6 +105,8 @@ public class Sync
 
         if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
         {
+            iChunUtil.proxy.registerKeyBind(new KeyBind(-100, false, false, false, false), null);
+            iChunUtil.proxy.registerKeyBind(new KeyBind(-99, false, false, false, false), null);
             config.setCurrentCategory("clientOnly", "sync.config.cat.clientOnly.name", "sync.config.cat.clientOnly.comment");
             config.createIntProperty("showAllShellInfoInGui", "sync.config.prop.showAllShellInfoInGui.name", "sync.config.prop.showAllShellInfoInGui.comment", true, false, 1, 0, 2);
         }

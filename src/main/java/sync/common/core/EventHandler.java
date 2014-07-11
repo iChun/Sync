@@ -7,6 +7,7 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ichun.client.keybind.KeyEvent;
 import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,16 +29,111 @@ import org.apache.logging.log4j.Level;
 import sync.common.Sync;
 import sync.common.packet.PacketPlayerDeath;
 import sync.common.packet.PacketSession;
+import sync.common.packet.PacketSyncRequest;
 import sync.common.packet.PacketZoomCamera;
 import sync.common.shell.ShellHandler;
+import sync.common.shell.ShellState;
 import sync.common.tileentity.TileEntityDualVertical;
 import sync.common.tileentity.TileEntityShellConstructor;
 import sync.common.tileentity.TileEntityTreadmill;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map.Entry;
 
 public class EventHandler {
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void onKeyEvent(KeyEvent event)
+    {
+        Minecraft mc = Minecraft.getMinecraft();
+        if(mc.currentScreen == null)
+        {
+            if(event.keyBind.isPressed())
+            {
+                if(event.keyBind.keyIndex == -100)
+                {
+                    double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
+                    double magAcceptance = 0.8D;
+
+                    double radialAngle = -720F;
+
+                    if(mag > magAcceptance)
+                    {
+                        //is on the radial menu
+                        double aSin = Math.toDegrees(Math.asin(Sync.proxy.tickHandlerClient.radialDeltaX));
+
+                        if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+                        {
+                            radialAngle = aSin;
+                        }
+                        else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX >= 0)
+                        {
+                            radialAngle = 90D + (90D - aSin);
+                        }
+                        else if(Sync.proxy.tickHandlerClient.radialDeltaY < 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+                        {
+                            radialAngle = 180D - aSin;
+                        }
+                        else if(Sync.proxy.tickHandlerClient.radialDeltaY >= 0 && Sync.proxy.tickHandlerClient.radialDeltaX < 0)
+                        {
+                            radialAngle = 270D + (90D + aSin);
+                        }
+                    }
+
+                    if(mag > 0.9999999D)
+                    {
+                        mag = Math.round(mag);
+                    }
+
+                    ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(Sync.proxy.tickHandlerClient.shells);
+
+                    Collections.sort(selectedShells);
+
+                    for(int i = selectedShells.size() - 1; i >= 0; i--)
+                    {
+                        ShellState state = selectedShells.get(i);
+
+                        if(state.playerState == null || state.dimension != mc.theWorld.provider.dimensionId && (Sync.config.getSessionInt("allowCrossDimensional") == 0 || Sync.config.getSessionInt("allowCrossDimensional") == 1 && (state.dimension == 1 && mc.theWorld.provider.dimensionId != 1 || state.dimension != 1 && mc.theWorld.provider.dimensionId == 1)))
+                        {
+                            selectedShells.remove(i);
+                        }
+                        if(Sync.proxy.tickHandlerClient.lockedStorage != null && Sync.proxy.tickHandlerClient.lockedStorage.xCoord == state.xCoord && Sync.proxy.tickHandlerClient.lockedStorage.yCoord == state.yCoord && Sync.proxy.tickHandlerClient.lockedStorage.zCoord == state.zCoord && Sync.proxy.tickHandlerClient.lockedStorage.getWorldObj().provider.dimensionId == state.dimension)
+                        {
+                            selectedShells.remove(i);
+                        }
+                    }
+
+                    ShellState selected = null;
+
+                    for(int i = 0; i < selectedShells.size(); i++)
+                    {
+
+                        float leeway = 360F / selectedShells.size();
+
+                        if(mag > magAcceptance * 0.75D && (i == 0 && (radialAngle < (leeway / 2) && radialAngle >= 0F || radialAngle > (360F) - (leeway / 2)) || i != 0 && radialAngle < (leeway * i) + (leeway / 2) && radialAngle > (leeway * i) - (leeway / 2)))
+                        {
+                            selected = selectedShells.get(i);
+                            break;
+                        }
+                    }
+                    if(selected != null && selected.buildProgress >= Sync.config.getSessionInt("shellConstructionPowerRequirement") && Sync.proxy.tickHandlerClient.lockedStorage != null)
+                    {
+                        PacketHandler.sendToServer(Sync.channels, new PacketSyncRequest(Sync.proxy.tickHandlerClient.lockedStorage.xCoord, Sync.proxy.tickHandlerClient.lockedStorage.yCoord, Sync.proxy.tickHandlerClient.lockedStorage.zCoord, Sync.proxy.tickHandlerClient.lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
+                    }
+
+                    Sync.proxy.tickHandlerClient.radialShow = false;
+                    Sync.proxy.tickHandlerClient.lockedStorage = null;
+                }
+                else if(event.keyBind.keyIndex == -99)
+                {
+                    Sync.proxy.tickHandlerClient.radialShow = false;
+                    Sync.proxy.tickHandlerClient.lockedStorage = null;
+                }
+            }
+        }
+    }
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
@@ -173,7 +269,7 @@ public class EventHandler {
 					player.setHealth(20);
 
 					if (!ShellHandler.syncInProgress.containsKey(player.getCommandSenderName())) {
-						player.getEntityData().setBoolean("isDeathSyncing", true); //TODO remove this tag
+						player.getEntityData().setBoolean("isDeathSyncing", true);
 						ShellHandler.syncInProgress.put(player.getCommandSenderName(), tpPosition);
 					}
 				}
@@ -254,14 +350,6 @@ public class EventHandler {
 		//Don't allow item drops whilst syncing to prevent dupe issues
 		if (ShellHandler.syncInProgress.containsKey(e.player.getCommandSenderName())) {
 			e.setCanceled(true);
-		}
-	}
-
-	@SubscribeEvent
-	public void onPlayerOpenContainer(PlayerOpenContainerEvent e) {
-		//Don't show any containers during sync
-		if (ShellHandler.syncInProgress.containsKey(e.entityPlayer.getCommandSenderName())) {
-			e.setResult(Event.Result.DENY);
 		}
 	}
 

@@ -125,15 +125,14 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             //Refetch player TODO is this needed?
                             player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(this.getPlayerName());
 
-                            //TODO what?
-/*							if (dim == 1) {
+							if (dim == 1) {
 								if (player.isEntityAlive()) {
 									this.worldObj.spawnEntityInWorld(player);
 									player.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
 									this.worldObj.updateEntityWithOptionalForce(player, false);
 									player.fallDistance = 0F;
 								}
-							}*/
+							}
                         }
                         else {
                             player.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
@@ -205,10 +204,13 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                         //Update the players NBT stuff
                         player.readFromNBT(this.getPlayerNBT());
 
-                        ShellHandler.syncInProgress.remove(this.getPlayerName());
                         player.theItemInWorldManager.initializeGameType(WorldSettings.GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
                         PacketHandler.sendToPlayer(Sync.channels, new PacketNBT(this.getPlayerNBT()), player);
                     }
+                }
+                if(this.resyncPlayer == 25)
+                {
+                    ShellHandler.syncInProgress.remove(this.getPlayerName());
                 }
                 if (this.resyncPlayer == 0) {
                     ShellHandler.removeShell(this.getPlayerName(), this);

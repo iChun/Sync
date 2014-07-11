@@ -58,15 +58,6 @@ public class CommonProxy
 		GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");
 		GameRegistry.registerTileEntity(TileEntityTreadmill.class, "Sync_TETreadmill");
 		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTimeInMillis(System.currentTimeMillis());
-		
-		if(calendar.get(Calendar.MONTH) + 1 == 12 && calendar.get(Calendar.DAY_OF_MONTH) == 25 || calendar.get(Calendar.MONTH) + 1 == 1 && calendar.get(Calendar.DAY_OF_MONTH) == 1)
-		{
-            //TODO move this to iChunUtil?
-			Sync.isChristmasOrNewYear = true;
-		}
-
         Sync.channels = ChannelHandler.getChannelHandlers("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class, PacketPlayerEnterStorage.class, PacketShellDeath.class, PacketSession.class, PacketClearShellList.class, PacketShellState.class, PacketNBT.class);
     }
 

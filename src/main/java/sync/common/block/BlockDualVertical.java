@@ -457,19 +457,6 @@ public class BlockDualVertical extends BlockContainer {
                 TileEntityDualVertical dualVerticalBottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
                 if (!world.isRemote) {
-                    //If sync is in progress, cancel and kill the player syncing
-                    //TODO Re-implement this
-/*					if (dualVerticalBottom.resyncPlayer > 0 && dualVerticalBottom.resyncPlayer < 120) {
-						ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
-						//Need to let dualVertical know sync is cancelled
-						EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
-						if (syncingPlayer != null) {
-							String name = DamageSource.outOfWorld.damageType;
-							DamageSource.outOfWorld.damageType = "syncFail";
-							syncingPlayer.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
-							DamageSource.outOfWorld.damageType = name;
-						}
-					}*/
                     //TODO Should we treat this as an actual player death in terms of drops?
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
                         FakePlayer fake = new FakePlayer((WorldServer)world, new GameProfile("SyncFakePlayer", dualVertical.getPlayerName()));
@@ -496,6 +483,18 @@ public class BlockDualVertical extends BlockContainer {
                         }
                     }
                     ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
+                    //If sync is in progress, cancel and kill the player syncing
+                    if (dualVerticalBottom.resyncPlayer > 25 && dualVerticalBottom.resyncPlayer < 120) {
+                        ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
+                        //Need to let dualVertical know sync is cancelled
+                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+                        if (syncingPlayer != null) {
+                            String name = DamageSource.outOfWorld.damageType;
+                            DamageSource.outOfWorld.damageType = "syncFail";
+                            syncingPlayer.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
+                            DamageSource.outOfWorld.damageType = name;
+                        }
+                    }
                 }
             }
         }
