@@ -52,7 +52,7 @@ import java.util.List;
 public class Sync
         implements IConfigUser
 {
-    public static final String version = iChunUtil.versionMC +".0.0";
+    public static final String version = iChunUtil.versionMC +".0.1";
 
     @Instance("Sync")
     public static Sync instance;

@@ -84,8 +84,8 @@ public class PacketSyncRequest extends AbstractPacket
 
         if(worldOri != null && world != null)
         {
-            TileEntity oriTe = world.getTileEntity(xCoord, yCoord, zCoord);
-            TileEntity te = worldOri.getTileEntity(shellPosX, shellPosY, shellPosZ);
+            TileEntity oriTe = worldOri.getTileEntity(xCoord, yCoord, zCoord);
+            TileEntity te = world.getTileEntity(shellPosX, shellPosY, shellPosZ);
 
             if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
             {
