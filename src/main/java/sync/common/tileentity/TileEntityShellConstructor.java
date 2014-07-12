@@ -13,7 +13,7 @@ import sync.common.shell.ShellHandler;
 
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "ThermalExpansion")
+@Optional.Interface(iface = "cofh.api.core.IEnergyInfo", modid = "CoFHCore")
 public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
 {
 	public float constructionProgress;
