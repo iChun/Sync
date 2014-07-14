@@ -26,7 +26,7 @@ public class CommandSync extends CommandBase {
 				if (entityPlayer != null) {
 					ShellHandler.syncInProgress.remove(args[1]);
 					entityPlayer.getEntityData().setBoolean("isDeathSyncing", false);
-					notifyAdmins(iCommandSender, "chat.command.clear.success", iCommandSender.getCommandSenderName(), args[1]);
+                    func_152373_a(iCommandSender, this, "chat.command.clear.success", iCommandSender.getCommandSenderName(), args[1]);
 				}
 			}
 			else {

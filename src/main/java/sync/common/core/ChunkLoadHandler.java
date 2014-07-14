@@ -58,7 +58,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 		}
 		shellTickets.remove(dv);
 		
-		EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
+		EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(dv.getPlayerName());
 		
 		if(player != null)
 		{
@@ -93,7 +93,7 @@ public class ChunkLoadHandler implements LoadingCallback {
 				}
 				shellTickets.put(dv, ticket);
 
-				EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dv.getPlayerName());
+				EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(dv.getPlayerName());
 				if (player != null) {
 					ShellHandler.updatePlayerOfShells(player, null, true);
 				}

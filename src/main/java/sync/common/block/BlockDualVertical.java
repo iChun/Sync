@@ -5,6 +5,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ichun.common.core.EntityHelperBase;
 import ichun.common.core.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -170,7 +171,7 @@ public class BlockDualVertical extends BlockContainer {
                         world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord + 1, shellStorage.zCoord);
 
                         if (!world.isRemote) {
-                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(dualVertical.getPlayerName());
                             if (entityPlayerMP != null) {
                                 ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
                             }
@@ -186,7 +187,7 @@ public class BlockDualVertical extends BlockContainer {
                         world.markBlockForUpdate(shellStorage.xCoord, shellStorage.yCoord + 1, shellStorage.zCoord);
 
                         if (!world.isRemote) {
-                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(dualVertical.getPlayerName());
                             if (entityPlayerMP != null) {
                                 ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
                             }
@@ -408,7 +409,7 @@ public class BlockDualVertical extends BlockContainer {
     }
 
     @Override
-    public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z) {
+    public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest) {
         if (!world.isRemote) {
             TileEntity tileEntity = world.getTileEntity(x, y, z);
             if (tileEntity instanceof TileEntityDualVertical) {
@@ -438,7 +439,7 @@ public class BlockDualVertical extends BlockContainer {
                 }
             }
         }
-        return super.removedByPlayer(world, player, x, y, z);
+        return super.removedByPlayer(world, player, x, y, z, willHarvest);
     }
 
     @Override
@@ -459,7 +460,7 @@ public class BlockDualVertical extends BlockContainer {
                 if (!world.isRemote) {
                     //TODO Should we treat this as an actual player death in terms of drops?
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
-                        FakePlayer fake = new FakePlayer((WorldServer)world, new GameProfile("SyncFakePlayer", dualVertical.getPlayerName()));
+                        FakePlayer fake = new FakePlayer((WorldServer)world, new GameProfile(EntityHelperBase.uuidExample, dualVertical.getPlayerName()));
                         fake.readFromNBT(dualVertical.getPlayerNBT());
                         fake.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (dualVertical.face - 2) * 90F, 0F);
 
@@ -487,7 +488,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (dualVerticalBottom.resyncPlayer > 25 && dualVerticalBottom.resyncPlayer < 120) {
                         ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
                         //Need to let dualVertical know sync is cancelled
-                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(dualVertical.getPlayerName());
+                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(dualVertical.getPlayerName());
                         if (syncingPlayer != null) {
                             String name = DamageSource.outOfWorld.damageType;
                             DamageSource.outOfWorld.damageType = "syncFail";

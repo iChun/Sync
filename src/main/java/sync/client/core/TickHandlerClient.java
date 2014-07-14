@@ -176,7 +176,7 @@ public class TickHandlerClient
                     double mag = Math.sqrt(Sync.proxy.tickHandlerClient.radialDeltaX * Sync.proxy.tickHandlerClient.radialDeltaX + Sync.proxy.tickHandlerClient.radialDeltaY * Sync.proxy.tickHandlerClient.radialDeltaY);
                     double magAcceptance = 0.8D;
 
-                    ScaledResolution reso = new ScaledResolution(mc.gameSettings, mc.displayWidth, mc.displayHeight);
+                    ScaledResolution reso = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
 
                     float prog = MathHelper.clamp_float((3F - radialTime + event.renderTickTime) / 3F, 0.0F, 1.0F);
 

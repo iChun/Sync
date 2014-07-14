@@ -7,6 +7,7 @@ import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ichun.common.core.EntityHelperBase;
 import ichun.common.core.network.PacketHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -109,7 +110,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                         shellStorage.occupied = true;
                     }
 
-                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(this.getPlayerName());
+                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(this.getPlayerName());
                     if (player != null) {
                         if (!player.isEntityAlive()) {
                             player.setHealth(20);
@@ -123,7 +124,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().transferPlayerToDimension(player, this.worldObj.provider.dimensionId, new TeleporterShell((WorldServer) this.worldObj, this.worldObj.provider.dimensionId, this.xCoord, this.yCoord, this.zCoord, (this.face - 2) * 90F, 0F));
 
                             //Refetch player TODO is this needed?
-                            player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(this.getPlayerName());
+                            player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(this.getPlayerName());
 
 							if (dim == 1) {
 								if (player.isEntityAlive()) {
@@ -160,7 +161,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                 }
                 //This is where we begin to sync the data aka point of no return
                 if (this.resyncPlayer == 30) {
-                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(playerName);
+                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().func_152612_a(playerName);
 
                     if (player != null && player.isEntityAlive()) {
                         //Clear active potion effects before syncing
@@ -173,7 +174,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
                             //Setup location for dummy
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), new GameProfile("SyncFakePlayer", player.getCommandSenderName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), new GameProfile(EntityHelperBase.uuidExample, player.getCommandSenderName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
                             dummy.playerNetServerHandler = player.playerNetServerHandler;
                             dummy.setLocationAndAngles(this.xCoord + 0.5D, this.yCoord, this.zCoord + 0.5D, (this.face - 2) * 90F, 0F);
                             dummy.fallDistance = 0F;
