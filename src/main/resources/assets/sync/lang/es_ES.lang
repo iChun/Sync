@@ -42,6 +42,6 @@ sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=¿Evitar la muer
 sync.config.prop.prioritizeHomeShellOnDeath.comment=¿Priorizar cascarón original cuando un jugador muere y se re-sincroniza?
 sync.config.prop.crossDimensionalSyncingOnDeath.comment=¿Permitir sincronización entre dimensiones cuando un jugador muere y se re-sincroniza?
 sync.config.prop.allowChunkLoading.comment=Añadido por petición, el mod puede mantener chunks cargados. Sin evaluar, sin soporte.\nPodría destruir tu partida.\nDesactívalo bajo tu responsabilidad.
-sync.config.prop.hardcoreMode.comment=Activar crafteos Hardcore?\n0 = No\n1 = Sí\n2 = Sí, pero solo jugando en Hardcore.
+sync.config.prop.hardcoreMode.comment=¿Activar crafteos Hardcore?\n0 = No\n1 = Sí\n2 = Sí, pero solo jugando en Hardcore.
 sync.config.prop.ratioRF.comment=Equivalencia Redstone Flux : Piggawatt.\n1RF = <config>PG\nPor defecto 1 RF crea 2 PG
 sync.config.prop.showAllShellInfoInGui.comment=¿Mostrar la información de todos los  carcarones en la interfaz?\n0 = No\n1 = Solo el nombre.\n2 = Sí, muestralos en toda su gloria!
