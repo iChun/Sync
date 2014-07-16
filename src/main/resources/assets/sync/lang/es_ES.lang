@@ -1,5 +1,5 @@
 sync.breakShellUnit=%1$s ha destruido un Cascarón de %2$s
-item.Sync_ShellConstructor.name=Constructor de Cascarnes
+item.Sync_ShellConstructor.name=Constructor de Cascarones
 item.Sync_ShellStorage.name=Cápsula de Cascarones
 item.Sync_Treadmill.name=Cinta de Correr
 item.Sync_SyncCore.name=Núcleo de Sincronización
@@ -24,9 +24,9 @@ sync.config.cat.clientOnly.comment=Estas opciones afectan solo al cliente.
 sync.config.prop.shellConstructionPowerRequirement.name=Energía requerida por el cascarón
 sync.config.prop.shellStoragePowerRequirement.name=Energía requerida por la cápsula
 sync.config.prop.allowCrossDimensional.name=Permitir sincronización entre dimensiones
-sync.config.prop.damageGivenOnShellConstruction.name=Daño produciodo por la construción del cascarón
+sync.config.prop.damageGivenOnShellConstruction.name=Daño producido por la construción del cascarón
 sync.config.prop.overrideDeathIfThereAreAvailableShells.name=Evitar muerte si hay cascarones disponibles
-sync.config.prop.prioritizeHomeShellOnDeath.name=Priorizar cascarón original al morir?
+sync.config.prop.prioritizeHomeShellOnDeath.name=¿Priorizar cascarón original al morir?
 sync.config.prop.crossDimensionalSyncingOnDeath.name=Permitir sincronización entre dimensiones al morir
 sync.config.prop.allowChunkLoading.name=Permitir auto-carga de chunks
 sync.config.prop.hardcoreMode.name=Modo Hardcore
@@ -36,12 +36,12 @@ sync.config.prop.showAllShellInfoInGui.name=Mostrar la información de todos los
 
 sync.config.prop.shellConstructionPowerRequirement.comment=Energía requerida para construir un cascarón
 sync.config.prop.shellStoragePowerRequirement.comment=Energía requerida en piggawatios por tick para mantener la cápsula activa.\n0 = No necesita energía
-sync.config.prop.allowCrossDimensional.comment=Permitir sincronización de cascarones entre dimensiones?\nATENCIÓN: Esxisten probleman entrando y saliendo del End, donde necesitas relogearte DESPUÉS de la sincronización porque si no puede que no carguen los chunks.\nActiva la sincronización al End bajo tu propia responsabilidad.\n0 = No\n1 = Sí, pero no al End\n2 = Sí, incluso al End
+sync.config.prop.allowCrossDimensional.comment=¿Permitir sincronización de cascarones entre dimensiones?\nATENCIÓN: Existen problemas entrando y saliendo del End, donde necesitas relogearte DESPUÉS de la sincronización porque si no puede que no carguen los chunks.\nActiva la sincronización al End bajo tu propia responsabilidad.\n0 = No\n1 = Sí, pero no al End\n2 = Sí, incluso al End
 sync.config.prop.damageGivenOnShellConstruction.comment=Número de corazones de vida que pierde un jugador cuando se empieza a construir un nuevo cascarón
-sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=Evitar la muerte de un jugador si éste tiene otros cascarones?\nEl jugador se re-sincronizará a su cascarón más cercano.\n0 = No\n1 = Sí, pero solo a cápsulas de almacenamiento.\n2 = Sí, a cápsulas de almacenamiento y a constructores.
-sync.config.prop.prioritizeHomeShellOnDeath.comment=Priorizar cascarón original cuando un jugador muere y se re-sincroniza?
-sync.config.prop.crossDimensionalSyncingOnDeath.comment=Permitir sincronización entre dimensiones cuando un jugador muere y se re-sincroniza?
+sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=¿Evitar la muerte de un jugador si éste tiene otros cascarones?\nEl jugador se re-sincronizará a su cascarón más cercano.\n0 = No\n1 = Sí, pero solo a cápsulas de almacenamiento.\n2 = Sí, a cápsulas de almacenamiento y a constructores.
+sync.config.prop.prioritizeHomeShellOnDeath.comment=¿Priorizar cascarón original cuando un jugador muere y se re-sincroniza?
+sync.config.prop.crossDimensionalSyncingOnDeath.comment=¿Permitir sincronización entre dimensiones cuando un jugador muere y se re-sincroniza?
 sync.config.prop.allowChunkLoading.comment=Añadido por petición, el mod puede mantener chunks cargados. Sin evaluar, sin soporte.\nPodría destruir tu partida.\nDesactívalo bajo tu responsabilidad.
-sync.config.prop.hardcoreMode.comment=Activar crafteos Hardcore?\n0 = No\n1 = Sí\n2 = Sí, pero solo jugando en Hardcore.
+sync.config.prop.hardcoreMode.comment=¿Activar crafteos Hardcore?\n0 = No\n1 = Sí\n2 = Sí, pero solo jugando en Hardcore.
 sync.config.prop.ratioRF.comment=Equivalencia Redstone Flux : Piggawatt.\n1RF = <config>PG\nPor defecto 1 RF crea 2 PG
-sync.config.prop.showAllShellInfoInGui.comment=Mostrar la información de todos los  carcarones en la interfaz?\n0 = No\n1 = Solo el nombre.\n2 = Sí, muestralos en toda su gloria!
+sync.config.prop.showAllShellInfoInGui.comment=¿Mostrar la información de todos los  carcarones en la interfaz?\n0 = No\n1 = Solo el nombre.\n2 = Sí, muestralos en toda su gloria!
