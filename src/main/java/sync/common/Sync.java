@@ -46,13 +46,13 @@ import java.util.List;
 
 @Mod(modid = "Sync", name = "Sync",
         version = Sync.version,
-        dependencies = "required-after:iChunUtil@[" + iChunUtil.versionMC +".3.0,);after:CoFHCore;after:Waila",
+        dependencies = "required-after:iChunUtil@[" + iChunUtil.versionMC +".0.0,);after:CoFHCore;after:Waila",
         acceptableRemoteVersions = "[" + iChunUtil.versionMC +".0.0," + iChunUtil.versionMC + ".1.0)"
 )
 public class Sync
         implements IConfigUser
 {
-    public static final String version = iChunUtil.versionMC +".0.1";
+    public static final String version = iChunUtil.versionMC +".0.0";
 
     @Instance("Sync")
     public static Sync instance;
@@ -120,7 +120,7 @@ public class Sync
         //Following new modding convention, blocks and items are initialized in pre-init
         proxy.initMod();
 
-        ModVersionChecker.register_iChunMod(new ModVersionInfo("Sync", "1.7", version, false));
+        ModVersionChecker.register_iChunMod(new ModVersionInfo("Sync", iChunUtil.versionOfMC, version, false));
     }
 
     @EventHandler
