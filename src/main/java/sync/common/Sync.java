@@ -121,6 +121,8 @@ public class Sync
         proxy.initMod();
 
         ModVersionChecker.register_iChunMod(new ModVersionInfo("Sync", iChunUtil.versionOfMC, version, false));
+
+        FMLInterModComms.sendMessage("BackTools", "blacklist", new ItemStack(itemBlockPlacer, 1));
     }
 
     @EventHandler

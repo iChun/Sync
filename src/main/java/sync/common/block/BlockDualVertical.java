@@ -460,7 +460,7 @@ public class BlockDualVertical extends BlockContainer {
                 if (!world.isRemote) {
                     //TODO Should we treat this as an actual player death in terms of drops?
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
-                        FakePlayer fake = new FakePlayer((WorldServer)world, new GameProfile(EntityHelperBase.uuidExample, dualVertical.getPlayerName()));
+                        FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelperBase.getSimpleGameProfileFromName(dualVertical.getPlayerName()));
                         fake.readFromNBT(dualVertical.getPlayerNBT());
                         fake.setLocationAndAngles(x + 0.5D, y, z + 0.5D, (dualVertical.face - 2) * 90F, 0F);
 

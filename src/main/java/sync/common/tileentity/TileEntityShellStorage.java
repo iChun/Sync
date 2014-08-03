@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import ichun.common.core.EntityHelperBase;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -156,7 +157,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	@SideOnly(Side.CLIENT)
 	public static EntityPlayer createPlayer(World world, String playerName) 
 	{
-        return new EntityOtherPlayerMP(world, new GameProfile(EntityHelperBase.uuidExample, playerName));
+        return new EntityOtherPlayerMP(world, EntityHelperBase.getFullGameProfileFromName(playerName));
 	}
 
 	public boolean isPowered() {
