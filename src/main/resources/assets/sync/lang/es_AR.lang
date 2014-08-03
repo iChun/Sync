@@ -1,7 +1,7 @@
 sync.breakShellUnit=%1$s rompió un clon de %2$s
 item.Sync_ShellConstructor.name=Constructor de Clones
 item.Sync_ShellStorage.name=Almacenador de Clones
-item.Sync_Treadmill.name=Cinte de Correr
+item.Sync_Treadmill.name=Cinta de Correr
 item.Sync_SyncCore.name=Núcleo Sincronizador
 death.attack.syncFail=%1$s fue sincronizado a un clon de muerte
 death.attack.shellConstruct=%1$s murió intentando crear un nuevo clon
