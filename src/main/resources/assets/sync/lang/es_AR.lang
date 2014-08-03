@@ -1,8 +1,8 @@
-sync.breakShellUnit=%1$s rompió un caparazón de %2$s
-item.Sync_ShellConstructor.name=Constructor de Caparazones
-item.Sync_ShellStorage.name=Almacenador de Caparazones
-item.Sync_Treadmill.name=Noria
+sync.breakShellUnit=%1$s rompió un clon de %2$s
+item.Sync_ShellConstructor.name=Constructor de Clones
+item.Sync_ShellStorage.name=Almacenador de Clones
+item.Sync_Treadmill.name=Cinte de Correr
 item.Sync_SyncCore.name=Núcleo Sincronizador
-death.attack.syncFail=%1$s fue sincronizado a un caparazón de muerte
-death.attack.shellConstruct=%1$s murió intentando crear un nuevo caparazón
-sync.isMorphed=No podés usar! Estás transformado.
+death.attack.syncFail=%1$s fue sincronizado a un clon de muerte
+death.attack.shellConstruct=%1$s murió intentando crear un nuevo clon
+sync.isMorphed=No lo puedes usar! Estás transformado.
