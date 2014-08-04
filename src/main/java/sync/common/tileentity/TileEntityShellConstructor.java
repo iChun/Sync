@@ -1,6 +1,6 @@
 package sync.common.tileentity;
 
-import cofh.api.core.IEnergyInfo;
+import cofh.api.tileentity.IEnergyInfo;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Optional;
 import net.minecraft.entity.Entity;
@@ -13,7 +13,7 @@ import sync.common.shell.ShellHandler;
 
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.core.IEnergyInfo", modid = "CoFHCore")
+@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
 public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
 {
 	public float constructionProgress;
