@@ -9,9 +9,7 @@ import java.util.Random;
 
 public class ModelPixel extends ModelBase
 {
-	public ModelRenderer pixel;
-	
-	public Random rand;
+	public Random rand = new Random();
 
 	public ModelRenderer[] modelHead;
 	public ModelRenderer[] modelBody;
@@ -20,8 +18,6 @@ public class ModelPixel extends ModelBase
 	
 	public ModelPixel()
 	{
-		rand = new Random();
-		
 		modelHead = new ModelRenderer[8 * 8 * 8];
 		modelBody = new ModelRenderer[12 * 4 * 8];
 		modelLimb = new ModelRenderer[12 * 4 * 4];
@@ -307,14 +303,14 @@ public class ModelPixel extends ModelBase
                 		
                 		if(limb < 4)
                 		{
-                			if(limb % 2 == 0)
-                			{
-                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
-                			}
-                			if(limb % 2 == 1)
-                			{
-                				GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
-                			}
+                            if(limb == 0 || limb == 3)
+                            {
+                                GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F + (float)Math.PI) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
+                            }
+                            if(limb == 1 || limb == 2)
+                            {
+                                GL11.glRotated((Math.toDegrees(Math.cos(f8 * 0.6662F) * 1.4F * limbSwingAmount)) * shatterProg, 1.0F, 0.0F, 0.0F);
+                            }
                 		}
                 	        
                 		GL11.glTranslatef(0.0F, 11F/16F * (1.0F - shatterProg) + rand.nextFloat() * 0.01F, 0.0F);
@@ -330,12 +326,5 @@ public class ModelPixel extends ModelBase
             }
         }
 	    GL11.glPopMatrix();
-	}
-	
-	private void setRotation(ModelRenderer model, float x, float y, float z)
-	{
-		model.rotateAngleX = x;
-		model.rotateAngleY = y;
-		model.rotateAngleZ = z;
 	}
 }
