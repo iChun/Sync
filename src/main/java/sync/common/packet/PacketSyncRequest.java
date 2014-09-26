@@ -113,6 +113,11 @@ public class PacketSyncRequest extends AbstractPacket
                         }
                     }
 
+                    if (MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord))) {
+                        ShellHandler.updatePlayerOfShells(player, null, true);
+                        return;
+                    }
+
                     if(originShell instanceof TileEntityShellStorage)
                     {
                         TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
@@ -140,8 +145,6 @@ public class PacketSyncRequest extends AbstractPacket
                     originShell.canSavePlayer = -1;
                     targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
                     ShellHandler.syncInProgress.put(player.getCommandSenderName(), targetShell);
-
-                    MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
 
                     PacketHandler.sendToAll(Sync.channels, new PacketPlayerDeath(player.getCommandSenderName(), false));
 

@@ -4,6 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
+import cpw.mods.fml.common.eventhandler.Cancelable;
+
+@Cancelable
 public class SyncStartEvent extends PlayerEvent 
 {
 
