@@ -17,6 +17,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -26,6 +27,7 @@ import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
 import org.apache.logging.log4j.Level;
+import sync.api.RequestSyncEvent;
 import sync.common.Sync;
 import sync.common.packet.PacketPlayerDeath;
 import sync.common.packet.PacketSession;
@@ -120,6 +122,12 @@ public class EventHandler {
                     }
                     if(selected != null && selected.buildProgress >= Sync.config.getSessionInt("shellConstructionPowerRequirement") && Sync.proxy.tickHandlerClient.lockedStorage != null)
                     {
+                        RequestSyncEvent requestSyncEvent = new RequestSyncEvent(mc.thePlayer, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension);
+                        if (MinecraftForge.EVENT_BUS.post(requestSyncEvent)) {
+                            Sync.proxy.tickHandlerClient.radialShow = false;
+                            Sync.proxy.tickHandlerClient.lockedStorage = null;
+                            return;
+                        }
                         PacketHandler.sendToServer(Sync.channels, new PacketSyncRequest(Sync.proxy.tickHandlerClient.lockedStorage.xCoord, Sync.proxy.tickHandlerClient.lockedStorage.yCoord, Sync.proxy.tickHandlerClient.lockedStorage.zCoord, Sync.proxy.tickHandlerClient.lockedStorage.getWorldObj().provider.dimensionId, selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
                     }
 
