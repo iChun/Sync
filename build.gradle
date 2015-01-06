@@ -23,8 +23,8 @@ group= "sync" // http://maven.apache.org/guides/mini/guide-naming-conventions.ht
 archivesBaseName = "Sync"
 
 minecraft {
-    version = "1.7.10-10.13.0.1186"
-    assetDir = "eclipse/assets"
+    version = "1.7.10-10.13.2.1236"
+    runDir = "eclipse"
 }
 processResources
 {
