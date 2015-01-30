@@ -1,4 +1,5 @@
 itemGroup.sync=Sync
+tile.Sync_ShellConstructor.name=Конструктор оболочек
 sync.breakShellUnit=%1$s уничтожил оболочку %2$s.
 item.Sync_ShellConstructor.name=Конструктор оболочек
 item.Sync_ShellStorage.name=Хранилище оболочек
@@ -13,37 +14,36 @@ sync.waila.entity=Имя сущности
 sync.waila.active=Активно
 sync.waila.powerout=Создание
 chat.command.clear.success=%s очистил %s прогресс копирования
-chat.command.clear.usage=/Sync clear <игрок> | Очищает все прогрессы копирования игроков. Использовать только в случае, если игрок застрял в "подвешенном" состоянии.
+chat.command.clear.usage=/Sync clear <игрок> | Очищает все достижения копирования игроков. Использовать только в случае, если игрок застрял в "подвешенном" состоянии.
 chat.command.sync.usage=/Sync <clear>
 
-sync.config.cat.gameplay.name=Геймплей
+sync.config.cat.gameplay.name=Игровой процесс
 sync.config.cat.clientOnly.name=Только клиент
 
-sync.config.cat.gameplay.comment=Эти параметры влияют на игровой процесс, когда используется данный мод.
-sync.config.cat.clientOnly.comment=Эти параметры только для клиента.
+sync.config.cat.gameplay.comment=Эти настройки влияют на игровой процесс, когда используется данная модификация.
+sync.config.cat.clientOnly.comment=Эти настройки только для клиента.
 
-sync.config.prop.shellConstructionPowerRequirement.name=Shell Construction Power Requirement
-sync.config.prop.shellStoragePowerRequirement.name=Shell Storage Power Requirement
-sync.config.prop.allowCrossDimensional.name=Allow Cross Dimensional
-sync.config.prop.damageGivenOnShellConstruction.name=Damage Given On Shell Construction
-sync.config.prop.overrideDeathIfThereAreAvailableShells.name=Override Death If There Are Available Shells
-sync.config.prop.prioritizeHomeShellOnDeath.name=Prioritize Home Shell On Death?
-sync.config.prop.crossDimensionalSyncingOnDeath.name=Cross Dimensional Syncing on Death
-sync.config.prop.allowChunkLoading.name=Allow Chunk Loading
-sync.config.prop.hardcoreMode.name=Hardcore Mode
-sync.config.prop.ratioRF.name=RF:PG Ratio
-sync.config.prop.showAllShellInfoInGui.name=Show All Shell Info In Gui
+sync.config.prop.shellConstructionPowerRequirement.name=Потребление энергии конструктором оболочек
+sync.config.prop.shellStoragePowerRequirement.name=Потребление энергии хранилищем оболочек
+sync.config.prop.allowCrossDimensional.name=Разрешить синхронизацию через измерения
+sync.config.prop.damageGivenOnShellConstruction.name=Урон от конструктора оболочек
+sync.config.prop.overrideDeathIfThereAreAvailableShells.name=Отмена смерти, если доступны оболочки
+sync.config.prop.prioritizeHomeShellOnDeath.name=Выбрать домашнюю оболочку после смерти?
+sync.config.prop.crossDimensionalSyncingOnDeath.name=Синхронизация через измерения после смерти
+sync.config.prop.allowChunkLoading.name=Разрешить загрузку чанков
+sync.config.prop.hardcoreMode.name=Хардкорный режим
+sync.config.prop.ratioRF.name=Соотношение RF:PG
+sync.config.prop.showAllShellInfoInGui.name=Показывать всю информацию о оболочке
 
 
-sync.config.prop.shellConstructionPowerRequirement.comment=Power requirement for Shell Construction
-sync.config.prop.shellStoragePowerRequirement.comment=Power requirement per tick in piggawatts to keep shell storage active.\n0 = No requirement
-sync.config.prop.allowCrossDimensional.comment=Allow cross-dimensional shell syncing?\nWARNING: There are issues with going in and out of The End, where you require a relog AFTER syncing because chunks may not load.\nEnable The End travel at your own risk.\n0 = No\n1 = Yes, but not in The End\n2 = Yes, even in the End
-sync.config.prop.damageGivenOnShellConstruction.comment=Number of half hearts damage given to the player when a new shell is constructed.
-sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=Allow overriding the death of a player if the player has other shells?\nThe player will resync to the nearest shell.\n0 = No\n1 = Yes, but only to storage units\n2 = Yes, to storage and construction units
-sync.config.prop.prioritizeHomeShellOnDeath.comment=Prioritize "Home" Shells when a player dies and resyncs?
-sync.config.prop.crossDimensionalSyncingOnDeath.comment=Allow cross dimensional syncing when a player dies and resyncs?
-sync.config.prop.allowChunkLoading.comment=Added by request, mod is made to chunkload shells. Untested, unsupported.\nCould crash your world fatally.\nDisable at own risk.
-sync.config.prop.hardcoreMode.comment=Enable hardcore mode recipes?\n0 = No\n1 = Yes\n2 = Yes, but only on actual Hardcore mode.
-sync.config.prop.ratioRF.comment=Redstone Flux : Piggawatt ratio.\n1RF = <config>PG\nDefault is 1 RF creates 2 PG
-sync.config.prop.showAllShellInfoInGui.comment=Show info of all shells in the GUI?\n0 = No\n1 = Just the name will do\n2 = Yes, in all full blown glory!
-
+sync.config.prop.shellConstructionPowerRequirement.comment=Требуемая энергия для конструктора оболочек
+sync.config.prop.shellStoragePowerRequirement.comment=Требуемая энергия за тик в piggawatts, чтобы хранилище оболочек оставалось активным.\n0 = Не требуется
+sync.config.prop.allowCrossDimensional.comment=Разрешить синхронизацию оболочек через измерения?\nВНИМАНИЕ: Существуют проблемы при входе и выходе из Края, где Вам требуется перезайти в игру ПОСЛЕ синхронизации, потому что чанки могут не загрузиться.\nВключайте путешествие в Край на свой страх и риск.\n0 = Нет\n1 = Да, но не в Край\n2 = Да, и даже в Край
+sync.config.prop.damageGivenOnShellConstruction.comment=Количество получаемого урона (в половинках сердец) игроком, когда новая оболочка создана.
+sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=Разрешить отмену смерти игрока, если у игрока есть другие оболочки?\nИгрок снова синхронизируется к ближайшей оболочке.\n0 = Нет\n1 = Да, но только к хранилищам\n2 = Да, к хранилищам и конструкторам
+sync.config.prop.prioritizeHomeShellOnDeath.comment=Выбирать "домашние" оболочки, когда игрок умирает и заново синхронизируется?
+sync.config.prop.crossDimensionalSyncingOnDeath.comment=Разрешить синхронизацию через измерения, когда игрок умирает и заново синхронизируется?
+sync.config.prop.allowChunkLoading.comment=Добавлено по запросу, модификация поддерживает оболочки загруженными. Не протестировано, не поддерживается разработчиком.\nМожет навсегда уничтожить Ваш мир.\nОтключайте на свой страх и риск.
+sync.config.prop.hardcoreMode.comment=Включить рецепты хардкорного режима?\n0 = Нет\n1 = Да\n2 = Да, но только, если режим игры - хардкор.
+sync.config.prop.ratioRF.comment=Соотношение Redstone Flux : Piggawatt.\n1RF = <можно настроить>PG\nПо умолчанию 1 RF создаёт 2 PG
+sync.config.prop.showAllShellInfoInGui.comment=Показывать информацию о оболочках в интерфейсе?\n0 = Нет\n1 = Показывать только названия\n2 = Да, полностью!
