@@ -64,10 +64,10 @@ public class HUDHandlerSync implements IWailaDataProvider {
     public static void callbackRegister(IWailaRegistrar registrar) {
         registrar.registerBodyProvider(new HUDHandlerSync(), BlockDualVertical.class);
 
-        registrar.addConfig("Sync", "sync.showowner", "Show Shell Owner");
-        registrar.addConfig("Sync", "sync.showprogress", "Show Build Progress");
-        registrar.addConfig("Sync", "sync.showentity", "Show Entity Name");
-		registrar.addConfig("Sync", "sync.showactive", "Show Active");
-		registrar.addConfig("Sync", "sync.showpower.output", "Show Power Output");
+        registrar.addConfig("Sync", "sync.showowner", StatCollector.translateToLocal("sync.waila.showowner"));
+        registrar.addConfig("Sync", "sync.showprogress", StatCollector.translateToLocal("sync.waila.showprogress"));
+        registrar.addConfig("Sync", "sync.showentity", StatCollector.translateToLocal("sync.waila.showentity"));
+        registrar.addConfig("Sync", "sync.showactive", StatCollector.translateToLocal("sync.waila.showactive"));
+        registrar.addConfig("Sync", "sync.showpower.output", StatCollector.translateToLocal("sync.waila.showpower.output"));
 	}
 }
