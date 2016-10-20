@@ -12,6 +12,7 @@ import ichun.common.core.network.PacketHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraftforge.client.event.MouseEvent;
@@ -272,6 +273,10 @@ public class EventHandler {
 						player.getEntityData().setBoolean("isDeathSyncing", true);
 						ShellHandler.syncInProgress.put(player.getCommandSenderName(), tpPosition);
 					}
+
+					NBTTagCompound persistent = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+					persistent.setInteger("Sync_HealthReduction", persistent.getInteger("Sync_HealthReduction") + Sync.config.getInt("reduceHealthOnDeathSync"));
+					player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, persistent);
 				}
 			}
 		}
@@ -290,9 +295,18 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onEntityHurt(LivingHurtEvent event) {
 		//Prevent damage during sync
+		if (event.entityLiving instanceof EntityPlayerMP && !(event.entityLiving instanceof FakePlayer) && !event.entityLiving.worldObj.isRemote) {
+			EntityPlayerMP player = (EntityPlayerMP) event.entityLiving;
+			if (player.getEntityData().hasKey("isDeathSyncing") && player.getEntityData().getBoolean("isDeathSyncing"))
+			{
+				event.setCanceled(true);
+				return;
+			}
+		}
 		if (event.entityLiving instanceof EntityPlayer && event.source != DamageSource.outOfWorld) {
 			if (ShellHandler.syncInProgress.containsKey(((EntityPlayer) event.entityLiving).getCommandSenderName())) {
 				event.setCanceled(true);
+				return;
 			}
 		}
 	}

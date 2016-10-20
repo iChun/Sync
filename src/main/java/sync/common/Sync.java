@@ -52,7 +52,7 @@ import java.util.List;
 public class Sync
         implements IConfigUser
 {
-    public static final String version = iChunUtil.versionMC +".0.0";
+    public static final String version = iChunUtil.versionMC +".0.1";
 
     @Instance("Sync")
     public static Sync instance;
@@ -94,6 +94,7 @@ public class Sync
         config.createIntProperty("shellStoragePowerRequirement", "sync.config.prop.shellStoragePowerRequirement.name", "sync.config.prop.shellStoragePowerRequirement.comment", true, false, 0, 0, Integer.MAX_VALUE);
 
         config.createIntProperty("allowCrossDimensional", "sync.config.prop.allowCrossDimensional.name", "sync.config.prop.allowCrossDimensional.comment", true, true, 1, 0, 2);
+        config.createIntProperty("reduceHealthOnDeathSync", "sync.config.prop.reduceHealthOnDeathSync.name", "sync.config.prop.reduceHealthOnDeathSync.comment", true, false, 0, 0, Integer.MAX_VALUE);
         config.createIntProperty("damageGivenOnShellConstruction", "sync.config.prop.damageGivenOnShellConstruction.name", "sync.config.prop.damageGivenOnShellConstruction.comment", true, false, 2, 0, Integer.MAX_VALUE);
         config.createIntProperty("overrideDeathIfThereAreAvailableShells", "sync.config.prop.overrideDeathIfThereAreAvailableShells.name", "sync.config.prop.overrideDeathIfThereAreAvailableShells.comment", true, true, 1, 0, 2);
         config.createIntBoolProperty("prioritizeHomeShellOnDeath", "sync.config.prop.prioritizeHomeShellOnDeath.name", "sync.config.prop.prioritizeHomeShellOnDeath.comment", true, false, true);

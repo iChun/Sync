@@ -12,6 +12,7 @@ import ichun.common.core.network.PacketHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -191,19 +192,41 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
                             this.setPlayerNBT(tag);
                         }
+
                         //Sync Forge persistent data as it's supposed to carry over on death
                         NBTTagCompound persistentData = player.getEntityData();
                         if (persistentData != null) {
                             NBTTagCompound forgeData = playerNBT.getCompoundTag("ForgeData");
                             forgeData.setTag(EntityPlayer.PERSISTED_NBT_TAG, player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+
+                            persistentData.setBoolean("isDeathSyncing", false);
                             forgeData.setBoolean("isDeathSyncing", false);
                             playerNBT.setTag("ForgeData", forgeData);
                         }
+
+                        NBTTagCompound persistent = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+                        int healthReduction = persistent.getInteger("Sync_HealthReduction");
+
                         //Also sync ender chest.
                         playerNBT.setTag("EnderItems", player.getInventoryEnderChest().saveInventoryToNBT());
 
                         //Update the players NBT stuff
                         player.readFromNBT(this.getPlayerNBT());
+
+                        if(healthReduction > 0)
+                        {
+                            double curMaxHealth = player.getEntityAttribute(SharedMonsterAttributes.maxHealth).getBaseValue();
+                            double morphMaxHealth = curMaxHealth - healthReduction;
+                            if(morphMaxHealth < 1D)
+                            {
+                                morphMaxHealth = 1D;
+                            }
+
+                            if(morphMaxHealth != curMaxHealth)
+                            {
+                                player.getEntityAttribute(SharedMonsterAttributes.maxHealth).setBaseValue(morphMaxHealth);
+                            }
+                        }
 
                         player.theItemInWorldManager.initializeGameType(WorldSettings.GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
                         PacketHandler.sendToPlayer(Sync.channels, new PacketNBT(this.getPlayerNBT()), player);
