@@ -3,26 +3,11 @@ Sync
 
 Crafting recipes:
 
-Sync Core:-
-(change ender pearl with beacon for HardcoreMode)
-[Daylight Sensor] [Lapis Block] [Daylight Sensor]
-[ Nether Quartz ] [Ender Pearl] [ Nether Quartz ]
-[    Emerald    ] [RedstoneBlk] [    Emerald    ]
-
-Shell Constructor:-
-[ Obsidian ] [Sync Core ] [ Obsidian ]
-[Glass Pane] [Glass Pane] [Glass Pane]
-[ Obsidian ] [ Redstone ] [ Obsidian ]
-
-Shell Storage:-
-[ Obsidian ] [    Sync Core      ] [ Obsidian ]
-[Glass Pane] [    Iron Block     ] [Glass Pane]
-[ Obsidian ] [Iron Pressure Plate] [ Obsidian ]
-
-Treadmill:-
-[            ] [            ] [Daylight Sensor]
-[Black Carpet] [Black Carpet] [    Iron Bar   ]
-[  Obsidian  ] [  Obsidian  ] [    Redstone   ]
+<!---
+I know the sync items being crafted in the image aren't great, feel free to fix it, the .pdn is at https://www.dropbox.com/s/39po31vm5q2s2ea/Readme_Recipes.pdn?dl=0
+-->
+![Alt text](http://i.imgur.com/9i2BQnX.png "Crafting recipes")
+In hardmode, swap out the enderpearl for a beacon in sync core recipe.
 
 ====================
 
