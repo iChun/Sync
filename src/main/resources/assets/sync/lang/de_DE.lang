@@ -20,18 +20,18 @@ chat.command.sync.usage=/Sync <clear>
 sync.config.cat.gameplay.name=Gameplay
 sync.config.cat.clientOnly.name=Client Only
 
-sync.config.cat.gameplay.comment=These options affect the gameplay while using the mod.
-sync.config.cat.clientOnly.comment=These settings are client-only.
+sync.config.cat.gameplay.comment=Diese Einstellungen verändern das Gameplay des Mods
+sync.config.cat.clientOnly.comment=Diese Einstellungen sind "Client-Only"
 
-sync.config.prop.shellConstructionPowerRequirement.name=Shell Construction Power Requirement
-sync.config.prop.shellStoragePowerRequirement.name=Shell Storage Power Requirement
-sync.config.prop.allowCrossDimensional.name=Allow Cross Dimensional
+sync.config.prop.shellConstructionPowerRequirement.name=Hüllen Erstellung benötigt Energie
+sync.config.prop.shellStoragePowerRequirement.name=Hüllen Lagerung benötigt Energie
+sync.config.prop.allowCrossDimensional.name=Erlaube Interdimensional
 sync.config.prop.damageGivenOnShellConstruction.name=Damage Given On Shell Construction
-sync.config.prop.overrideDeathIfThereAreAvailableShells.name=Override Death If There Are Available Shells
+sync.config.prop.overrideDeathIfThereAreAvailableShells.name=Verhindere den Tod, wenn genug Hüllen verfügbar sind
 sync.config.prop.prioritizeHomeShellOnDeath.name=Prioritize Home Shell On Death?
 sync.config.prop.crossDimensionalSyncingOnDeath.name=Cross Dimensional Syncing on Death
-sync.config.prop.allowChunkLoading.name=Allow Chunk Loading
-sync.config.prop.hardcoreMode.name=Hardcore Mode
+sync.config.prop.allowChunkLoading.name=Erlaube das Laden der Chunks
+sync.config.prop.hardcoreMode.name=Hardcore Modus
 sync.config.prop.ratioRF.name=RF:PG Ratio
 sync.config.prop.showAllShellInfoInGui.name=Show All Shell Info In Gui
 
