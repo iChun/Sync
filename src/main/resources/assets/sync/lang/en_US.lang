@@ -1,5 +1,4 @@
 itemGroup.sync=Sync
-tile.Sync_ShellConstructor.name=Shell Constructor
 sync.breakShellUnit=%1$s destroyed a shell of %2$s
 item.Sync_ShellConstructor.name=Shell Constructor
 item.Sync_ShellStorage.name=Shell Storage
