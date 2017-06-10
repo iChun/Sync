@@ -1,14 +1,15 @@
 package me.ichun.mods.sync.common.packet;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
+import me.ichun.mods.sync.common.Sync;
+import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketPlayerEnterStorage extends AbstractPacket
 {
@@ -58,13 +59,14 @@ public class PacketPlayerEnterStorage extends AbstractPacket
     public void handleClient()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        TileEntity te = mc.theWorld.getTileEntity(x, y, z);
+        BlockPos pos = new BlockPos(x, y, z);
+        TileEntity te = mc.theWorld.getTileEntity(pos);
 
         if(te instanceof TileEntityShellStorage)
         {
             TileEntityShellStorage ss = (TileEntityShellStorage)te;
 
-            mc.thePlayer.setLocationAndAngles(ss.xCoord + 0.5D, ss.yCoord, ss.zCoord + 0.5D, (ss.face - 2) * 90F, 0F);
+            mc.thePlayer.setLocationAndAngles(ss.getPos().getX() + 0.5D, ss.getPos().getY(), ss.getPos().getZ() + 0.5D, (ss.face - 2) * 90F, 0F);
 
             Sync.eventHandlerClient.lockedStorage = ss;
             Sync.eventHandlerClient.lockTime = 5;

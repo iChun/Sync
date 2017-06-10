@@ -23,6 +23,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -694,7 +695,7 @@ public class EventHandlerClient
             {
                 float scaleee = 0.75F;
                 GL11.glScalef(scaleee, scaleee, scaleee);
-                String prefix = (selected ? EnumChatFormatting.YELLOW.toString() : "");
+                String prefix = (selected ? TextFormatting.YELLOW.toString() : "");
                 String string;
                 if(!state.name.equalsIgnoreCase(""))
                 {
@@ -762,7 +763,7 @@ public class EventHandlerClient
                     GL11.glPushMatrix();
                     float scaleee = 1.5F;
                     GL11.glScalef(scaleee, scaleee, scaleee);
-                    String name = EnumChatFormatting.RED.toString() + (int)Math.floor(state.buildProgress / Sync.config.shellConstructionPowerRequirement * 100) + "%";
+                    String name = TextFormatting.RED.toString() + (int)Math.floor(state.buildProgress / Sync.config.shellConstructionPowerRequirement * 100) + "%";
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), -14, 16777215);
 
                     GL11.glPopMatrix();
@@ -807,18 +808,18 @@ public class EventHandlerClient
                 int height = 5;
                 if(state.name.equalsIgnoreCase(""))
                 {
-                    String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    String name = TextFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height, 16777215);
-                    name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+                    name = TextFormatting.YELLOW.toString() + state.dimName;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
                 }
                 else
                 {
-                    String name = EnumChatFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    String name = TextFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
-                    name = EnumChatFormatting.YELLOW.toString() + state.name;
+                    name = TextFormatting.YELLOW.toString() + state.name;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
-                    name = EnumChatFormatting.YELLOW.toString() + state.dimName;
+                    name = TextFormatting.YELLOW.toString() + state.dimName;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
                 }
                 GL11.glPopMatrix();
@@ -883,7 +884,7 @@ public class EventHandlerClient
             Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
             if(!(state.isConstructor && state.buildProgress < Sync.config.shellConstructionPowerRequirement))
             {
-                Minecraft.getMinecraft().getRenderManager().renderEntityWithPosYaw(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+                Minecraft.getMinecraft().getRenderManager().doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
             }
             else
             {

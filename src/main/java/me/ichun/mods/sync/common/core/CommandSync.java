@@ -6,6 +6,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentTranslation;
 import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class CommandSync extends CommandBase {
 
@@ -31,11 +32,11 @@ public class CommandSync extends CommandBase {
 				}
 			}
 			else {
-				iCommandSender.addChatMessage(new ChatComponentTranslation("chat.command.clear.usage"));
+				iCommandSender.addChatMessage(new TextComponentTranslation("chat.command.clear.usage"));
 			}
 		}
 		else {
-			iCommandSender.addChatMessage(new ChatComponentTranslation("chat.command.sync.usage"));
+			iCommandSender.addChatMessage(new TextComponentTranslation("chat.command.sync.usage"));
 		}
 	}
 }

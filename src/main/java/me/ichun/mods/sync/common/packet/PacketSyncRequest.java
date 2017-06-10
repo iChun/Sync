@@ -4,6 +4,8 @@ import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import me.ichun.mods.sync.api.SyncStartEvent;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -86,8 +88,10 @@ public class PacketSyncRequest extends AbstractPacket
 
         if(worldOri != null && world != null)
         {
-            TileEntity oriTe = worldOri.getTileEntity(xCoord, yCoord, zCoord);
-            TileEntity te = world.getTileEntity(shellPosX, shellPosY, shellPosZ);
+            BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
+            BlockPos shellPos = new BlockPos(shellPosX, shellPosY, shellPosZ);
+            TileEntity oriTe = worldOri.getTileEntity(pos);
+            TileEntity te = world.getTileEntity(shellPos);
 
             if(oriTe instanceof TileEntityDualVertical && te instanceof TileEntityDualVertical)
             {
@@ -128,12 +132,15 @@ public class PacketSyncRequest extends AbstractPacket
                         NBTTagCompound tag = new NBTTagCompound();
                         player.writeToNBT(tag);
 
-                        tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).theItemInWorldManager.getGameType().getID());
+                        tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).interactionManager.getGameType().getID());
 
                         ss.setPlayerNBT(tag);
 
-                        worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord, ss.zCoord);
-                        worldOri.markBlockForUpdate(ss.xCoord, ss.yCoord + 1, ss.zCoord);
+                        IBlockState state = worldOri.getBlockState(ss.getPos());
+                        IBlockState state1 = worldOri.getBlockState(ss.getPos().add(0, 1, 0));
+
+                        worldOri.notifyBlockUpdate(ss.getPos(), state, state, 3);
+                        worldOri.notifyBlockUpdate(ss.getPos().add(0, 1, 0), state1, state1, 3);
                     }
 
                     Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);
@@ -143,7 +150,7 @@ public class PacketSyncRequest extends AbstractPacket
                     targetShell.resyncOrigin = originShell; //Doing it this way probably isn't the best way
                     ShellHandler.syncInProgress.put(player.getName(), targetShell);
 
-                    MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.xCoord, targetShell.yCoord, targetShell.zCoord));
+                    MinecraftForge.EVENT_BUS.post(new SyncStartEvent(player, originShell.getPlayerNBT(), targetShell.getPlayerNBT(), targetShell.getPos()));
 
                     Sync.channel.sendToAll(new PacketPlayerDeath(player.getName(), false));
 

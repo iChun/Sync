@@ -2,13 +2,17 @@ package me.ichun.mods.sync.common.tileentity;
 
 import cofh.api.energy.IEnergyHandler;
 import com.mojang.authlib.GameProfile;
+import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.packet.PacketNBT;
 import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.shell.TeleporterShell;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.ITickable;
+import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -28,7 +32,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.management.ItemInWorldManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
@@ -148,7 +152,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                         }
 
 
-                        Sync.channel.sendTo(new PacketZoomCamera(this.xCoord, this.yCoord, this.zCoord, this.worldObj.provider.getDimension(), this.face, true, false), player);
+                        Sync.channel.sendTo(new PacketZoomCamera(getPos().getX(), getPos().getY(), getPos().getZ(), this.worldObj.provider.getDimension(), this.face, true, false), player);
                     }
                 }
                 //Beginning of kicking the player out
@@ -164,8 +168,10 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                         TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) this;
                         shellConstructor.doorOpen = true;
                     }
-                    this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-                    this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord + 1, this.zCoord);
+                    IBlockState state = worldObj.getBlockState(getPos());
+                    IBlockState state1 = worldObj.getBlockState(getPos().add(0, 1, 0));
+                    worldObj.notifyBlockUpdate(getPos(), state, state, 3);
+                    worldObj.notifyBlockUpdate(getPos().add(0, 1, 0), state1, state1, 3);
                 }
                 //This is where we begin to sync the data aka point of no return
                 if (this.resyncPlayer == 30) {
@@ -182,7 +188,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             this.worldObj.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
                             //Setup location for dummy
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), EntityHelperBase.getSimpleGameProfileFromName(player.getName()), new ItemInWorldManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
                             dummy.connection = player.connection;
                             dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, (this.face - 2) * 90F, 0F);
                             dummy.fallDistance = 0F;
@@ -196,7 +202,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
 
                             //Set data
                             dummy.writeToNBT(tag);
-                            tag.setInteger("sync_playerGameMode", player.theItemInWorldManager.getGameType().getID());
+                            tag.setInteger("sync_playerGameMode", player.interactionManager.getGameType().getID());
                             this.setPlayerNBT(tag);
                         }
 
@@ -235,7 +241,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
                             }
                         }
 
-                        player.theItemInWorldManager.initializeGameType(WorldSettings.GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
+                        player.interactionManager.initializeGameType(GameType.getByID(this.getPlayerNBT().getInteger("sync_playerGameMode")));
                         Sync.channel.sendTo(new PacketNBT(this.getPlayerNBT()), player);
                     }
                 }
@@ -367,16 +373,16 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
             return;
         }
 
-        buffer.writeInt(xCoord);
-        buffer.writeInt(yCoord);
-        buffer.writeInt(zCoord);
+        buffer.writeInt(getPos().getX());
+        buffer.writeInt(getPos().getY());
+        buffer.writeInt(getPos().getZ());
         buffer.writeInt(worldObj.provider.getDimension());
 
         buffer.writeFloat(getBuildProgress());
         buffer.writeFloat(powerAmount());
 
         ByteBufUtils.writeUTF8String(buffer, name);
-        ByteBufUtils.writeUTF8String(buffer, worldObj.provider.getDimensionName());
+        ByteBufUtils.writeUTF8String(buffer, worldObj.provider.getDimensionType().getName());
 
         buffer.writeBoolean(this.getClass() == TileEntityShellConstructor.class);
 
@@ -457,7 +463,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements IEner
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-        return AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1);
+        return new AxisAlignedBB(getPos().getX(), getPos().getY(), getPos().getZ(), getPos().getX() + 1, getPos().getY() + 2, getPos().getZ() + 1);
     }
 
     @Override

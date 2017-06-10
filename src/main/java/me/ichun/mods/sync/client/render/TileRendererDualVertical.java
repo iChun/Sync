@@ -133,7 +133,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					if((Minecraft.getMinecraft().thePlayer.getName().equalsIgnoreCase("direwolf20") || Minecraft.getMinecraft().thePlayer.getName().equalsIgnoreCase("soaryn") || (EventCalendar.isNewYear() || EventCalendar.isAFDay() || EventCalendar.isHalloween() || EventCalendar.isChristmas())) && ss.playerInstance.getRNG().nextFloat() < 0.5F)
 					{
 						ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = ss.playerInstance.rotationYaw + 90F;
-						ss.playerInstance.setPosition(ss.xCoord + 0.5D, ss.yCoord + 0.0D, ss.zCoord + 0.5D);
+						ss.playerInstance.setPosition(ss.getPos().getX() + 0.5D, ss.getPos().getY() + 0.0D, ss.getPos().getZ() + 0.5D);
 						EntityHelper.faceEntity(ss.playerInstance, Minecraft.getMinecraft().thePlayer, 0.5F, 0.5F);
 					}
 					else

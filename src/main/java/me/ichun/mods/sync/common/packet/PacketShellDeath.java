@@ -1,15 +1,15 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
+import me.ichun.mods.sync.client.entity.EntityShellDestruction;
+import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
-import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketShellDeath extends AbstractPacket
 {
@@ -63,15 +63,12 @@ public class PacketShellDeath extends AbstractPacket
     public void handleClient()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        if(mc.theWorld.blockExists(xCoord, yCoord, zCoord))
+        TileEntity te = mc.theWorld.getTileEntity(new BlockPos(xCoord, yCoord, zCoord));
+        if(te instanceof TileEntityDualVertical)
         {
-            TileEntity te = mc.theWorld.getTileEntity(xCoord, yCoord, zCoord);
-            if(te instanceof TileEntityDualVertical)
-            {
-                EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
-                sd.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, 0.0F, 0.0F);
-                mc.theWorld.spawnEntityInWorld(sd);
-            }
+            EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
+            sd.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, 0.0F, 0.0F);
+            mc.theWorld.spawnEntityInWorld(sd);
         }
     }
 }

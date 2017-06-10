@@ -23,7 +23,6 @@ import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
 
 public class ProxyClient extends ProxyCommon
 {
-
 	@Override
 	public void preInitMod()
 	{
