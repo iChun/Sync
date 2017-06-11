@@ -9,17 +9,17 @@ public enum EnumType implements IStringSerializable {
     CONSTRUCTOR {
         @Override
         public String getName() {
-            return "CONSTRUCTOR";
+            return "constructor";
         }
     }, STORAGE {
         @Override
         public String getName() {
-            return "STORAGE";
+            return "storage";
         }
     }, TREADMILL {
         @Override
         public String getName() {
-            return "TREADMILL";
+            return "treadmill";
         }
     };
 

@@ -15,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyEnum;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -56,10 +57,11 @@ public class BlockDualVertical extends BlockContainer {
 
     public static int renderPass;
     private AxisAlignedBB boundingBox = new AxisAlignedBB(0D, 0D, 0D, 1D, 1D, 1D);
-    public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("Type", EnumType.class);
+    public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", EnumType.class);
 
     public BlockDualVertical() {
         super(Material.IRON);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, EnumType.CONSTRUCTOR));
     }
 
     @Override
@@ -576,6 +578,39 @@ public class BlockDualVertical extends BlockContainer {
             }
         }
         return false;
+    }
+
+    @Override
+    protected BlockStateContainer createBlockState() {
+        return new BlockStateContainer(this, TYPE);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state) {
+        switch (state.getValue(TYPE)) {
+            case CONSTRUCTOR:
+                return 0;
+            case STORAGE:
+                return 1;
+            case TREADMILL:
+                return 2;
+            default:
+                throw new RuntimeException("Unknown state value " + state.getValue(TYPE));
+        }
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta) {
+        switch (meta) {
+            case 0:
+                return this.getDefaultState().withProperty(TYPE, EnumType.CONSTRUCTOR);
+            case 1:
+                return this.getDefaultState().withProperty(TYPE, EnumType.STORAGE);
+            case 2:
+                return this.getDefaultState().withProperty(TYPE, EnumType.TREADMILL);
+            default:
+                throw new RuntimeException("Don't know how to convert " + meta + " to state");
+        }
     }
 
     private static void notifyThisAndAbove(IBlockState oldState, IBlockState newState, BlockPos thisPos, World world) {

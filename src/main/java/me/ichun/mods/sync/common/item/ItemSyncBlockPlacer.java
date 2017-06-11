@@ -65,6 +65,7 @@ public class ItemSyncBlockPlacer extends Item
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
         EnumType TYPE = EnumType.getByID(stack.getItemDamage());
+		System.out.println(stack.getItemDamage());
 
         if (block == Blocks.SNOW_LAYER && (state.getValue(BlockSnow.LAYERS) & 7) < 1)
         {

@@ -2,21 +2,17 @@ package me.ichun.mods.sync.client.render;
 
 import me.ichun.mods.sync.client.entity.EntityShellDestruction;
 import me.ichun.mods.sync.client.model.ModelPixel;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.lwjgl.opengl.GL11;
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
-import me.ichun.mods.sync.client.model.ModelPixel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -25,7 +21,7 @@ import java.util.HashMap;
 public class RenderShellDestruction extends Render<EntityShellDestruction>
 {
 	public HashMap<ResourceLocation, BufferedImage[]> restitchedSkins = new HashMap<ResourceLocation, BufferedImage[]>();
-	public HashMap<ResourceLocation, int[]> restitchedSkinsId = new HashMap<ResourceLocation, int[]>();
+	public HashMap<ResourceLocation, int[]> restitchedSkinsId = new HashMap<>();
 	public ModelPixel model;
 	
 	public RenderShellDestruction(RenderManager manager)

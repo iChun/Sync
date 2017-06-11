@@ -54,4 +54,8 @@ public class ProxyCommon
 		Sync.channel = new PacketChannel("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class, PacketPlayerEnterStorage.class, PacketShellDeath.class, PacketClearShellList.class, PacketShellState.class, PacketNBT.class);
 	}
 
+	public void initMod() {
+
+	}
+
 }

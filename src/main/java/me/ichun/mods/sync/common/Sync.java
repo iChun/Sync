@@ -90,6 +90,7 @@ public class Sync
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 
         hasCoFHCore = Loader.isModLoaded("CoFHCore") || Loader.isModLoaded("cofhcore");
+        proxy.initMod();
 
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" );
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
