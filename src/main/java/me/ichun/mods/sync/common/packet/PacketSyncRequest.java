@@ -35,6 +35,10 @@ public class PacketSyncRequest extends AbstractPacket
 
     public PacketSyncRequest(){}
 
+    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos shellPos, int shellDimID) {
+        this(pos.getX(), pos.getY(), pos.getZ(), dimID, shellPos.getX(), shellPos.getY(), shellPos.getZ(), shellDimID);
+    }
+
     public PacketSyncRequest(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID)
     {
         this.xCoord = xCoord;

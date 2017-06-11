@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.packet;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
@@ -46,9 +47,7 @@ public class PacketZoomCamera extends AbstractPacket
     public void readFrom(ByteBuf buffer)
     {
         //zoom state
-        Sync.eventHandlerClient.zoomX = buffer.readInt();
-        Sync.eventHandlerClient.zoomY = buffer.readInt();
-        Sync.eventHandlerClient.zoomZ = buffer.readInt();
+        Sync.eventHandlerClient.zoomPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
 
         Sync.eventHandlerClient.zoomDimension = buffer.readInt();
 

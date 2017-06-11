@@ -51,10 +51,10 @@ public class PacketNBT extends AbstractPacket
     public void handleClient()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        mc.thePlayer.readFromNBT(tag);
-        if(mc.thePlayer.isEntityAlive())
+        mc.player.readFromNBT(tag);
+        if(mc.player.isEntityAlive())
         {
-            mc.thePlayer.deathTime = 0;
+            mc.player.deathTime = 0;
         }
 
         mc.playerController.setGameType(GameType.getByID(tag.getInteger("sync_playerGameMode")));

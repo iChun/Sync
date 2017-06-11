@@ -2,15 +2,13 @@ package me.ichun.mods.sync.common.shell;
 
 import me.ichun.mods.sync.common.Sync;
 import net.minecraft.entity.player.EntityPlayer;
-import me.ichun.mods.sync.common.Sync;
+import net.minecraft.util.math.BlockPos;
 
 public class ShellState 
 	implements Comparable
 {
 
-	public final int xCoord;
-	public final int yCoord;
-	public final int zCoord;
+	public final BlockPos pos;
 	
 	public final int dimension;
 	
@@ -27,15 +25,17 @@ public class ShellState
 	
 	public boolean isHome;
 	
-	public ShellState(int i, int j, int k, int dim)
+	public ShellState(int x, int y, int z, int dim)
 	{
-		xCoord = i;
-		yCoord = j;
-		zCoord = k;
-		dimension = dim;
-		name = "";
-		dimName = "";
-		isConstructor = false;
+		this(new BlockPos(x, y, z), dim);
+	}
+
+	public ShellState(BlockPos pos, int dim) {
+		this.pos = pos;
+		this.dimension = dim;
+		this.name = "";
+		this.dimName = "";
+		this.isConstructor = false;
 	}
 	
 	public void tick()
@@ -52,7 +52,7 @@ public class ShellState
 	
 	public boolean matches(ShellState state)
 	{
-		return state.xCoord == xCoord && state.yCoord == yCoord && state.zCoord == zCoord && state.dimension == dimension;
+		return state.pos.equals(this.pos) && state.dimension == dimension;
 	}
 
 	@Override

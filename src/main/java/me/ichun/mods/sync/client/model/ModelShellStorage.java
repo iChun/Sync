@@ -362,7 +362,7 @@ public class ModelShellStorage extends ModelBase
 	{
 		GL11.glPushMatrix();
 		
-		float legClampProg = MathHelper.clamp_float(prog / 0.6F, 0.0F, 1.0F);
+		float legClampProg = MathHelper.clamp(prog / 0.6F, 0.0F, 1.0F);
 		
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GL11.glScalef(0.9375F, 0.9375F, 0.9375F);
@@ -378,7 +378,7 @@ public class ModelShellStorage extends ModelBase
 		
 		GL11.glPopMatrix();
 		
-		float armClampProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
+		float armClampProg = MathHelper.clamp(prog / 0.4F, 0.0F, 1.0F);
 		
 		bracketShoulderSupportL.rotateAngleX = bracketShoulderSupportL2.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * armClampProg;
 		bracketShoulderSupportR.rotateAngleX = bracketShoulderSupportR2.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * armClampProg;
@@ -391,11 +391,11 @@ public class ModelShellStorage extends ModelBase
 		bracketShoulderSupportR.renderWithRotation(f5);
 		bracketShoulderSupportR2.renderWithRotation(f5);
 		
-		float headClampProg = MathHelper.clamp_float((prog - 0.5F) / 0.3F, 0.0F, 1.0F);
+		float headClampProg = MathHelper.clamp((prog - 0.5F) / 0.3F, 0.0F, 1.0F);
 		
 		headJackLeft.rotateAngleX = headJackTop.rotateAngleX = headJackBottom.rotateAngleX = headJackRight.rotateAngleX = headJackCore.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * headClampProg;
 
-		float headJackProg = MathHelper.clamp_float((prog - 0.8F) / 0.2F, 0.0F, 1.0F);
+		float headJackProg = MathHelper.clamp((prog - 0.8F) / 0.2F, 0.0F, 1.0F);
 		
 		headJackCore.rotationPointZ = 14F + -5F * headJackProg;
 		
@@ -459,8 +459,8 @@ public class ModelShellStorage extends ModelBase
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 
-		float retractProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
-		float swingProg = MathHelper.clamp_float((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
+		float retractProg = MathHelper.clamp(prog / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
 
 		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
 		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;

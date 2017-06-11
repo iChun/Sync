@@ -16,12 +16,14 @@ import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -31,13 +33,15 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class EventHandlerClient
 {
@@ -59,9 +63,7 @@ public class EventHandlerClient
     public int zoomTimer;
     public int zoomTimeout;
     public boolean zoom;
-    public int zoomX;
-    public int zoomY;
-    public int zoomZ;
+    public BlockPos zoomPos;
     public int zoomDimension;
 
     public float zoomPrevYaw;
@@ -131,11 +133,11 @@ public class EventHandlerClient
                     {
                         ShellState state = selectedShells.get(i);
 
-                        if(state.playerState == null || state.dimension != mc.theWorld.provider.getDimension() && (Sync.config.allowCrossDimensional == 0 || Sync.config.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.getDimension() != 1 || state.dimension != 1 && mc.theWorld.provider.getDimension() == 1)))
+                        if(state.playerState == null || state.dimension != mc.world.provider.getDimension() && (Sync.config.allowCrossDimensional == 0 || Sync.config.allowCrossDimensional == 1 && (state.dimension == 1 && mc.world.provider.getDimension() != 1 || state.dimension != 1 && mc.world.provider.getDimension() == 1)))
                         {
                             selectedShells.remove(i);
                         }
-                        if(Sync.eventHandlerClient.lockedStorage != null && Sync.eventHandlerClient.lockedStorage.xCoord == state.xCoord && Sync.eventHandlerClient.lockedStorage.yCoord == state.yCoord && Sync.eventHandlerClient.lockedStorage.zCoord == state.zCoord && Sync.eventHandlerClient.lockedStorage.getWorldObj().provider.getDimension() == state.dimension)
+                        if(Sync.eventHandlerClient.lockedStorage != null && Sync.eventHandlerClient.lockedStorage.getPos().equals(state.pos) && Sync.eventHandlerClient.lockedStorage.getWorld().provider.getDimension() == state.dimension)
                         {
                             selectedShells.remove(i);
                         }
@@ -156,7 +158,7 @@ public class EventHandlerClient
                     }
                     if(selected != null && selected.buildProgress >= Sync.config.shellConstructionPowerRequirement && Sync.eventHandlerClient.lockedStorage != null)
                     {
-                        Sync.channel.sendToServer(new PacketSyncRequest(Sync.eventHandlerClient.lockedStorage.xCoord, Sync.eventHandlerClient.lockedStorage.yCoord, Sync.eventHandlerClient.lockedStorage.zCoord, Sync.eventHandlerClient.lockedStorage.getWorldObj().provider.getDimension(), selected.xCoord, selected.yCoord, selected.zCoord, selected.dimension));
+                        Sync.channel.sendToServer(new PacketSyncRequest(Sync.eventHandlerClient.lockedStorage.getPos(), Sync.eventHandlerClient.lockedStorage.getWorld().provider.getDimension(), selected.pos, selected.dimension));
                     }
 
                     Sync.eventHandlerClient.radialShow = false;
@@ -194,7 +196,7 @@ public class EventHandlerClient
     public void onRenderPlayer(RenderPlayerEvent.Pre event) {
         if (Sync.eventHandlerClient.refusePlayerRender.containsKey(event.getEntityPlayer().getName()) && !Sync.eventHandlerClient.forceRender && Sync.eventHandlerClient.refusePlayerRender.get(event.getEntityPlayer().getName()) < 118) {
             event.getEntityPlayer().lastTickPosX = event.getEntityPlayer().prevPosX = event.getEntityPlayer().posX;
-            event.getEntityPlayer().lastTickPosY = event.getEntityPlayer().prevPosY = event.getEntityPlayer() != Minecraft.getMinecraft().thePlayer && Sync.eventHandlerClient.refusePlayerRender.get(event.getEntityPlayer().getName()) > 60 ? 500D : event.getEntityPlayer().posY;
+            event.getEntityPlayer().lastTickPosY = event.getEntityPlayer().prevPosY = event.getEntityPlayer() != Minecraft.getMinecraft().player && Sync.eventHandlerClient.refusePlayerRender.get(event.getEntityPlayer().getName()) > 60 ? 500D : event.getEntityPlayer().posY;
             event.getEntityPlayer().lastTickPosZ = event.getEntityPlayer().prevPosZ = event.getEntityPlayer().posZ;
             event.getEntityPlayer().renderYawOffset = event.getEntityPlayer().rotationYaw;
             event.getEntityPlayer().deathTime = 0;
@@ -229,10 +231,10 @@ public class EventHandlerClient
     @SubscribeEvent
     public void worldTick(TickEvent.ClientTickEvent event)
     {
-        if(event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().theWorld != null)
+        if(event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().world != null)
         {
             Minecraft mc = Minecraft.getMinecraft();
-            WorldClient world = mc.theWorld;
+            WorldClient world = mc.world;
             if(radialTime > 0)
             {
                 radialTime--;
@@ -270,7 +272,7 @@ public class EventHandlerClient
 
                     if(lockedStorage != null)
                     {
-                        mc.thePlayer.setLocationAndAngles(lockedStorage.xCoord + 0.5D, lockedStorage.yCoord, lockedStorage.zCoord + 0.5D, (lockedStorage.face - 2) * 90F, 0F);
+                        mc.player.setLocationAndAngles(lockedStorage.getPos().getX() + 0.5D, lockedStorage.getPos().getY(), lockedStorage.getPos().getZ() + 0.5D, (lockedStorage.face - 2) * 90F, 0F);
                     }
                 }
 
@@ -278,7 +280,7 @@ public class EventHandlerClient
                 {
                     if(zoomTimer == 60)
                     {
-                        TileEntity te = world.getTileEntity(zoomX, zoomY, zoomZ);
+                        TileEntity te = world.getTileEntity(zoomPos);
                         if(te instanceof TileEntityShellStorage)
                         {
                             TileEntityShellStorage ss = (TileEntityShellStorage)te;
@@ -287,7 +289,7 @@ public class EventHandlerClient
                     }
                     if(zoomTimer > -5 && !zoomDeath)
                     {
-                        mc.thePlayer.setLocationAndAngles(Sync.eventHandlerClient.zoomX + 0.5D, Sync.eventHandlerClient.zoomY, Sync.eventHandlerClient.zoomZ + 0.5D, (Sync.eventHandlerClient.zoomFace - 2) * 90F, 0F);
+                        mc.player.setLocationAndAngles(Sync.eventHandlerClient.zoomPos.getX() + 0.5D, Sync.eventHandlerClient.zoomPos.getY(), Sync.eventHandlerClient.zoomPos.getZ() + 0.5D, (Sync.eventHandlerClient.zoomFace - 2) * 90F, 0F);
                     }
                     if(zoomTimer > -10)
                     {
@@ -295,9 +297,9 @@ public class EventHandlerClient
                     }
                     if(zoomTimer == 0)
                     {
-                        Sync.channel.sendToServer(new PacketUpdatePlayerOnZoomFinish(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch));
+                        Sync.channel.sendToServer(new PacketUpdatePlayerOnZoomFinish(mc.player.posX, mc.player.posY, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch));
 
-                        mc.thePlayer.sendPlayerAbilities();
+                        mc.player.sendPlayerAbilities();
                     }
                 }
                 else if(zoomTimer > -10)
@@ -317,12 +319,12 @@ public class EventHandlerClient
 
                 if(lockedStorage != null)
                 {
-                    double d3 = mc.thePlayer.posX - (lockedStorage.xCoord + 0.5D);
-                    double d4 = mc.thePlayer.getEntityBoundingBox().minY - lockedStorage.yCoord;
-                    double d5 = mc.thePlayer.posZ - (lockedStorage.zCoord + 0.5D);
-                    double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+                    double d3 = mc.player.posX - (lockedStorage.getPos().getX() + 0.5D);
+                    double d4 = mc.player.getEntityBoundingBox().minY - lockedStorage.getPos().getY();
+                    double d5 = mc.player.posZ - (lockedStorage.getPos().getZ() + 0.5D);
+                    double dist = (double)MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
 
-                    if(dist >= 0.3D || world.getTileEntity(lockedStorage.xCoord, lockedStorage.yCoord, lockedStorage.zCoord) != lockedStorage)
+                    if(dist >= 0.3D || world.getTileEntity(lockedStorage.getPos()) != lockedStorage)
                     {
                         radialShow = false;
                         lockedStorage = null;
@@ -330,7 +332,7 @@ public class EventHandlerClient
                 }
             }
         }
-        //		world.spawnParticle("explode", mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, 0.0D, 0.0D, 0.0D);
+        //		world.spawnParticle("explode", mc.player.posX, mc.player.posY, mc.player.posZ, 0.0D, 0.0D, 0.0D);
     }
 
     @SubscribeEvent
@@ -338,7 +340,7 @@ public class EventHandlerClient
     {
         Minecraft mc = Minecraft.getMinecraft();
 
-        if(mc.theWorld != null)
+        if(mc.world != null)
         {
             if(event.phase == TickEvent.Phase.START)
             {
@@ -368,7 +370,7 @@ public class EventHandlerClient
 
                     ScaledResolution reso = new ScaledResolution(mc);
 
-                    float prog = MathHelper.clamp_float((3F - radialTime + event.renderTickTime) / 3F, 0.0F, 1.0F);
+                    float prog = MathHelper.clamp((3F - radialTime + event.renderTickTime) / 3F, 0.0F, 1.0F);
 
                     float rad;
 
@@ -519,11 +521,11 @@ public class EventHandlerClient
                     {
                         ShellState state = selectedShells.get(i);
 
-                        if(state.playerState == null || state.dimension != mc.theWorld.provider.getDimension() && (Sync.config.allowCrossDimensional == 0 || Sync.config.allowCrossDimensional == 1 && (state.dimension == 1 && mc.theWorld.provider.getDimension() != 1 || state.dimension != 1 && mc.theWorld.provider.getDimension() == 1)))
+                        if(state.playerState == null || state.dimension != mc.world.provider.getDimension() && (Sync.config.allowCrossDimensional == 0 || Sync.config.allowCrossDimensional == 1 && (state.dimension == 1 && mc.world.provider.getDimension() != 1 || state.dimension != 1 && mc.world.provider.getDimension() == 1)))
                         {
                             selectedShells.remove(i);
                         }
-                        if(lockedStorage != null && lockedStorage.xCoord == state.xCoord && lockedStorage.yCoord == state.yCoord && lockedStorage.zCoord == state.zCoord && lockedStorage.getWorldObj().provider.getDimension() == state.dimension)
+                        if(lockedStorage != null && lockedStorage.getPos().equals(state.pos) && lockedStorage.getWorld().provider.getDimension() == state.dimension)
                         {
                             selectedShells.remove(i);
                         }
@@ -568,8 +570,8 @@ public class EventHandlerClient
 
         if(zoomDeath && Minecraft.getMinecraft().currentScreen instanceof GuiGameOver)
         {
-            Minecraft.getMinecraft().thePlayer.setHealth(1);
-            Minecraft.getMinecraft().thePlayer.deathTime = 0;
+            Minecraft.getMinecraft().player.setHealth(1);
+            Minecraft.getMinecraft().player.deathTime = 0;
             Minecraft.getMinecraft().displayGuiScreen(null);
         }
 
@@ -578,20 +580,20 @@ public class EventHandlerClient
             Minecraft.getMinecraft().displayGuiScreen(null);
         }
 
-        float prog = MathHelper.clamp_float((60 - zoomTimer + f) / 60, 0.0F, 1.0F);
+        float prog = MathHelper.clamp((60 - zoomTimer + f) / 60, 0.0F, 1.0F);
 
         if(zoom)
         {
             prog = 1.0F - prog;
         }
 
-        float rotProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 4D), 0.0F, 1.0F);
+        float rotProg = 1.0F - MathHelper.clamp((float)Math.pow(1.0F - MathHelper.clamp(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 4D), 0.0F, 1.0F);
 
-        float disProg = 1.0F - MathHelper.clamp_float((float)Math.pow(1.0F - MathHelper.clamp_float(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 2D), 0.0F, 1.0F);
+        float disProg = 1.0F - MathHelper.clamp((float)Math.pow(1.0F - MathHelper.clamp(prog / (zoomDeath ? 0.2F : 0.333F), 0.0F, 1.0F), 2D), 0.0F, 1.0F);
 
-        float posYProg = (float)Math.pow(MathHelper.clamp_float((prog - 0.250F) / 0.750F, 0.0F, 1.0F), 2D);
+        float posYProg = (float)Math.pow(MathHelper.clamp((prog - 0.250F) / 0.750F, 0.0F, 1.0F), 2D);
 
-        float pitchProg = (float)Math.pow(MathHelper.clamp_float((prog - 0.100F) / 0.2F, 0.0F, 1.0F), 2D);
+        float pitchProg = (float)Math.pow(MathHelper.clamp((prog - 0.100F) / 0.2F, 0.0F, 1.0F), 2D);
 
         if(!revert)
         {
@@ -706,12 +708,12 @@ public class EventHandlerClient
                 {
                     GL11.glScalef(scaleee, scaleee, scaleee);
 
-                    string = Integer.toString(state.xCoord);
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.xCoord < 0 ? 2 : 8, -52, 16777215);
-                    string = Integer.toString(state.yCoord);
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.yCoord < 0 ? 2 : 8, -42, 16777215);
-                    string = Integer.toString(state.zCoord);
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.zCoord < 0 ? 2 : 8, -32, 16777215);
+                    string = Integer.toString(state.pos.getX());
+                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getX() < 0 ? 2 : 8, -52, 16777215);
+                    string = Integer.toString(state.pos.getY());
+                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getY() < 0 ? 2 : 8, -42, 16777215);
+                    string = Integer.toString(state.pos.getZ());
+                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getZ() < 0 ? 2 : 8, -32, 16777215);
                     string = state.dimName;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, 8, -22, 16777215);
                 }
@@ -725,14 +727,15 @@ public class EventHandlerClient
 
                     GL11.glColor4f(0.95F, 0.95F, 0.95F, 1.0F);
 
-                    Tessellator tessellator = Tessellator.instance;
-                    tessellator.setColorRGBA(240, 240, 240, 255);
+                    Tessellator tessellator = Tessellator.getInstance();
+                    VertexBuffer buffer = tessellator.getBuffer();
+                    buffer.color(240, 240, 240, 255);
 
-                    tessellator.startDrawingQuads();
-                    tessellator.addVertexWithUV(pX, pY + size, 0.0D, 0.0D, 0.999D);
-                    tessellator.addVertexWithUV(pX + size, pY + size, 0.0D, 1.0D, 0.999D);
-                    tessellator.addVertexWithUV(pX + size, pY, 0.0D, 1.0D, 0.0D);
-                    tessellator.addVertexWithUV(pX, pY, 0.0D, 0.0D, 0.0D);
+                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+                    buffer.pos(pX, pY + size, 0.0D).tex( 0.0D, 0.999D);
+                    buffer.pos(pX + size, pY + size, 0.0D).tex( 1.0D, 0.999D);
+                    buffer.pos(pX + size, pY, 0.0D).tex( 1.0D, 0.0D);
+                    buffer.pos(pX, pY, 0.0D).tex( 0.0D, 0.0D);
                     tessellator.draw();
                 }
             }
@@ -808,14 +811,14 @@ public class EventHandlerClient
                 int height = 5;
                 if(state.name.equalsIgnoreCase(""))
                 {
-                    String name = TextFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    String name = TextFormatting.YELLOW.toString() + state.pos.toString();
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height, 16777215);
                     name = TextFormatting.YELLOW.toString() + state.dimName;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
                 }
                 else
                 {
-                    String name = TextFormatting.YELLOW.toString() + state.xCoord + ", " + state.yCoord + ", " + state.zCoord;
+                    String name = TextFormatting.YELLOW.toString() + state.pos.toString();
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
                     name = TextFormatting.YELLOW.toString() + state.name;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
@@ -876,7 +879,7 @@ public class EventHandlerClient
             ent.rotationYaw = (float)Math.atan((double)(par4 / 40.0F)) * 40.0F;
             ent.rotationPitch = -((float)Math.atan((double)(par5 / 40.0F))) * 20.0F;
             ent.rotationYawHead = ent.renderYawOffset;
-            GL11.glTranslatef(0.0F, ent.yOffset, 0.0F);
+            GL11.glTranslatef(0.0F, (float) ent.getYOffset(), 0.0F);
 
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -898,16 +901,16 @@ public class EventHandlerClient
 
                 Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
 
-                modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().thePlayer.getName().hashCode());
-                modelShellConstructor.txBiped = Minecraft.getMinecraft().thePlayer.getLocationSkin();
-                modelShellConstructor.renderConstructionProgress(Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp_float(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
+                modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().player.getName().hashCode());
+                modelShellConstructor.txBiped = Minecraft.getMinecraft().player.getLocationSkin();
+                modelShellConstructor.renderConstructionProgress(Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
 
                 GL11.glPopMatrix();
             }
 
             GL11.glTranslatef(0.0F, -0.22F, 0.0F);
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
-            Tessellator.instance.setBrightness(240);
+//            Tessellator.getInstance().setBrightness(240); TODO
 
             Minecraft.getMinecraft().getRenderManager().playerViewY = viewY;
             ent.renderYawOffset = f2;

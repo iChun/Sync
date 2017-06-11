@@ -1,21 +1,20 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import cofh.api.tileentity.IEnergyInfo;
+import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.shell.ShellHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
-import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Optional;
 
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
-public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
+//@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
+public class TileEntityShellConstructor extends TileEntityDualVertical //implements IEnergyInfo TODO Energy
 {
 	public float constructionProgress;
 	public int doorTime;
@@ -34,9 +33,9 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 	
 	@Override
-	public void updateEntity()
+	public void update()
 	{
-		super.updateEntity();
+		super.update();
 		
 		if(top && pair != null)
 		{
@@ -46,10 +45,10 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		if(isPowered())
 		{
 			float power = powerAmount();
-			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
+			if(world.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
-				if(!top && !worldObj.isRemote)
+				if(!top && !world.isRemote)
 				{
 					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
 					if(player != null)
@@ -65,14 +64,14 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			}
 
             /*
-			if(worldObj.isRemote && !top)
+			if(world.isRemote && !top)
 			{
 				spawnParticles();
 			}
 			*/
 
 			//Notifies neighbours of block update, used for comparator
-			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+			if (world.getWorldTime() % 40L == 0) world.notifyNeighborsOfStateChange(getPos(), world.getBlockState(getPos()).getBlock());
 		}
 		if(!top)
 		{
@@ -82,14 +81,16 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 				{
 					doorTime++;
 				}
-				if(!worldObj.isRemote && doorTime == animationTime)
+				if(!world.isRemote && doorTime == animationTime)
 				{
-					List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
+					BlockPos pos = getPos();
+					List list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 2, pos.getZ() + 1));
 					if(list.isEmpty())
 					{
 						doorOpen = false;
-						
-						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+
+						IBlockState state = world.getBlockState(pos);
+						world.notifyBlockUpdate(pos, state, state, 3);
 					}
 				}
 			}
@@ -100,12 +101,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 					doorTime--;
 				}
 			}
-			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ShellHandler.isShellAlreadyRegistered(this))
+			if(!world.isRemote && !playerName.equalsIgnoreCase("") && !ShellHandler.isShellAlreadyRegistered(this))
 			{
 				ShellHandler.addShell(playerName, this, true);
 			}
 		}
-		if(!top && !worldObj.isRemote) 
+		if(!top && !world.isRemote)
 		{
 			rfBuffer += Math.abs(powReceived - rfIntake);
 			//If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
@@ -113,7 +114,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			{
 				rfIntake = powReceived;
 				rfBuffer = 0;
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 3);
 			}
 			powReceived = 0;
 		}
@@ -142,11 +144,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound tag)
+	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
 		super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
+		return tag;
 	}
 	 
 	@Override
@@ -164,81 +167,81 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		this.constructionProgress = 0F;
 	}
 	
-	// TE methods
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
-	{
-		int powReq = Math.max((int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress), 0);
-		if(powReq == 0 || playerName.equalsIgnoreCase(""))
-		{
-			return 0;
-		}
-		int pow = maxReceive;
-		if(pow > 24)
-		{
-			pow = 24;
-		}
-		if(pow > powReq)
-		{
-			pow = powReq;
-		}
-		if(!simulate)
-		{
-			powReceived += (float)pow * (float)Sync.config.ratioRF;
-		}
-		return pow;
-	}
+//	// TE methods
+//	@Override
+//	@Optional.Method(modid = "CoFHCore") TODO Energy
+//	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
+//	{
+//		int powReq = Math.max((int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress), 0);
+//		if(powReq == 0 || playerName.equalsIgnoreCase(""))
+//		{
+//			return 0;
+//		}
+//		int pow = maxReceive;
+//		if(pow > 24)
+//		{
+//			pow = 24;
+//		}
+//		if(pow > powReq)
+//		{
+//			pow = powReq;
+//		}
+//		if(!simulate)
+//		{
+//			powReceived += (float)pow * (float)Sync.config.ratioRF;
+//		}
+//		return pow;
+//	}
 
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public boolean canConnectEnergy(ForgeDirection from)
-	{
-		return !top;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getEnergyStored(ForgeDirection from)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getMaxEnergyStored(ForgeDirection from)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoEnergyPerTick() {
-		return powReceived;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoMaxEnergyPerTick() {
-		return 24;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoEnergyStored() {
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoMaxEnergyStored() {
-		return 0;
-	}
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public boolean canConnectEnergy(ForgeDirection from)
+//	{
+//		return !top;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getEnergyStored(ForgeDirection from)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getMaxEnergyStored(ForgeDirection from)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getInfoEnergyPerTick() {
+//		return powReceived;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getInfoMaxEnergyPerTick() {
+//		return 24;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getInfoEnergyStored() {
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getInfoMaxEnergyStored() {
+//		return 0;
+//	}
 }

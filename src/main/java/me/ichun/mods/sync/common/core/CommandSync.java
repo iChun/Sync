@@ -2,41 +2,43 @@ package me.ichun.mods.sync.common.core;
 
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentTranslation;
-import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentTranslation;
+
+import javax.annotation.Nonnull;
 
 public class CommandSync extends CommandBase {
 
 	@Override
-	public String getCommandName() {
+	@Nonnull
+	public String getName() {
 		return "sync";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender iCommandSender) {
+	@Nonnull
+	public String getUsage(@Nonnull ICommandSender iCommandSender) {
 		return "chat.command.sync.usage";
 	}
 
 	@Override
-	public void processCommand(ICommandSender iCommandSender, String[] args) {
+	public void execute(@Nonnull MinecraftServer server, @Nonnull ICommandSender sender, @Nonnull String[] args) throws CommandException {
 		if (args.length >= 1) {
 			if (args[0].equals("clear") && args.length == 2) {
-				EntityPlayer entityPlayer = getPlayer(iCommandSender, args[1]);
-				if (entityPlayer != null) {
-					ShellHandler.syncInProgress.remove(args[1]);
-					entityPlayer.getEntityData().setBoolean("isDeathSyncing", false);
-                    func_152373_a(iCommandSender, this, "chat.command.clear.success", iCommandSender.getName(), args[1]);
-				}
+				EntityPlayer entityPlayer = getPlayer(server, sender, args[1]);
+				ShellHandler.syncInProgress.remove(args[1]);
+				entityPlayer.getEntityData().setBoolean("isDeathSyncing", false);
+				notifyCommandListener(sender, this, "chat.command.clear.success", sender.getName(), args[1]);
 			}
 			else {
-				iCommandSender.addChatMessage(new TextComponentTranslation("chat.command.clear.usage"));
+				sender.sendMessage(new TextComponentTranslation("chat.command.clear.usage"));
 			}
 		}
 		else {
-			iCommandSender.addChatMessage(new TextComponentTranslation("chat.command.sync.usage"));
+			sender.sendMessage(new TextComponentTranslation("chat.command.sync.usage"));
 		}
 	}
 }

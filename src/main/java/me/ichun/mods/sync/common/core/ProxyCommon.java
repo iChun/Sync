@@ -2,29 +2,27 @@ package me.ichun.mods.sync.common.core;
 
 import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.item.ItemGeneric;
-import me.ichun.mods.sync.client.core.TickHandlerClient;
-import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.block.BlockDualVertical;
-import me.ichun.mods.sync.common.item.ItemPlaceholder;
-import me.ichun.mods.sync.common.item.ItemSyncBlockPlacer;
-import me.ichun.mods.sync.common.packet.*;
-import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
-import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import ichun.common.core.network.ChannelHandler;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import me.ichun.mods.sync.client.core.TickHandlerClient;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.creativetab.CreativeTabSync;
-import me.ichun.mods.sync.common.item.ItemPlaceholder;
 import me.ichun.mods.sync.common.item.ItemSyncBlockPlacer;
+import me.ichun.mods.sync.common.packet.PacketClearShellList;
+import me.ichun.mods.sync.common.packet.PacketNBT;
+import me.ichun.mods.sync.common.packet.PacketPlayerDeath;
+import me.ichun.mods.sync.common.packet.PacketPlayerEnterStorage;
+import me.ichun.mods.sync.common.packet.PacketShellDeath;
+import me.ichun.mods.sync.common.packet.PacketShellState;
+import me.ichun.mods.sync.common.packet.PacketSyncRequest;
+import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
+import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class ProxyCommon
 {

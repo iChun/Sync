@@ -1,15 +1,8 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import cofh.api.energy.IEnergyHandler;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import me.ichun.mods.sync.common.Sync;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.EntityDiggingFX;
-import net.minecraft.client.particle.EntitySmokeFX;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -17,15 +10,20 @@ import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import me.ichun.mods.sync.common.Sync;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
-public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, ITickable
+//@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
+public class TileEntityTreadmill extends TileEntity implements ITickable//, IEnergyHandler TODO
 {
 	public TileEntityTreadmill pair;
 	
@@ -57,7 +55,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 	{
 		if(resync)
 		{
-			TileEntity te = worldObj.getTileEntity(back ? (face == 1 ? xCoord + 1 : face == 3 ? xCoord - 1 : xCoord) : (face == 1 ? xCoord - 1 : face == 3 ? xCoord + 1 : xCoord), yCoord, back ? (face == 0 ? zCoord - 1 : face == 2 ? zCoord + 1 : zCoord) : (face == 0 ? zCoord + 1 : face == 2 ? zCoord - 1 : zCoord));
+			TileEntity te = world.getTileEntity(new BlockPos(back ? (face == 1 ? pos.getX() + 1 : face == 3 ? pos.getX() - 1 : pos.getX()) : (face == 1 ? pos.getX() - 1 : face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), back ? (face == 0 ? pos.getZ() - 1 : face == 2 ? pos.getZ() + 1 : pos.getZ()) : (face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() - 1 : pos.getZ())));
 			if(te != null && te.getClass() == this.getClass())
 			{
 				TileEntityTreadmill sc = (TileEntityTreadmill)te;
@@ -66,10 +64,10 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 			}
 			if(latchedEntId != -1)
 			{
-				if(worldObj.isRemote)
+				if(world.isRemote)
 				{
-					Entity ent = worldObj.getEntityByID(latchedEntId);
-					if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 7D)
+					Entity ent = world.getEntityByID(latchedEntId);
+					if(ent != null && ent.getDistance(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)) < 7D)
 					{
 						latchedEnt = (EntityLiving)ent;
 						latchedHealth = latchedEnt.getHealth();
@@ -77,8 +75,8 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 				}
 				else
 				{
-					AxisAlignedBB aabb = new AxisAlignedBB(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
-					List list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
+					AxisAlignedBB aabb = new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
+					List list = world.getEntitiesWithinAABB(Entity.class, aabb);
 
                     for (Object aList : list) {
                         Entity ent = (Entity) aList;
@@ -87,8 +85,9 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
                             if (ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ) {
                                 latchedEnt = (EntityLiving) ent;
                                 latchedHealth = latchedEnt.getHealth();
-                                latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-                                worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+                                latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+								IBlockState state = world.getBlockState(pos);
+                                world.notifyBlockUpdate(pos, state ,state, 3);
                                 break;
                             }
                         }
@@ -99,17 +98,18 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 			{
 				latchedEnt = null;
 				timeRunning = 0;
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state ,state, 3);
 			}
 		}
 		resync = false;
 		
-		if(worldObj.isRemote && !back)
+		if(world.isRemote && !back)
 		{
-			if(latchedEnt == null && latchedEntId != -1 && worldObj.getWorldTime() % 27L == 0L)
+			if(latchedEnt == null && latchedEntId != -1 && world.getWorldTime() % 27L == 0L)
 			{
-				Entity ent = worldObj.getEntityByID(latchedEntId);
-				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 3D)
+				Entity ent = world.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)) < 3D)
 				{
 					latchedEnt = (EntityLiving)ent;
 					latchedHealth = latchedEnt.getHealth();
@@ -117,8 +117,8 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 			}
 			if(latchedEnt != null && latchedEnt.isDead)
 			{
-				Entity ent = worldObj.getEntityByID(latchedEntId);
-				if(ent != null && ent.getDistance(getMidCoord(0), yCoord + 0.175D, getMidCoord(1)) < 7D)
+				Entity ent = world.getEntityByID(latchedEntId);
+				if(ent != null && ent.getDistance(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)) < 7D)
 				{
 					latchedEnt = (EntityLiving)ent;
 					latchedHealth = latchedEnt.getHealth();
@@ -126,23 +126,23 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 			}
 			if(latchedEnt != null)
 			{
-				latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+				latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 				timeRunning++;
 				if(timeRunning > 12000)
 				{
 					timeRunning = 12000;
 				}
 				
-				if(0.3F + (MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > worldObj.rand.nextFloat())
+				if(0.3F + (MathHelper.clamp((float)timeRunning / 12000F, 0.0F, 1.0F) * 0.7F) > world.rand.nextFloat())
 				{
 					spawnParticles();
 				}
 			}
 		}
-		if(!worldObj.isRemote && !back)
+		if(!world.isRemote && !back)
 		{
-			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().contract(0.1D) : new AxisAlignedBB(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), getMidCoord(0), yCoord + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
-			List list = worldObj.getEntitiesWithinAABB(Entity.class, aabb);
+			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().contract(0.1D) : new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
+			List list = world.getEntitiesWithinAABB(Entity.class, aabb);
 	
 			if(latchedEnt != null)
 			{
@@ -154,16 +154,17 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 					if(entityTameable.isSitting())
 					{
 						timeRunning = 0;
-						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+						IBlockState state = world.getBlockState(pos);
+						world.notifyBlockUpdate(pos, state ,state, 3);
 						
 						remove = true;
 					}
 					if(entityTameable.isTamed())
 					{
-						latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+						latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 						
 						aabb = latchedEnt.getEntityBoundingBox().contract(0.1D);
-						list = worldObj.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
+						list = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 					}
 					else
 					{
@@ -228,21 +229,22 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 					}
 					latchedEnt = null;
 					timeRunning = 0;
-					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+					IBlockState state = world.getBlockState(pos);
+					world.notifyBlockUpdate(pos, state ,state, 3);
 				}
 				if(latchedEnt != null)
 				{
 					latchedHealth = latchedEnt.getHealth();
-					latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+					latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
 					latchedEnt.getNavigator().clearPathEntity();
 					if (timeRunning < 12000) {
 						timeRunning++;
 					}
 					
 					//Still running. This sends RF power to nearby IEnergyHandlers
-                    if (Sync.hasCoFHCore) {
-                        this.sendRFEnergyToNearbyDevices();
-                    }
+//                    if (Sync.hasCoFHCore) { TODO Energy
+//                        this.sendRFEnergyToNearbyDevices();
+//                    }
 				}
 			}
 			else
@@ -255,8 +257,9 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 							latchedEnt = (EntityLiving) ent;
 							latchedHealth = latchedEnt.getHealth();
 							timeRunning = 0;
-							latchedEnt.setLocationAndAngles(getMidCoord(0), yCoord + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
-							worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+							latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+							IBlockState state = world.getBlockState(pos);
+							world.notifyBlockUpdate(pos, state ,state, 3);
 							break;
 						}
 					}
@@ -265,66 +268,66 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 		}
 	}
 
-    @Optional.Method(modid = "CoFHCore")
-    private void sendRFEnergyToNearbyDevices() {
-        float power = powerOutput() / (float)Sync.config.ratioRF; //2PW = 1RF
-        int handlerCount = 0;
-        IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
-        for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
-        {
-            if(dir == ForgeDirection.UP)
-            {
-                continue;
-            }
-            TileEntity te = worldObj.getTileEntity(xCoord + dir.offsetX, yCoord + dir.offsetY, zCoord + dir.offsetZ);
-            if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
-            {
-                IEnergyHandler energy = (IEnergyHandler) te;
-                if(energy.canConnectEnergy(dir.getOpposite()))
-                {
-                    handlerCount++;
-                    //Test if they can recieve power via simulate
-                    if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
-                    {
-                        handlers[dir.getOpposite().ordinal()] = energy;
-                    }
-                }
-            }
-        }
-        for(int i = 0; i < handlers.length; i++)
-        {
-            IEnergyHandler handler = handlers[i];
-            if(handler != null)
-            {
-                //Sends power equally to all nearby IEnergyHandlers that can receive it
-                handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max(Math.round(power / (float)handlerCount), 1), false);
-            }
-        }
-    }
+//    @Optional.Method(modid = "CoFHCore") TODO Energy
+//    private void sendRFEnergyToNearbyDevices() {
+//        float power = powerOutput() / (float)Sync.config.ratioRF; //2PW = 1RF
+//        int handlerCount = 0;
+//        IEnergyHandler[] handlers = new IEnergyHandler[ForgeDirection.VALID_DIRECTIONS.length];
+//        for(ForgeDirection dir:ForgeDirection.VALID_DIRECTIONS)
+//        {
+//            if(dir == ForgeDirection.UP)
+//            {
+//                continue;
+//            }
+//            TileEntity te = world.getTileEntity(xCoord + dir.offsetX, pos.getY() + dir.offsetY, zCoord + dir.offsetZ);
+//            if(te instanceof IEnergyHandler && !(te instanceof TileEntityDualVertical))
+//            {
+//                IEnergyHandler energy = (IEnergyHandler) te;
+//                if(energy.canConnectEnergy(dir.getOpposite()))
+//                {
+//                    handlerCount++;
+//                    //Test if they can recieve power via simulate
+//                    if(energy.receiveEnergy(dir.getOpposite(), (int)power, true) > 0)
+//                    {
+//                        handlers[dir.getOpposite().ordinal()] = energy;
+//                    }
+//                }
+//            }
+//        }
+//        for(int i = 0; i < handlers.length; i++)
+//        {
+//            IEnergyHandler handler = handlers[i];
+//            if(handler != null)
+//            {
+//                //Sends power equally to all nearby IEnergyHandlers that can receive it
+//                handler.receiveEnergy(ForgeDirection.getOrientation(i), Math.max(Math.round(power / (float)handlerCount), 1), false);
+//            }
+//        }
+//    }
 	
 	@SideOnly(Side.CLIENT)
 	public void spawnParticles() 
 	{
-		if(latchedEnt != null && pair != null)
-		{
-			double xVelo = (face == 1 ? -30D : face == 3 ? 30.0D : 0.0D);
-			double zVelo = face == 0 ? 30D : face == 2 ? -30D : 0.0D;
-			if(worldObj.rand.nextFloat() < 0.5F)
-			{
-				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, pair.xCoord + worldObj.rand.nextFloat(), pair.yCoord + 0.4D, pair.zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
-			}
-			else
-			{
-				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, xCoord + worldObj.rand.nextFloat(), yCoord + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
-			}
-			
-			if(timeRunning == 12000 && worldObj.rand.nextFloat() < 0.2F)
-			{
-				xVelo *= 0.01D;
-				zVelo *= 0.01D;
-				Minecraft.getMinecraft().effectRenderer.addEffect(new EntitySmokeFX(worldObj, xCoord + worldObj.rand.nextFloat(), yCoord + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo));
-			}
-		}
+//		if(latchedEnt != null && pair != null) TODO figure this out
+//		{
+//			double xVelo = (face == 1 ? -30D : face == 3 ? 30.0D : 0.0D);
+//			double zVelo = face == 0 ? 30D : face == 2 ? -30D : 0.0D;
+//			if(world.rand.nextFloat() < 0.5F)
+//			{
+//				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, pair.xCoord + worldObj.rand.nextFloat(), pair.pos.getY() + 0.4D, pair.zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
+//			}
+//			else
+//			{
+//				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, xCoord + worldObj.rand.nextFloat(), pos.getY() + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
+//			}
+//
+//			if(timeRunning == 12000 && world.rand.nextFloat() < 0.2F)
+//			{
+//				xVelo *= 0.01D;
+//				zVelo *= 0.01D;
+//				Minecraft.getMinecraft().effectRenderer.addEffect(new EntitySmokeFX(worldObj, xCoord + worldObj.rand.nextFloat(), pos.getY() + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo));
+//			}
+//		}
 	}
 
 	public double getMidCoord(int i)
@@ -335,11 +338,11 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 		}
 		if(i == 0)//x coord
 		{
-			return (face == 1 ? xCoord : face == 3 ? xCoord + 1 : xCoord + 0.5D);
+			return (face == 1 ? pos.getX() : face == 3 ? pos.getX() + 1 : pos.getX() + 0.5D);
 		}
 		else //z coord
 		{
-			return (face == 0 ? zCoord + 1 : face == 2 ? zCoord : zCoord + 0.5D);
+			return (face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() : pos.getZ() + 0.5D);
 		}
 	}
 	
@@ -354,7 +357,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 		{
 			power = Sync.TREADMILL_ENTITY_HASH_MAP.get(latchedEnt.getClass());
 			if (latchedEnt instanceof EntityTameable && ((EntityTameable) latchedEnt).isTamed()) power = (power / 2) + (power / 4); //Decrease power if the entity isn't tamed
-			power += MathHelper.clamp_float((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
+			power += MathHelper.clamp((float)timeRunning / 12000F, 0.0F, 1.0F) * 2F;
 		}
 		return power;
 	}
@@ -367,27 +370,29 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 	}
 	
 	@Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
 	{
-		readFromNBT(pkt.func_148857_g());
+		readFromNBT(pkt.getNbtCompound());
 	}
 
     @Override
-    public Packet getDescriptionPacket()
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         NBTTagCompound tag = new NBTTagCompound();
         writeToNBT(tag);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, tag);
+        return new SPacketUpdateTileEntity(pos, 0, tag);
     }
 
 	@Override
-	public void writeToNBT(NBTTagCompound tag)
+	@Nonnull
+	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
 		super.writeToNBT(tag);
 		tag.setBoolean("back", back);
 		tag.setInteger("face", face);
 		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.getEntityId() : -1);
 		tag.setInteger("timeRunning", timeRunning);
+		return tag;
 	}
 	 
 	@Override
@@ -406,7 +411,7 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox()
 	{
-		return AxisAlignedBB.getBoundingBox(xCoord - 1, yCoord, zCoord - 1, xCoord + 2, yCoord + 1, zCoord + 2);
+		return new AxisAlignedBB(pos.getX() - 1, pos.getY(), pos.getZ() - 1, pos.getX() + 2, pos.getY() + 1, pos.getZ() + 2);
 	}
 
 	@Override
@@ -420,39 +425,39 @@ public class TileEntityTreadmill extends TileEntity implements IEnergyHandler, I
 		return Sync.TREADMILL_ENTITY_HASH_MAP.containsKey(entity.getClass()) && !((EntityLiving) entity).isChild() && !(entity instanceof EntityTameable && ((EntityTameable) entity).isSitting());
 	}
 	
-	// TE methods
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public boolean canConnectEnergy(ForgeDirection from)
-	{
-		return !back;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getEnergyStored(ForgeDirection from)
-	{
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getMaxEnergyStored(ForgeDirection from)
-	{
-		return 0;
-	}
+//	// TE methods
+//	@Override TODO ENERGY
+//	@Optional.Method(modid = "CoFHCore")
+//	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public boolean canConnectEnergy(ForgeDirection from)
+//	{
+//		return !back;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getEnergyStored(ForgeDirection from)
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getMaxEnergyStored(ForgeDirection from)
+//	{
+//		return 0;
+//	}
 }

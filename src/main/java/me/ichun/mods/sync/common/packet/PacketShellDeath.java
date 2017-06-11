@@ -28,6 +28,10 @@ public class PacketShellDeath extends AbstractPacket
         this.face = face;
     }
 
+    public PacketShellDeath(BlockPos pos, int face) {
+        this(pos.getX(), pos.getY(), pos.getZ(), face);
+    }
+
     @Override
     public void writeTo(ByteBuf buffer)
     {
@@ -63,12 +67,12 @@ public class PacketShellDeath extends AbstractPacket
     public void handleClient()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        TileEntity te = mc.theWorld.getTileEntity(new BlockPos(xCoord, yCoord, zCoord));
+        TileEntity te = mc.world.getTileEntity(new BlockPos(xCoord, yCoord, zCoord));
         if(te instanceof TileEntityDualVertical)
         {
-            EntityShellDestruction sd = new EntityShellDestruction(mc.theWorld, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
+            EntityShellDestruction sd = new EntityShellDestruction(mc.world, (face - 2) * 90F, (face - 2) * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
             sd.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, 0.0F, 0.0F);
-            mc.theWorld.spawnEntityInWorld(sd);
+            mc.world.spawnEntity(sd);
         }
     }
 }

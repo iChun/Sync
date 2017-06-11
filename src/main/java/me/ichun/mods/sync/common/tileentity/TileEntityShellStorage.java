@@ -1,20 +1,16 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import com.mojang.authlib.GameProfile;
+import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.shell.ShellHandler;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import ichun.common.core.EntityHelperBase;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.MathHelper; import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TileEntityShellStorage extends TileEntityDualVertical
 {
@@ -41,21 +37,21 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		
 		occupationTime = 0;
 	}
-	
+
 	@Override
-	public void updateEntity()
+	public void update()
 	{
 		if(resync)
 		{
-			if(worldObj.isRemote && !playerName.equalsIgnoreCase("") && !prevPlayerName.equals(playerName) && syncing)
+			if(world.isRemote && !playerName.equalsIgnoreCase("") && !prevPlayerName.equals(playerName) && syncing)
 			{
-				playerInstance = createPlayer(worldObj, playerName);
+				playerInstance = createPlayer(world, playerName);
 				prevPlayerName = playerName;
 				if(playerNBT.hasKey("Inventory"))
 				{
 					playerInstance.readFromNBT(playerNBT);
 				}
-				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 			}
 		}
 		if(top && pair != null)
@@ -70,34 +66,36 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			prevPlayerName = ss.prevPlayerName;
 			occupationTime = ss.occupationTime;
 		}
-		super.updateEntity();
+		super.update();
 		
-		if(!top && occupied && !worldObj.isRemote && !syncing)
+		if(!top && occupied && !world.isRemote && !syncing)
 		{
-			EntityPlayer player = worldObj.getPlayerEntityByName(playerName);
+			EntityPlayer player = world.getPlayerEntityByName(playerName);
 			if(player != null)
 			{
-				double d3 = player.posX - (xCoord + 0.5D);
-				double d4 = player.getEntityBoundingBox().minY - yCoord;
-				double d5 = player.posZ - (zCoord + 0.5D);
-				double dist = (double)MathHelper.sqrt_double(d3 * d3 + d4 * d4 + d5 * d5);
+				double d3 = player.posX - (pos.getX() + 0.5D);
+				double d4 = player.getEntityBoundingBox().minY - pos.getY();
+				double d5 = player.posZ - (pos.getZ() + 0.5D);
+				double dist = (double)MathHelper.sqrt(d3 * d3 + d4 * d4 + d5 * d5);
 
 				if(dist > 0.75D)
 				{
 					occupied = false;
 					playerName = "";
-					
-					worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-					worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+
+					IBlockState state = world.getBlockState(pos);
+					world.notifyBlockUpdate(pos, state, state, 3);
+					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 				}
 			}
 			else
 			{
 				occupied = false;
 				playerName = "";
-				
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 3);
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 			}
 		}
 		if(syncing && occupationTime > 0)
@@ -107,10 +105,11 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 			{
 				if(vacating)
 				{
-					if(!worldObj.isRemote && !top )
+					if(!world.isRemote && !top )
 					{
-						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-						worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+						IBlockState state = world.getBlockState(pos);
+						world.notifyBlockUpdate(pos, state, state, 3);
+						world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 						ShellHandler.removeShell(playerName, this);
 					}
 					vacating = false;
@@ -119,36 +118,38 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 					prevPlayerName = playerName = "";
 					playerNBT = new NBTTagCompound();
 				}
-				else if(!worldObj.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ShellHandler.isShellAlreadyRegistered(this))
+				else if(!world.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ShellHandler.isShellAlreadyRegistered(this))
 				{
 					ShellHandler.addShell(playerName, this, true);
-					worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 				}
 			}
 		}
-		if(!worldObj.isRemote && !top)
+		if(!world.isRemote && !top)
 		{
 			if(!isPowered() && ShellHandler.isShellAlreadyRegistered(this))
 			{
 				ShellHandler.removeShell(playerName, this);
 				hasPower = false;
-				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
 				ShellHandler.addShell(playerName, this, true);
 				hasPower = true;
-				worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
 			}
 
 			if (powerAmount() >= Sync.config.shellStoragePowerRequirement && !hasPower) {
 				hasPower = true;
 				ShellHandler.addShell(playerName, this, true);
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 3);
 			}
 			if (powerAmount() < Sync.config.shellStoragePowerRequirement && hasPower) {
 				hasPower = false;
 				ShellHandler.removeShell(playerName, this);
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 3);
 			}
 			powReceived = 0;
 		}
@@ -157,24 +158,25 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 	@SideOnly(Side.CLIENT)
 	public static EntityPlayer createPlayer(World world, String playerName) 
 	{
-        return new EntityOtherPlayerMP(world, EntityHelperBase.getFullGameProfileFromName(playerName));
+        return new EntityOtherPlayerMP(world, EntityHelper.getGameProfile(playerName));
 	}
 
 	public boolean isPowered() {
 		if (top && pair != null) {
 			return ((TileEntityShellStorage)pair).isPowered();
 		}
-		return (worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord) || worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord + 1, zCoord)) && hasPower;
+		return (world.isBlockIndirectlyGettingPowered(pos) != 0 || world.isBlockIndirectlyGettingPowered(pos.up()) != 0) && hasPower;
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound tag)
+	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
 		super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
 		tag.setBoolean("syncing", canSavePlayer <= 0 && syncing);
 		tag.setBoolean("hasPower", hasPower);
 		tag.setInteger("occupationTime", occupationTime);
+		return tag;
 	}
 	 
 	@Override
@@ -200,43 +202,43 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		this.prevPlayerName = "";
 	}
 
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-		if (Sync.config.shellStoragePowerRequirement == 0) {
-			return 0;
-		}
-		int pow = maxReceive;
-		if (pow > Sync.config.shellStoragePowerRequirement) {
-			pow = Sync.config.shellStoragePowerRequirement;
-		}
-		if (!simulate) {
-			powReceived += (float)pow * (float)Sync.config.ratioRF;
-		}
-		return pow;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public boolean canConnectEnergy(ForgeDirection from) {
-		return !top;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getEnergyStored(ForgeDirection from) {
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getMaxEnergyStored(ForgeDirection from) {
-		return 0;
-	}
+//	@Override TODO Implement Power System
+//	@Optional.Method(modid = "CoFHCore")
+//	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
+//		if (Sync.config.shellStoragePowerRequirement == 0) {
+//			return 0;
+//		}
+//		int pow = maxReceive;
+//		if (pow > Sync.config.shellStoragePowerRequirement) {
+//			pow = Sync.config.shellStoragePowerRequirement;
+//		}
+//		if (!simulate) {
+//			powReceived += (float)pow * (float)Sync.config.ratioRF;
+//		}
+//		return pow;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public boolean canConnectEnergy(ForgeDirection from) {
+//		return !top;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getEnergyStored(ForgeDirection from) {
+//		return 0;
+//	}
+//
+//	@Override
+//	@Optional.Method(modid = "CoFHCore")
+//	public int getMaxEnergyStored(ForgeDirection from) {
+//		return 0;
+//	}
 }

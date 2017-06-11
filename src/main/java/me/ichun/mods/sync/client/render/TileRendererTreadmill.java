@@ -43,7 +43,7 @@ public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityT
 		if(tm.latchedEnt != null)
 		{
 			tm.latchedEnt.prevRenderYawOffset = tm.latchedEnt.renderYawOffset = (tm.face - 2) * 90F;
-			tm.latchedEnt.limbSwingAmount = 1.5F + 3.5F * MathHelper.clamp_float(((float)tm.timeRunning / 12000F), 0.0F, 1.0F);
+			tm.latchedEnt.limbSwingAmount = 1.5F + 3.5F * MathHelper.clamp(((float)tm.timeRunning / 12000F), 0.0F, 1.0F);
 		}
 		
 		GL11.glDisable(GL11.GL_BLEND);

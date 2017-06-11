@@ -322,8 +322,8 @@ public class ModelShellConstructor extends ModelBase
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 		
-		float retractProg = MathHelper.clamp_float(doorProg / 0.4F, 0.0F, 1.0F);
-		float swingProg = MathHelper.clamp_float((doorProg - 0.3F) / 0.4F, 0.0F, 1.0F);
+		float retractProg = MathHelper.clamp(doorProg / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp((doorProg - 0.3F) / 0.4F, 0.0F, 1.0F);
 
 		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
 		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;
@@ -345,7 +345,7 @@ public class ModelShellConstructor extends ModelBase
 			{
 				if(prog >= 0.940F)
 				{
-					renderSprayStand = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;  
+					renderSprayStand = 22F + (-55F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;
 				}
 			}
 			else
@@ -373,8 +373,8 @@ public class ModelShellConstructor extends ModelBase
 				
 				if(prog >= 0.940F)
 				{
-					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
-					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
 				}
 				else
 				{
