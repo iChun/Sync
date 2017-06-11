@@ -4,6 +4,7 @@ import me.ichun.mods.ichunutil.client.keybind.KeyEvent;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
 import me.ichun.mods.sync.client.render.TileRendererDualVertical;
 import me.ichun.mods.sync.common.Sync;
+import me.ichun.mods.sync.common.core.ProxyCommon;
 import me.ichun.mods.sync.common.packet.PacketSyncRequest;
 import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import me.ichun.mods.sync.common.shell.ShellState;
@@ -13,12 +14,14 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
@@ -27,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -36,6 +40,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GLContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -379,30 +384,29 @@ public class EventHandlerClient
 
                     if(!mc.gameSettings.hideGUI)
                     {
-                        GL11.glDisable(GL11.GL_TEXTURE_2D);
+                        GlStateManager.disableTexture2D();
 
-                        GL11.glEnable(GL11.GL_BLEND);
-                        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                        GlStateManager.enableBlend();
+                        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                        GL11.glPushMatrix();
-                        GL11.glLoadIdentity();
+                        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+                        GlStateManager.pushMatrix();
+                        GlStateManager.loadIdentity();
 
-                        GL11.glMatrixMode(GL11.GL_PROJECTION);
-                        GL11.glPushMatrix();
-                        GL11.glLoadIdentity();
+                        GlStateManager.matrixMode(GL11.GL_PROJECTION);
+                        GlStateManager.pushMatrix();
+                        GlStateManager.loadIdentity();
 
                         int roundness = 100;
 
                         double zLev = 0.05D;
-
                         final int stencilBit = MinecraftForgeClient.reserveStencilBit();
 
                         if(stencilBit >= 0)
                         {
                             GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-                            GL11.glColorMask(false, false, false, false);
+                            GlStateManager.colorMask(false, false, false, false);
 
                             final int stencilMask = 1 << stencilBit;
 
@@ -413,7 +417,7 @@ public class EventHandlerClient
 
                             rad = (mag > magAcceptance ? 0.85F : 0.82F) * prog * (257F / (float)reso.getScaledHeight());
 
-                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
                             GL11.glBegin(GL11.GL_TRIANGLE_FAN);
                             GL11.glVertex3d(0, 0, zLev);
@@ -426,7 +430,7 @@ public class EventHandlerClient
 
                             GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 
-                            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
                             rad = 0.44F * prog * (257F / (float)reso.getScaledHeight());
 
@@ -442,12 +446,12 @@ public class EventHandlerClient
                             GL11.glStencilMask(0x00);
                             GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 
-                            GL11.glColorMask(true, true, true, true);
+                            GlStateManager.colorMask(true, true, true, true);
                         }
 
                         rad = (mag > magAcceptance ? 0.85F : 0.82F) * prog * (257F / (float)reso.getScaledHeight());
 
-                        GL11.glColor4f(0.0F, 0.0F, 0.0F, mag > magAcceptance ? 0.6F : 0.4F);
+                        GlStateManager.color(0.0F, 0.0F, 0.0F, mag > magAcceptance ? 0.6F : 0.4F);
 
                         GL11.glBegin(GL11.GL_TRIANGLE_FAN);
                         GL11.glVertex3d(0, 0, zLev);
@@ -465,18 +469,18 @@ public class EventHandlerClient
 
                         MinecraftForgeClient.releaseStencilBit(stencilBit);
 
-                        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+                        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-                        GL11.glPopMatrix();
-                        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-                        GL11.glPopMatrix();
+                        GlStateManager.popMatrix();
+                        GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+                        GlStateManager.popMatrix();
 
-                        GL11.glDisable(GL11.GL_BLEND);
+                        GlStateManager.disableBlend();
 
-                        GL11.glEnable(GL11.GL_TEXTURE_2D);
+                        GlStateManager.enableTexture2D();
                     }
 
-                    GL11.glPushMatrix();
+                    GlStateManager.pushMatrix();
 
                     double radialAngle = -720F;
 
@@ -508,7 +512,7 @@ public class EventHandlerClient
                         mag = Math.round(mag);
                     }
 
-                    GL11.glDepthMask(true);
+                    GlStateManager.enableDepth();
 
                     GL11.glEnable(GL11.GL_DEPTH_TEST);
                     GL11.glEnable(GL11.GL_ALPHA_TEST);
@@ -555,7 +559,7 @@ public class EventHandlerClient
 
                     drawSelectedShellText(reso, selected);
 
-                    GL11.glPopMatrix();
+                    GlStateManager.popMatrix();
                 }
             }
         }
@@ -686,17 +690,17 @@ public class EventHandlerClient
         }
         if(radialShow)
         {
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
 
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(770, 771);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(770, 771);
 
-            GL11.glTranslatef(0F, 0F, 100F);
+            GlStateManager.translate(0F, 0F, 100F);
 
             if(state != null)
             {
                 float scaleee = 0.75F;
-                GL11.glScalef(scaleee, scaleee, scaleee);
+                GlStateManager.scale(scaleee, scaleee, scaleee);
                 String prefix = (selected ? TextFormatting.YELLOW.toString() : "");
                 String string;
                 if(!state.name.equalsIgnoreCase(""))
@@ -706,7 +710,7 @@ public class EventHandlerClient
                 }
                 if(Sync.config.showAllShellInfoInGui == 2)
                 {
-                    GL11.glScalef(scaleee, scaleee, scaleee);
+                    GlStateManager.scale(scaleee, scaleee, scaleee);
 
                     string = Integer.toString(state.pos.getX());
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getX() < 0 ? 2 : 8, -52, 16777215);
@@ -725,7 +729,7 @@ public class EventHandlerClient
                     double pY = -10.5D;
                     double size = 12D;
 
-                    GL11.glColor4f(0.95F, 0.95F, 0.95F, 1.0F);
+                    GlStateManager.color(0.95F, 0.95F, 0.95F, 1.0F);
 
                     Tessellator tessellator = Tessellator.getInstance();
                     VertexBuffer buffer = tessellator.getBuffer();
@@ -740,11 +744,11 @@ public class EventHandlerClient
                 }
             }
 
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            GL11.glDisable(GL11.GL_BLEND);
+            GlStateManager.disableBlend();
 
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 
@@ -752,42 +756,42 @@ public class EventHandlerClient
     {
         if(radialShow)
         {
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
 
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(770, 771);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(770, 771);
 
-            GL11.glTranslatef(0F, 0F, 100F);
+            GlStateManager.translate(0F, 0F, 100F);
 
             if(state != null)
             {
                 if(state.buildProgress < Sync.config.shellConstructionPowerRequirement)
                 {
-                    GL11.glPushMatrix();
+                    GlStateManager.pushMatrix();
                     float scaleee = 1.5F;
-                    GL11.glScalef(scaleee, scaleee, scaleee);
+                    GlStateManager.scale(scaleee, scaleee, scaleee);
                     String name = TextFormatting.RED.toString() + (int)Math.floor(state.buildProgress / Sync.config.shellConstructionPowerRequirement * 100) + "%";
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), -14, 16777215);
 
-                    GL11.glPopMatrix();
+                    GlStateManager.popMatrix();
                 }
                 else if(state.isConstructor)
                 {
-                    GL11.glPushMatrix();
+                    GlStateManager.pushMatrix();
                     float scaleee = 0.75F;
-                    GL11.glScalef(scaleee, scaleee, scaleee);
+                    GlStateManager.scale(scaleee, scaleee, scaleee);
                     String name = I18n.format("gui.done");
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
 
-                    GL11.glPopMatrix();
+                    GlStateManager.popMatrix();
                 }
             }
 
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            GL11.glDisable(GL11.GL_BLEND);
+            GlStateManager.disableBlend();
 
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 
@@ -796,18 +800,18 @@ public class EventHandlerClient
     {
         if(radialShow)
         {
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
 
-            GL11.glEnable(GL11.GL_BLEND);
-            GL11.glBlendFunc(770, 771);
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(770, 771);
 
-            GL11.glTranslatef(reso.getScaledWidth() / 2F, (reso.getScaledHeight() - 20) / 2F, 100F);
+            GlStateManager.translate(reso.getScaledWidth() / 2F, (reso.getScaledHeight() - 20) / 2F, 100F);
 
             if(state != null)
             {
-                GL11.glPushMatrix();
+                GlStateManager.pushMatrix();
                 float scaleee = 1F;
-                GL11.glScalef(scaleee, scaleee, scaleee);
+                GlStateManager.scale(scaleee, scaleee, scaleee);
                 int height = 5;
                 if(state.name.equalsIgnoreCase(""))
                 {
@@ -825,7 +829,7 @@ public class EventHandlerClient
                     name = TextFormatting.YELLOW.toString() + state.dimName;
                     Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
                 }
-                GL11.glPopMatrix();
+                GlStateManager.popMatrix();
             }
             else
             {
@@ -833,11 +837,11 @@ public class EventHandlerClient
                 Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
             }
 
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-            GL11.glDisable(GL11.GL_BLEND);
+            GlStateManager.disableBlend();
 
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
         }
     }
 
@@ -850,38 +854,38 @@ public class EventHandlerClient
             Minecraft.getMinecraft().gameSettings.hideGUI = true;
 
             GL11.glEnable(GL11.GL_COLOR_MATERIAL);
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
 
             GL11.glDisable(GL11.GL_ALPHA_TEST);
 
-            GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+            GlStateManager.translate((float)posX, (float)posY, 50.0F);
 
             if(Sync.config.showAllShellInfoInGui == 2)
             {
-                GL11.glTranslatef(-8F, 0.0F, 0.0F);
+                GlStateManager.translate(-8F, 0.0F, 0.0F);
             }
 
-            GL11.glScalef(-scale, scale, scale);
-            GL11.glRotatef(180.0F, 0.0F, 0.0F, 1.0F);
+            GlStateManager.scale(-scale, scale, scale);
+            GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
             float f2 = ent.renderYawOffset;
             float f3 = ent.rotationYaw;
             float f4 = ent.rotationPitch;
             float f5 = ent.rotationYawHead;
 
-            GL11.glRotatef(135.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
             RenderHelper.enableStandardItemLighting();
-            GL11.glRotatef(-135.0F, 0.0F, 1.0F, 0.0F);
-            GL11.glRotatef(-((float)Math.atan((double)(par5 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
-            GL11.glRotatef(15.0F, 1.0F, 0.0F, 0.0F);
-            GL11.glRotatef(25.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
+            GlStateManager.rotate(-((float)Math.atan((double)(par5 / 40.0F))) * 20.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(15.0F, 1.0F, 0.0F, 0.0F);
+            GlStateManager.rotate(25.0F, 0.0F, 1.0F, 0.0F);
 
             ent.renderYawOffset = (float)Math.atan((double)(par4 / 40.0F)) * 20.0F;
             ent.rotationYaw = (float)Math.atan((double)(par4 / 40.0F)) * 40.0F;
             ent.rotationPitch = -((float)Math.atan((double)(par5 / 40.0F))) * 20.0F;
             ent.rotationYawHead = ent.renderYawOffset;
-            GL11.glTranslatef(0.0F, (float) ent.getYOffset(), 0.0F);
+            GlStateManager.translate(0.0F, (float) ent.getYOffset(), 0.0F);
 
-            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             float viewY = Minecraft.getMinecraft().getRenderManager().playerViewY;
             Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
@@ -891,13 +895,13 @@ public class EventHandlerClient
             }
             else
             {
-                GL11.glPushMatrix();
+                GlStateManager.pushMatrix();
 
                 float bodyScale = 0.5F;
 
-                GL11.glScalef(bodyScale, -bodyScale, -bodyScale);
+                GlStateManager.scale(bodyScale, -bodyScale, -bodyScale);
 
-                GL11.glTranslatef(0.0F, -1.48F, 0.0F);
+                GlStateManager.translate(0.0F, -1.48F, 0.0F);
 
                 Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
 
@@ -905,10 +909,10 @@ public class EventHandlerClient
                 modelShellConstructor.txBiped = Minecraft.getMinecraft().player.getLocationSkin();
                 modelShellConstructor.renderConstructionProgress(Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
 
-                GL11.glPopMatrix();
+                GlStateManager.popMatrix();
             }
 
-            GL11.glTranslatef(0.0F, -0.22F, 0.0F);
+            GlStateManager.translate(0.0F, -0.22F, 0.0F);
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 255.0F * 0.8F, 255.0F * 0.8F);
 //            Tessellator.getInstance().setBrightness(240); TODO
 
@@ -918,25 +922,25 @@ public class EventHandlerClient
             ent.rotationPitch = f4;
             ent.rotationYawHead = f5;
 
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
 
             RenderHelper.disableStandardItemLighting();
 
-            GL11.glPushMatrix();
+            GlStateManager.pushMatrix();
 
-            GL11.glTranslatef((float)posX, (float)posY, 50.0F);
+            GlStateManager.translate((float)posX, (float)posY, 50.0F);
 
             drawShellInfo(state, isSelected);
 
             drawShellConstructionPercentage(state);
 
-            GL11.glPopMatrix();
+            GlStateManager.popMatrix();
 
             GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-            GL11.glDisable(GL12.GL_RESCALE_NORMAL);
+            GlStateManager.disableRescaleNormal();
             OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GlStateManager.disableTexture2D();
             OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
 
             Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;

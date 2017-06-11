@@ -4,8 +4,10 @@ import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.item.ItemGeneric;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
+import me.ichun.mods.sync.common.block.EnumType;
 import me.ichun.mods.sync.common.creativetab.CreativeTabSync;
-import me.ichun.mods.sync.common.item.ItemSyncBlockPlacer;
+import me.ichun.mods.sync.common.item.ItemShellBase;
+import me.ichun.mods.sync.common.item.ItemTreadmill;
 import me.ichun.mods.sync.common.packet.PacketClearShellList;
 import me.ichun.mods.sync.common.packet.PacketNBT;
 import me.ichun.mods.sync.common.packet.PacketPlayerDeath;
@@ -18,6 +20,7 @@ import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -32,16 +35,18 @@ public class ProxyCommon
 
 		Sync.blockDualVertical = GameRegistry.register((new BlockDualVertical()).setRegistryName("sync", "block_multi").setLightLevel(0.5F).setHardness(2.0F).setUnlocalizedName("sync.block.multi"));
 
-		Sync.itemBlockPlacer = GameRegistry.register((new ItemSyncBlockPlacer()).setRegistryName("sync", "item_block_placer").setFull3D().setUnlocalizedName("Sync_BlockPlacer").setCreativeTab(Sync.creativeTabSync));
+		Sync.itemShellConstructor = GameRegistry.register(new ItemShellBase(EnumType.CONSTRUCTOR).setRegistryName("sync", "item_shell_constructor").setUnlocalizedName("Sync_ShellConstructor").setCreativeTab(Sync.creativeTabSync));
+		Sync.itemShellStorage = GameRegistry.register(new ItemShellBase(EnumType.STORAGE).setRegistryName("sync", "item_shell_storage").setUnlocalizedName("Sync_ShellStorage").setCreativeTab(Sync.creativeTabSync));
+		Sync.itemTreadmill = GameRegistry.register(new ItemTreadmill().setRegistryName("sync", "item_treadmill").setUnlocalizedName("Sync_Treadmill").setCreativeTab(Sync.creativeTabSync));
 		Sync.itemPlaceholder = GameRegistry.register((new ItemGeneric()).setRegistryName("sync", "item_placeholder").setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync));
 
-		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 0),
+		GameRegistry.addRecipe(new ItemStack(Sync.itemShellConstructor, 1, 0),
 				"OCO", "GGG", "ORO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemPlaceholder, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE);
 
-		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 1),
+		GameRegistry.addRecipe(new ItemStack(Sync.itemShellStorage, 1, 1),
 				"OCO", "GIG", "OPO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemPlaceholder, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE, 'I', Blocks.IRON_BLOCK, 'P', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE);
 
-		GameRegistry.addRecipe(new ItemStack(Sync.itemBlockPlacer, 1, 2),
+		GameRegistry.addRecipe(new ItemStack(Sync.itemTreadmill, 1, 2),
 				"  D", "CCI", "OOR", 'O', Blocks.OBSIDIAN, 'C', new ItemStack(Blocks.CARPET, 1, 15), 'I', Blocks.IRON_BARS, 'D', Blocks.DAYLIGHT_DETECTOR, 'R', Items.REDSTONE);
 
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
@@ -51,11 +56,10 @@ public class ProxyCommon
 		Sync.eventHandlerServer = new EventHandlerServer();
 		MinecraftForge.EVENT_BUS.register(Sync.eventHandlerServer);
 
+		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
+			Minecraft.getMinecraft().getFramebuffer().enableStencil();
+
 		Sync.channel = new PacketChannel("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class, PacketPlayerEnterStorage.class, PacketShellDeath.class, PacketClearShellList.class, PacketShellState.class, PacketNBT.class);
-	}
-
-	public void initMod() {
-
 	}
 
 }

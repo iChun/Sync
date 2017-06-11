@@ -26,6 +26,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -66,7 +67,7 @@ public class Sync
     public static Block blockDualVertical;
 
     public static PacketChannel channel;
-    public static Item itemBlockPlacer;
+    public static Item itemShellConstructor, itemShellStorage, itemTreadmill;
 
     public static Item itemPlaceholder;
 
@@ -81,7 +82,9 @@ public class Sync
 
         UpdateChecker.registerMod(new UpdateChecker.ModVersionInfo(MOD_NAME, iChunUtil.VERSION_OF_MC, VERSION, false));
 
-        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemBlockPlacer, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemShellConstructor, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemShellStorage, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemTreadmill, 1));
     }
 
     @EventHandler
@@ -90,11 +93,10 @@ public class Sync
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 
         hasCoFHCore = Loader.isModLoaded("CoFHCore") || Loader.isModLoaded("cofhcore");
-        proxy.initMod();
 
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" );
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
-        FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityDualVertical");
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityTreadmill");
+        FMLInterModComms.sendMessage("Waila", "register", "me.ichun.mods.sync.client.HUDHandlerSync.callbackRegister");
 
         TREADMILL_ENTITY_HASH_MAP.put(EntityWolf.class, 4);
         TREADMILL_ENTITY_HASH_MAP.put(EntityPig.class, 2);

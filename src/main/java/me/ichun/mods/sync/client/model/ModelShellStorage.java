@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.client.model;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import org.lwjgl.opengl.GL11;
 
@@ -337,15 +338,15 @@ public class ModelShellStorage extends ModelBase
 
 	public void renderPlayer(float prog, float f5)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glScalef(2.0F * 0.9375F, 2.0F * 0.9375F, 2.0F * 0.9375F);
-		GL11.glTranslated(0.0D, -0.72D, 0.0D);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.scale(2.0F * 0.9375F, 2.0F * 0.9375F, 2.0F * 0.9375F);
+		GlStateManager.translate(0.0D, -0.72D, 0.0D);
 		
 		Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 		modelBiped.bipedHead.rotateAngleX = (float)Math.toRadians(15F);
 		modelBiped.bipedHead.render(f5);
@@ -355,17 +356,17 @@ public class ModelShellStorage extends ModelBase
 		modelBiped.bipedRightLeg.render(f5);
 		modelBiped.bipedLeftLeg.render(f5);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 	
 	public void renderInternals(float prog, float f5)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
 		float legClampProg = MathHelper.clamp(prog / 0.6F, 0.0F, 1.0F);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glScalef(0.9375F, 0.9375F, 0.9375F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.scale(0.9375F, 0.9375F, 0.9375F);
 		
 		bracketFeetFront.rotationPointY = bracketFeetBack.rotationPointY = bracketFeetRight.rotationPointY = bracketFeetLeft.rotationPointY = bracketFeetSupportRight.rotationPointY = bracketFeetSupportLeft.rotationPointY = 6F - (6F * legClampProg);
 		
@@ -376,7 +377,7 @@ public class ModelShellStorage extends ModelBase
 		bracketFeetSupportRight.render(f5);
 		bracketFeetSupportLeft.render(f5);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
 		float armClampProg = MathHelper.clamp(prog / 0.4F, 0.0F, 1.0F);
 		
@@ -414,21 +415,21 @@ public class ModelShellStorage extends ModelBase
 		{
 			if(isHomeUnit)
 			{
-				GL11.glColor4f(0.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.color(0.0F, 1.0F, 1.0F, 1.0F);
 			}
 			else
 			{
-				GL11.glColor4f(0.0F, 1.0F, 0.0F, 1.0F);				
+				GlStateManager.color(0.0F, 1.0F, 0.0F, 1.0F);
 			}
 		}
 		else
 		{
-			GL11.glColor4f(1.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.color(1.0F, 0.0F, 0.0F, 1.0F);
 		}
 
 		indicator2.render(f5);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	public void render(float prog, float f5, boolean alpha)

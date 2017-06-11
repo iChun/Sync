@@ -10,6 +10,7 @@ import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -56,15 +57,15 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 		{
 			return;
 		}
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
-		GL11.glTranslated(d + 0.5D, d1 + 0.75, d2 + 0.5D);
-		GL11.glScalef(-0.5F, -0.5F, 0.5F);
+		GlStateManager.translate(d + 0.5D, d1 + 0.75, d2 + 0.5D);
+		GlStateManager.scale(-0.5F, -0.5F, 0.5F);
 		
-		GL11.glRotatef((dv.face * 90F), 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate((dv.face * 90F), 0.0F, 1.0F, 0.0F);
 		
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 		ResourceLocation rl = dv.locationSkin;
 		
@@ -89,10 +90,10 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 				modelConstructor.txBiped = rl;
 				modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.getPlayerName().equalsIgnoreCase("")); //0.95F;
 				
-				GL11.glDisable(GL11.GL_CULL_FACE);
+				GlStateManager.disableCull();
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
 				modelConstructor.render(doorProg, 0.0625F, false);
-				GL11.glEnable(GL11.GL_CULL_FACE);
+				GlStateManager.enableCull();
 			}
 			else
 			{
@@ -121,10 +122,10 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 				if(ss.playerInstance != null && ss.syncing)
 				{
 //					if (iChunUtil.hasMorphMod()) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell; this API method does not exist yet.
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					
-					GL11.glScalef(-2.0F, -2.0F, 2.0F);
-					GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
+					GlStateManager.scale(-2.0F, -2.0F, 2.0F);
+					GlStateManager.rotate(180F, 0.0F, 1.0F, 0.0F);
 	
 //					ss.playerInstance.getDataWatcher().updateObject(16, Byte.valueOf((byte)(ss.playerInstance.getDataWatcher().getWatchableObjectByte(16) | 1 << 1))); TODO what is this?
 					
@@ -153,16 +154,16 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					ss.playerInstance.setItemStackToSlot(ss.playerInstance.getActiveHand() == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
 					
 					Sync.eventHandlerClient.forceRender = true;
-					Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, f); // posXYZ, rotYaw, renderTick
+					Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, 0); // posXYZ, rotYaw, renderTick
 					Sync.eventHandlerClient.forceRender = false;
 					
 					ss.playerInstance.setItemStackToSlot(ss.playerInstance.getActiveHand() == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, is);
 					
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 				}
 				
-				GL11.glEnable(GL11.GL_BLEND);
-				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GlStateManager.enableBlend();
+				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
 	
@@ -170,10 +171,10 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 				modelStorage.isHomeUnit = ss.isHomeUnit;
 				modelStorage.renderInternals(prog, 0.0625F);
 				
-				GL11.glDisable(GL11.GL_CULL_FACE);
+				GlStateManager.disableCull();
 				Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
 				modelStorage.render(prog, 0.0625F, false);
-				GL11.glEnable(GL11.GL_CULL_FACE);
+				GlStateManager.enableCull();
 			}
 			else
 			{
@@ -185,17 +186,17 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					FontRenderer fontrenderer = this.getFontRenderer();
 					float ff = 1.6F;
 					float f1 = 0.016666668F * ff;
-					GL11.glPushMatrix();
-					GL11.glTranslatef(0.0F, -2.475F, -1.01F);
-					GL11.glNormal3f(0.0F, 1.0F, 0.0F);
-					GL11.glScalef(f1, f1, f1);
-					GL11.glDisable(GL11.GL_LIGHTING);
-					GL11.glDepthMask(false);
-					GL11.glEnable(GL11.GL_BLEND);
-					GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(0.0F, -2.475F, -1.01F);
+					GlStateManager.glNormal3f(0.0F, 1.0F, 0.0F);
+					GlStateManager.scale(f1, f1, f1);
+					GlStateManager.disableLighting();
+					GlStateManager.disableDepth();
+					GlStateManager.enableBlend();
+					GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 					Tessellator tessellator = Tessellator.getInstance();
 					byte b0 = 0;
-					GL11.glDisable(GL11.GL_TEXTURE_2D);
+					GlStateManager.disableTexture2D();
 					VertexBuffer buffer = tessellator.getBuffer();
 					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
 					int j = fontrenderer.getStringWidth(ss.getName()) / 2;
@@ -205,19 +206,19 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					buffer.pos((double)(j + 1), (double)(8 + b0), 0.0D);
 					buffer.pos((double)(j + 1), (double)(-1 + b0), 0.0D);
 					tessellator.draw();
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
-					GL11.glDepthMask(true);
+					GlStateManager.enableTexture2D();
+					GlStateManager.enableDepth();
 					fontrenderer.drawString(ss.getName(), -fontrenderer.getStringWidth(ss.getName()) / 2, b0, -1);
-					GL11.glEnable(GL11.GL_LIGHTING);
-					GL11.glDisable(GL11.GL_BLEND);
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-					GL11.glPopMatrix();
+					GlStateManager.enableLighting();
+					GlStateManager.disableBlend();
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.popMatrix();
 				}
 			}
 		}
 		
-		GL11.glDisable(GL11.GL_BLEND);
+		GlStateManager.disableBlend();
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 }

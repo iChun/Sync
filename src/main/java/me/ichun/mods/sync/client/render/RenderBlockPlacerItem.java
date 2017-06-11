@@ -76,51 +76,51 @@
 //			}
 //			case EQUIPPED:
 //			{
-//				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+//				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 //
-//				GL11.glPushMatrix();
+//				GlStateManager.pushMatrix();
 //
-//	            GL11.glEnable(GL11.GL_BLEND);
-//	            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//	            GlStateManager.enableBlend();
+//	            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 //
-//	            GL11.glRotatef(180F, 0.0F, 0.0F, 1.0F);
+//	            GlStateManager.rotate(180F, 0.0F, 0.0F, 1.0F);
 //
 //	            float scale = (renderType == 1 ? 6.2F : renderType == 2 ? 0.3F : 0.55F) * 0.5F;
 //	            if(renderType == 0)
 //	            {
-//	            	GL11.glScalef(scale, scale, scale);
+//	            	GlStateManager.scale(scale, scale, scale);
 //
-//	            	GL11.glRotatef(15F, 0.0F, 0.0F, 1.0F);
+//	            	GlStateManager.rotate(15F, 0.0F, 0.0F, 1.0F);
 //
-//	            	GL11.glTranslatef(-3.0F, 1.0F, 0.0F);
+//	            	GlStateManager.translate(-3.0F, 1.0F, 0.0F);
 //
 //	            	if(!isFirstPerson)
 //	            	{
 //	            		float scale1 = 0.33F;
-//	            		GL11.glTranslatef(-0.1F, -2.0F, 0.0F);
-//	            		GL11.glRotatef(-135F, 1.0F, 0.0F, 0.0F);
+//	            		GlStateManager.translate(-0.1F, -2.0F, 0.0F);
+//	            		GlStateManager.rotate(-135F, 1.0F, 0.0F, 0.0F);
 //
-//	            		GL11.glScalef(scale1, scale1, scale1);
-//	            		GL11.glRotatef(-7.5F, 0.0F, 1.0F, 0.0F);
-//	            		GL11.glRotatef(90F, 0.0F, 0.0F, 1.0F);
-//	            		GL11.glRotatef(10F, 1.0F, 0.0F, 1.0F);
+//	            		GlStateManager.scale(scale1, scale1, scale1);
+//	            		GlStateManager.rotate(-7.5F, 0.0F, 1.0F, 0.0F);
+//	            		GlStateManager.rotate(90F, 0.0F, 0.0F, 1.0F);
+//	            		GlStateManager.rotate(10F, 1.0F, 0.0F, 1.0F);
 //
 //	            	}
 //	            }
 //	            else if(renderType == 1)
 //	            {
-//	            	GL11.glScalef(-scale, -scale, -scale);
+//	            	GlStateManager.scale(-scale, -scale, -scale);
 //
-//	            	GL11.glRotatef(35F, 1.0F, 0.0F, 0.0F);
+//	            	GlStateManager.rotate(35F, 1.0F, 0.0F, 0.0F);
 //
-//	            	GL11.glRotatef(-50F, 0.0F, 1.0F, 0.0F);
+//	            	GlStateManager.rotate(-50F, 0.0F, 1.0F, 0.0F);
 //
-//					GL11.glTranslatef(3.08F, 5.1F, -0.4F);
+//					GlStateManager.translate(3.08F, 5.1F, -0.4F);
 //	            }
 //	            else if(renderType == 2)
 //	            {
-//            		GL11.glTranslatef(0.0F, -0.1F, 0.0F);
-//	            	GL11.glScalef(scale, scale, scale);
+//            		GlStateManager.translate(0.0F, -0.1F, 0.0F);
+//	            	GlStateManager.scale(scale, scale, scale);
 //	            }
 //
 //	            switch(item.getItemDamage())
@@ -152,17 +152,17 @@
 //		            {
 //			            if(renderType == 0)
 //			            {
-//			            	GL11.glRotatef(90F, 0.0F, 1.0F, 0.0F);
-//			            	GL11.glTranslatef(0.0F, -2.5F, 0.0F);
+//			            	GlStateManager.rotate(90F, 0.0F, 1.0F, 0.0F);
+//			            	GlStateManager.translate(0.0F, -2.5F, 0.0F);
 //
 //			            	if(!isFirstPerson)
 //			            	{
-//			            		GL11.glTranslatef(0.0F, 0.6F, 0.0F);
+//			            		GlStateManager.translate(0.0F, 0.6F, 0.0F);
 //			            	}
 //			            }
 //			            else if(renderType == 1)
 //			            {
-//							GL11.glTranslatef(1.5F, 0.8F, 0.0F);
+//							GlStateManager.translate(1.5F, 0.8F, 0.0F);
 //			            }
 //			            Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererTreadmill.txTreadmill);
 //
@@ -171,9 +171,9 @@
 //		            }
 //	            }
 //
-//	            GL11.glDisable(GL11.GL_BLEND);
+//	            GlStateManager.disableBlend();
 //
-//				GL11.glPopMatrix();
+//				GlStateManager.popMatrix();
 //			}
 //			default:{}
 //		}

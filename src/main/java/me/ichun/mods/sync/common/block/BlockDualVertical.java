@@ -436,7 +436,7 @@ public class BlockDualVertical extends BlockContainer {
                         double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
                         double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
                         BlockPos dualVerticalPos = dualVertical.getPos();
-                        EntityItem entityitem = new EntityItem(world, (double)dualVerticalPos.getX() + d, (double)dualVerticalPos.getY() + d1, (double)dualVerticalPos.getZ() + d2, new ItemStack(Sync.itemBlockPlacer, 1, dualVertical instanceof TileEntityShellConstructor ? 0 : 1));
+                        EntityItem entityitem = new EntityItem(world, (double)dualVerticalPos.getX() + d, (double)dualVerticalPos.getY() + d1, (double)dualVerticalPos.getZ() + d2, new ItemStack(dualVertical instanceof TileEntityShellConstructor ? Sync.itemShellConstructor : Sync.itemShellStorage, 1));
                         entityitem.setPickupDelay(10);
                         world.spawnEntity(entityitem);
                     }
@@ -508,13 +508,14 @@ public class BlockDualVertical extends BlockContainer {
         }
         else if (tileEntity instanceof TileEntityTreadmill) {
             TileEntityTreadmill treadmill = (TileEntityTreadmill) tileEntity;
-            TileEntity tileEntityPair = world.getTileEntity(new BlockPos(treadmill.back ? (treadmill.face == 1 ?pos.getX() + 1 : treadmill.face == 3 ? pos.getX() - 1 : pos.getX()) : (treadmill.face == 1 ? pos.getX() - 1 : treadmill.face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == 0 ? pos.getZ() - 1 : treadmill.face == 2 ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == 0 ? pos.getZ() + 1 : treadmill.face == 2 ? pos.getZ() - 1 : pos.getZ()))); //TODO cleanup
+            BlockPos toClean = new BlockPos(treadmill.back ? (treadmill.face == 1 ? pos.getX() + 1 : treadmill.face == 3 ? pos.getX() - 1 : pos.getX()) : (treadmill.face == 1 ? pos.getX() - 1 : treadmill.face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == 0 ? pos.getZ() - 1 : treadmill.face == 2 ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == 0 ? pos.getZ() + 1 : treadmill.face == 2 ? pos.getZ() - 1 : pos.getZ()));
+            TileEntity tileEntityPair = world.getTileEntity(toClean);
 
             if (tileEntityPair instanceof TileEntityTreadmill) {
                 TileEntityTreadmill treadmillPair = (TileEntityTreadmill)tileEntityPair;
                 if (treadmillPair.pair == treadmill) {
                     world.playEvent(2001, pos, Block.getIdFromBlock(Sync.blockDualVertical));
-                    world.setBlockToAir(pos);
+                    world.setBlockToAir(toClean);
                 }
 
                 if (!treadmillPair.back && !world.isRemote) {
@@ -522,7 +523,7 @@ public class BlockDualVertical extends BlockContainer {
                     double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
                     double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
                     double d2 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
-                    EntityItem entityitem = new EntityItem(world, (double)pos.getX() + d, (double)pos.getY() + d1, (double)pos.getZ() + d2, new ItemStack(Sync.itemBlockPlacer, 1, 2));
+                    EntityItem entityitem = new EntityItem(world, (double)pos.getX() + d, (double)pos.getY() + d1, (double)pos.getZ() + d2, new ItemStack(Sync.itemTreadmill, 1));
                     entityitem.setPickupDelay(10);
                     world.spawnEntity(entityitem);
                 }
@@ -534,7 +535,7 @@ public class BlockDualVertical extends BlockContainer {
     @Override
     @Nonnull
     public ItemStack getPickBlock(@Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player) {
-        return new ItemStack(Sync.itemBlockPlacer, 1, world.getBlockState(pos).getBlock().getMetaFromState(world.getBlockState(pos))); //TODO is this correct?
+        return new ItemStack(EnumType.getItemForType(world.getBlockState(pos).getValue(BlockDualVertical.TYPE)), 1);
     }
 
     @Override
