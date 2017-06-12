@@ -120,14 +120,6 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
 			powReceived = 0;
 		}
 	}
-
-	@Override
-	public void setup(TileEntityShellConstructor scPair, boolean isTop, int placeYaw)
-	{
-		pair = scPair;
-		top = isTop;
-		face = placeYaw;
-	}
 	
 	public boolean isPowered()
 	{

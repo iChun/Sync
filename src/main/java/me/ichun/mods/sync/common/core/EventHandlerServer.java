@@ -258,7 +258,7 @@ public class EventHandlerServer
                     dist = dvDist;
                 }
             }
-            else if ((Sync.config.allowCrossDimensional == 1 && (player.dimension != 1 || Sync.config.allowCrossDimensional == 2)) /*&& Sync.config.getSessionInt("crossDimensionalSyncingOnDeath") == 1*/) { //TODO
+            else if ((Sync.config.allowCrossDimensional == 1 && (player.dimension != 1 || Sync.config.allowCrossDimensional == 2)) /*&& Sync.config.getSessionInt("crossDimensionalSyncingOnDeath") == 1*/) { //TODO figure out how this worked in 1.7
                 if (dv.isHomeUnit) {
                     if (crossDimHomeDist == -1D || dvDist < crossDimHomeDist) {
                         nearestCrossDimHome = dv;
