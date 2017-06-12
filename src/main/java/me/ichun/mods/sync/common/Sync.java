@@ -5,9 +5,12 @@ import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.ichunutil.common.module.update.UpdateChecker;
 import me.ichun.mods.sync.client.core.EventHandlerClient;
+import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;
+import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
@@ -176,5 +179,18 @@ public class Sync
 
         GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
                 "DLD", "QEQ", "MRM", 'D', Blocks.DAYLIGHT_DETECTOR, 'L', Blocks.LAPIS_BLOCK, 'Q', Items.QUARTZ, 'E', ((Sync.config.hardcoreMode == 1 || Sync.config.hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled()) ? Blocks.BEACON : Items.ENDER_PEARL), 'M', Items.EMERALD, 'R', Blocks.REDSTONE_BLOCK);
+    }
+
+    public static boolean alwaysFalse(IBlockState state1, IBlockState state2) {
+        if (state2.getBlock() instanceof BlockDualVertical || state1.getBlock() instanceof BlockDualVertical) {
+            if (!(state1.getBlock() instanceof BlockDualVertical) || !(state2.getBlock() instanceof BlockDualVertical)) {
+                System.out.println("Wrong BlockState, BREAK");
+                return true;
+            }
+        }
+        if (state1.getBlock() instanceof BlockDualVertical) {
+            System.out.println("State 1 " + state1.getValue(BlockDualVertical.TYPE) + " State 2 " + state2.getValue(BlockDualVertical.TYPE));
+        }
+        return false;
     }
 }

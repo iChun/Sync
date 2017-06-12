@@ -71,7 +71,7 @@ public class PacketPlayerEnterStorage extends AbstractPacket
         {
             TileEntityShellStorage ss = (TileEntityShellStorage)te;
 
-            mc.player.setLocationAndAngles(ss.getPos().getX() + 0.5D, ss.getPos().getY(), ss.getPos().getZ() + 0.5D, (ss.face - 2) * 90F, 0F);
+            mc.player.setLocationAndAngles(ss.getPos().getX() + 0.5D, ss.getPos().getY(), ss.getPos().getZ() + 0.5D, (ss.face .getIndex()- 2) * 90F, 0F);
 
             Sync.eventHandlerClient.lockedStorage = ss;
             Sync.eventHandlerClient.lockTime = 5;

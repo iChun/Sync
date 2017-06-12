@@ -53,7 +53,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 		GlStateManager.translate(d + 0.5D, d1 + 0.75, d2 + 0.5D);
 		GlStateManager.scale(-0.5F, -0.5F, 0.5F);
 		
-		GlStateManager.rotate((dv.face * 90F), 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate((dv.face.getHorizontalAngle()), 0.0F, 1.0F, 0.0F);
 		
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

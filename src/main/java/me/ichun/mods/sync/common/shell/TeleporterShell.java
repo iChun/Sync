@@ -26,10 +26,11 @@ public class TeleporterShell extends Teleporter
 		this.playerPitch = pitch;
 	}
 
-    public void placeInPortal(Entity par1Entity, double par2, double par4, double par6, float par8)
+	@Override
+    public void placeInPortal(Entity entityIn, float rotationYaw)
     {
-        par1Entity.setLocationAndAngles((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, playerYaw, playerPitch);
-        par1Entity.motionX = par1Entity.motionY = par1Entity.motionZ = 0.0D;
+		entityIn.setLocationAndAngles((double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, playerYaw, playerPitch);
+		entityIn.motionX = entityIn.motionY = entityIn.motionZ = 0.0D;
     }
     
     @Override

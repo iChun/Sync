@@ -19,7 +19,7 @@ public class RenderItemShellStorage extends TileEntitySpecialRenderer<RenderItem
 
         GlStateManager.scale(0.33F, 0.33F, 0.33F);
         GlStateManager.translate(0F, 0.25F, 0F);
-        GlStateManager.rotate(90, 0, 1,0);
+        GlStateManager.rotate(-90, 0, 1,0);
 
         Minecraft.getMinecraft().getTextureManager().bindTexture(TileRendererDualVertical.txShellStorage);
 

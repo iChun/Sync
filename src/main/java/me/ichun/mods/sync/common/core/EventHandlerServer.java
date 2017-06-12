@@ -172,19 +172,19 @@ public class EventHandlerServer
                 if (tm != null && tm.latchedEnt == event.getTarget()) {
                     double velo = 1.3D;
                     switch (tm.face) {
-                        case 0: {
+                        case SOUTH: {
                             tm.latchedEnt.motionZ = velo;
                             break;
                         }
-                        case 1: {
+                        case WEST: {
                             tm.latchedEnt.motionX = -velo;
                             break;
                         }
-                        case 2: {
+                        case NORTH: {
                             tm.latchedEnt.motionZ = -velo;
                             break;
                         }
-                        case 3: {
+                        case EAST: {
                             tm.latchedEnt.motionX = velo;
                             break;
                         }

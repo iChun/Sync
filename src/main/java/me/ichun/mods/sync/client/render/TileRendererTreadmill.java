@@ -32,7 +32,7 @@ public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityT
 		GlStateManager.translate(d + 0.5D, d1 + 0.75, d2 + 0.5D);
 		GlStateManager.scale(-0.5F, -0.5F, 0.5F);
 		
-		GlStateManager.rotate((tm.face * 90F), 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate((tm.face.getHorizontalAngle()), 0.0F, 1.0F, 0.0F);
 		
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -42,7 +42,7 @@ public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityT
 
 		if(tm.latchedEnt != null)
 		{
-			tm.latchedEnt.prevRenderYawOffset = tm.latchedEnt.renderYawOffset = (tm.face - 2) * 90F;
+			tm.latchedEnt.prevRenderYawOffset = tm.latchedEnt.renderYawOffset = tm.face.getHorizontalAngle();
 			tm.latchedEnt.limbSwingAmount = 1.5F + 3.5F * MathHelper.clamp(((float)tm.timeRunning / 12000F), 0.0F, 1.0F);
 		}
 		

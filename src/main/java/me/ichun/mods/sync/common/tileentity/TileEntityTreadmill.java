@@ -1,6 +1,8 @@
 package me.ichun.mods.sync.common.tileentity;
 
 import me.ichun.mods.sync.common.Sync;
+import me.ichun.mods.sync.common.block.BlockDualVertical;
+import me.ichun.mods.sync.common.block.EnumType;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -12,6 +14,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -29,7 +32,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 	
 	public boolean back;
 	
-	public int face;
+	public EnumFacing face;
 	
 	public EntityLiving latchedEnt;
 	public int latchedEntId;
@@ -45,7 +48,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 		back = false;
 		latchedEnt = null;
 		
-		face = 0;
+		face = EnumFacing.NORTH;
 		
 		resync = false;
 	}
@@ -53,9 +56,11 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 	@Override
 	public void update()
 	{
+		resync = true;
 		if(resync)
 		{
-			TileEntity te = world.getTileEntity(new BlockPos(back ? (face == 1 ? pos.getX() + 1 : face == 3 ? pos.getX() - 1 : pos.getX()) : (face == 1 ? pos.getX() - 1 : face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), back ? (face == 0 ? pos.getZ() - 1 : face == 2 ? pos.getZ() + 1 : pos.getZ()) : (face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() - 1 : pos.getZ())));
+			TileEntity te = world.getTileEntity(pos.offset(face.getOpposite()));
+//			TileEntity te = world.getTileEntity(new BlockPos(back ? (face == 1 ? pos.getX() + 1 : face == 3 ? pos.getX() - 1 : pos.getX()) : (face == 1 ? pos.getX() - 1 : face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), back ? (face == 0 ? pos.getZ() - 1 : face == 2 ? pos.getZ() + 1 : pos.getZ()) : (face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() - 1 : pos.getZ())));
 			if(te != null && te.getClass() == this.getClass())
 			{
 				TileEntityTreadmill sc = (TileEntityTreadmill)te;
@@ -85,9 +90,9 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
                             if (ent.posX > aabb.minX && ent.posX < aabb.maxX && ent.posY > aabb.minY && ent.posY < aabb.maxY && ent.posZ > aabb.minZ && ent.posZ < aabb.maxZ) {
                                 latchedEnt = (EntityLiving) ent;
                                 latchedHealth = latchedEnt.getHealth();
-                                latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+                                latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getHorizontalAngle(), 0.0F);
 								IBlockState state = world.getBlockState(pos);
-                                world.notifyBlockUpdate(pos, state ,state, 3);
+                                world.notifyBlockUpdate(pos, state, state, 3);
                                 break;
                             }
                         }
@@ -126,7 +131,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 			}
 			if(latchedEnt != null)
 			{
-				latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+				latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getHorizontalAngle(), 0.0F);
 				timeRunning++;
 				if(timeRunning > 12000)
 				{
@@ -161,7 +166,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 					}
 					if(entityTameable.isTamed())
 					{
-						latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+						latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getHorizontalAngle(), 0.0F);
 						
 						aabb = latchedEnt.getEntityBoundingBox().contract(0.1D);
 						list = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
@@ -177,19 +182,19 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 					if (ent != latchedEnt && ent instanceof EntityLivingBase && !(ent instanceof EntityPlayer)) {
 						double velo = 0.9D;
 						switch (face) {
-							case 0: {
+							case SOUTH: {
 								ent.motionZ = velo;
 								break;
 							}
-							case 1: {
+							case WEST: {
 								ent.motionX = -velo;
 								break;
 							}
-							case 2: {
+							case NORTH: {
 								ent.motionZ = -velo;
 								break;
 							}
-							case 3: {
+							case EAST: {
 								ent.motionX = velo;
 								break;
 							}
@@ -205,22 +210,22 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 						double velo = 1.3D;
 						switch(face)
 						{
-							case 0:
+							case SOUTH:
 							{
 								latchedEnt.motionZ = velo;
 								break;
 							}
-							case 1:
+							case WEST:
 							{
 								latchedEnt.motionX = -velo;
 								break;
 							}
-							case 2:
+							case NORTH:
 							{
 								latchedEnt.motionZ = -velo;
 								break;
 							}
-							case 3:
+							case EAST:
 							{
 								latchedEnt.motionX = velo;
 								break;
@@ -235,7 +240,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 				if(latchedEnt != null)
 				{
 					latchedHealth = latchedEnt.getHealth();
-					latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+					latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getHorizontalAngle(), 0.0F);
 					latchedEnt.getNavigator().clearPathEntity();
 					if (timeRunning < 12000) {
 						timeRunning++;
@@ -257,9 +262,9 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 							latchedEnt = (EntityLiving) ent;
 							latchedHealth = latchedEnt.getHealth();
 							timeRunning = 0;
-							latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), (face - 2) * 90F, 0.0F);
+							latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getHorizontalAngle(), 0.0F);
 							IBlockState state = world.getBlockState(pos);
-							world.notifyBlockUpdate(pos, state ,state, 3);
+							world.notifyBlockUpdate(pos, state, state.withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3);
 							break;
 						}
 					}
@@ -338,11 +343,11 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 		}
 		if(i == 0)//x coord
 		{
-			return (face == 1 ? pos.getX() : face == 3 ? pos.getX() + 1 : pos.getX() + 0.5D);
+			return (face == EnumFacing.WEST ? pos.getX() : face == EnumFacing.NORTH ? pos.getX() + 1 : pos.getX() + 0.5D);
 		}
 		else //z coord
 		{
-			return (face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() : pos.getZ() + 0.5D);
+			return (face == EnumFacing.SOUTH ? pos.getZ() + 1 : face == EnumFacing.NORTH ? pos.getZ() : pos.getZ() + 0.5D);
 		}
 	}
 	
@@ -362,7 +367,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 		return power;
 	}
 	
-	public void setup(TileEntityTreadmill sc, boolean b, int face2) 
+	public void setup(TileEntityTreadmill sc, boolean b, EnumFacing face2)
 	{
 		pair = sc;
 		back = b;
@@ -389,7 +394,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 	{
 		super.writeToNBT(tag);
 		tag.setBoolean("back", back);
-		tag.setInteger("face", face);
+		tag.setInteger("face", face.getIndex());
 		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.getEntityId() : -1);
 		tag.setInteger("timeRunning", timeRunning);
 		return tag;
@@ -400,7 +405,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 	{
 		super.readFromNBT(tag);
 		back = tag.getBoolean("back");
-		face = tag.getInteger("face");
+		face = EnumFacing.getFront(tag.getInteger("face"));
 		latchedEntId = tag.getInteger("latchedID");
 		timeRunning = tag.getInteger("timeRunning");
 		

@@ -272,7 +272,7 @@ public class EventHandlerClient
 
                     if(lockedStorage != null)
                     {
-                        mc.player.setLocationAndAngles(lockedStorage.getPos().getX() + 0.5D, lockedStorage.getPos().getY(), lockedStorage.getPos().getZ() + 0.5D, (lockedStorage.face - 2) * 90F, 0F);
+                        mc.player.setLocationAndAngles(lockedStorage.getPos().getX() + 0.5D, lockedStorage.getPos().getY(), lockedStorage.getPos().getZ() + 0.5D, ((lockedStorage.face).getIndex() - 2) * 90F, 0F);
                     }
                 }
 

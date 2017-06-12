@@ -55,21 +55,21 @@ public class ItemTreadmill extends Item {
         }
 
         Block block1 = Sync.blockDualVertical;
-        int face = MathHelper.floor((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+        EnumFacing face = EnumFacing.fromAngle(player.rotationYaw);
 
         //0 = +Z
         //1 = -X
         //2 = -Z
         //3 = +X
 
-        int ii = face == 1 ? pos.getX() - 1 : face == 3 ? pos.getX() + 1 : pos.getX();
-        int kk = face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() - 1 : pos.getZ();
-        BlockPos newBlockPos = new BlockPos(ii, pos.getY(), kk);
+//        int ii = face == 1 ? pos.getX() - 1 : face == 3 ? pos.getX() + 1 : pos.getX();
+//        int kk = face == 0 ? pos.getZ() + 1 : face == 2 ? pos.getZ() - 1 : pos.getZ();
+        BlockPos newBlockPos = pos.offset(face);//new BlockPos(ii, pos.getY(), kk);
 
         boolean flag = !(world.getTileEntity(pos.down()) instanceof TileEntityTreadmill) && world.canBlockBePlaced(block1, pos, false, facing, null, stack) && !(world.getTileEntity(newBlockPos.down()) instanceof TileEntityTreadmill) && world.canBlockBePlaced(block1, newBlockPos, false, facing, null, stack);
         if(flag)
         {
-            if(world.setBlockState(pos, block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3) && world.setBlockState(new BlockPos(ii, pos.getY(), kk), block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3))
+            if(world.setBlockState(pos, block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3) && world.setBlockState(newBlockPos, block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3))
             {
                 TileEntity te = world.getTileEntity(pos);
                 TileEntity te1 = world.getTileEntity(newBlockPos);

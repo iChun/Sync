@@ -72,7 +72,7 @@ public class ItemShellBase extends Item {
                         TileEntityDualVertical sc = (TileEntityDualVertical)te;
                         TileEntityDualVertical sc1 = (TileEntityDualVertical)te1;
 
-                        int face = MathHelper.floor((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+                        EnumFacing face = EnumFacing.fromAngle(player.rotationYaw);
 
                         sc.setup(sc1, false, face);
                         sc1.setup(sc, true, face);

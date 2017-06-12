@@ -137,14 +137,14 @@ public class BlockDualVertical extends BlockContainer {
                         DamageSource.outOfWorld.damageType = name;
                     }
 
-                    notifyThisAndAbove(state, state.withProperty(TYPE, EnumType.CONSTRUCTOR), pos, world);
+                    notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, dualVertical.top);
                     return true;
                 }
                 else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getName()) && player.capabilities.isCreativeMode) {
                     if (!world.isRemote) {
                         shellConstructor.constructionProgress = Sync.config.shellConstructionPowerRequirement;
                         ShellHandler.updatePlayerOfShells(player, null, true);
-                        notifyThisAndAbove(state, state.withProperty(TYPE, EnumType.CONSTRUCTOR), pos, world);
+                        notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, dualVertical.top);
                     }
                     return true;
                 }
@@ -167,7 +167,7 @@ public class BlockDualVertical extends BlockContainer {
                         if (!player.capabilities.isCreativeMode && itemStack.stackSize-- <= 0) {
                             player.setItemStackToSlot(hand == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
                         }
-                        notifyThisAndAbove(state, state.withProperty(TYPE, EnumType.STORAGE), pos, world);
+                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
 
                         if (!world.isRemote) {
                             EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
@@ -182,7 +182,7 @@ public class BlockDualVertical extends BlockContainer {
                         //Changes state
                         shellStorage.isHomeUnit = !shellStorage.isHomeUnit;
 
-                        notifyThisAndAbove(state, state.withProperty(TYPE, EnumType.STORAGE), pos, world);
+                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
 
                         if (!world.isRemote) {
                             EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
@@ -213,7 +213,7 @@ public class BlockDualVertical extends BlockContainer {
                             if (!world.isRemote) {
                                 treadmill.latchedEnt = entityliving;
                                 treadmill.latchedHealth = entityliving.getHealth();
-                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), (treadmill.face - 2) * 90F, 0.0F);
+                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getHorizontalAngle(), 0.0F);
                                 world.notifyBlockUpdate(pos, state, state.withProperty(TYPE, EnumType.TREADMILL), 3);
                                 entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
                             }
@@ -230,7 +230,7 @@ public class BlockDualVertical extends BlockContainer {
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
                             treadmill.latchedHealth = ((EntityLiving)entity).getHealth();
-                            entity.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), (treadmill.face - 2) * 90F, 0.0F);
+                            entity.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getHorizontalAngle(), 0.0F);
                             world.notifyBlockUpdate(pos, state, state.withProperty(TYPE, EnumType.TREADMILL), 3);
                             return true;
                         }
@@ -307,13 +307,13 @@ public class BlockDualVertical extends BlockContainer {
                             }
                             else {
                                 Sync.channel.sendTo(new PacketPlayerEnterStorage(pos), player);
-                                player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, (shellStorage.face - 2) * 90F, 0F);
+                                player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, shellStorage.face.getHorizontalAngle(), 0F);
                             }
 
                             //Mark this as in use
                             shellStorage.setPlayerName(player.getName());
                             shellStorage.occupied = true;
-                            notifyThisAndAbove(state, state.withProperty(TYPE, EnumType.STORAGE), pos, world);
+                            notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
                         }
                     }
                 }
@@ -364,19 +364,19 @@ public class BlockDualVertical extends BlockContainer {
 
     //This makes the sides solid but not the front
     private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity) {
-        if (dualVertical.face != 0) {
+        if (dualVertical.face != EnumFacing.NORTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != 1) {
+        if (dualVertical.face != EnumFacing.EAST) {
             boundingBox = new AxisAlignedBB(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != 2) {
+        if (dualVertical.face != EnumFacing.SOUTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != 3) {
+        if (dualVertical.face != EnumFacing.WEST) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
@@ -469,7 +469,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
                         FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelper.getGameProfile(dualVertical.getPlayerName()));
                         fake.readFromNBT(dualVertical.getPlayerNBT());
-                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, (dualVertical.face - 2) * 90F, 0F);
+                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVertical.face.getHorizontalAngle(), 0F);
 
                         fake.captureDrops = true;
                         fake.capturedDrops.clear();
@@ -508,7 +508,8 @@ public class BlockDualVertical extends BlockContainer {
         }
         else if (tileEntity instanceof TileEntityTreadmill) {
             TileEntityTreadmill treadmill = (TileEntityTreadmill) tileEntity;
-            BlockPos toClean = new BlockPos(treadmill.back ? (treadmill.face == 1 ? pos.getX() + 1 : treadmill.face == 3 ? pos.getX() - 1 : pos.getX()) : (treadmill.face == 1 ? pos.getX() - 1 : treadmill.face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == 0 ? pos.getZ() - 1 : treadmill.face == 2 ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == 0 ? pos.getZ() + 1 : treadmill.face == 2 ? pos.getZ() - 1 : pos.getZ()));
+            BlockPos toClean = pos.offset(treadmill.face);
+//            BlockPos toClean = new BlockPos(treadmill.back ? (treadmill.face == 1 ? pos.getX() + 1 : treadmill.face == 3 ? pos.getX() - 1 : pos.getX()) : (treadmill.face == 1 ? pos.getX() - 1 : treadmill.face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == 0 ? pos.getZ() - 1 : treadmill.face == 2 ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == 0 ? pos.getZ() + 1 : treadmill.face == 2 ? pos.getZ() - 1 : pos.getZ()));
             TileEntity tileEntityPair = world.getTileEntity(toClean);
 
             if (tileEntityPair instanceof TileEntityTreadmill) {
@@ -559,23 +560,7 @@ public class BlockDualVertical extends BlockContainer {
             TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
             if (side == EnumFacing.DOWN || side == EnumFacing.UP) return true;
             if (!(tileEntity instanceof TileEntityShellConstructor)) {
-                switch (dualVertical.face) {
-                    case 0: {
-                        return side == EnumFacing.SOUTH;
-                    }
-                    case 1: {
-                        return side == EnumFacing.WEST;
-                    }
-                    case 2: {
-                        return side == EnumFacing.NORTH;
-                    }
-                    case 3: {
-                        return side == EnumFacing.EAST;
-                    }
-                    default: {
-                        return false;
-                    }
-                }
+                return side == dualVertical.face.getOpposite();
             }
         }
         return false;
@@ -614,11 +599,11 @@ public class BlockDualVertical extends BlockContainer {
         }
     }
 
-    private static void notifyThisAndAbove(IBlockState oldState, IBlockState newState, BlockPos thisPos, World world) {
-        BlockPos up = thisPos.up();
-        IBlockState above = world.getBlockState(up);
-        world.notifyBlockUpdate(thisPos, oldState, newState, 3);
-        world.notifyBlockUpdate(up, above, above, 3);
+    private static void notifyThisAndAbove(IBlockState oldState, EnumType newType, BlockPos thisPos, World world, boolean isTop) {
+        BlockPos other = isTop ? thisPos.up() : thisPos.down();
+        IBlockState above = world.getBlockState(other);
+        world.notifyBlockUpdate(thisPos, oldState, oldState.withProperty(TYPE, newType), 3);
+        world.notifyBlockUpdate(other, above, above.withProperty(TYPE, newType), 3);
     }
 
 }
