@@ -34,10 +34,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
-public abstract class TileEntityDualVertical extends TileEntity implements ITickable
+public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
 {
 
-    public TileEntityDualVertical pair;
+    public T pair;
     public boolean top;
     public int face; //TODO use EnumFacing in 1.10?
     public boolean vacating;
@@ -45,7 +45,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements ITick
 
     protected String playerName;
     protected String name;
-    public TileEntityDualVertical resyncOrigin;
+    public T resyncOrigin;
     protected NBTTagCompound playerNBT;
     public ResourceLocation locationSkin;
 
@@ -84,7 +84,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements ITick
         if (this.resync) {
             TileEntity tileEntity = world.getTileEntity(this.pos.add(0, (this.top ? -1 : 1), 0));
             if (tileEntity != null && tileEntity.getClass() == this.getClass()) {
-                TileEntityDualVertical dualVertical = (TileEntityDualVertical)tileEntity;
+                T dualVertical = (T)tileEntity;
                 dualVertical.pair = this;
                 this.pair = dualVertical;
             }
@@ -267,7 +267,7 @@ public abstract class TileEntityDualVertical extends TileEntity implements ITick
         this.resync = false;
     }
 
-    public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
+    public void setup(T scPair, boolean isTop, int placeYaw)
     {
         pair = scPair;
         top = isTop;

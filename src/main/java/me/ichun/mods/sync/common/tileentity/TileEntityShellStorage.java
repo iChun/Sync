@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityShellStorage extends TileEntityDualVertical
+public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShellStorage>
 {
 	public boolean occupied;
 	public boolean syncing;
@@ -56,7 +56,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 		}
 		if(top && pair != null)
 		{
-			TileEntityShellStorage ss = (TileEntityShellStorage)pair;
+			TileEntityShellStorage ss = pair;
 			occupied = ss.occupied;
 			syncing = ss.syncing;
 			hasPower = ss.hasPower;
@@ -163,7 +163,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical
 
 	public boolean isPowered() {
 		if (top && pair != null) {
-			return ((TileEntityShellStorage)pair).isPowered();
+			return pair.isPowered();
 		}
 		return (world.isBlockIndirectlyGettingPowered(pos) != 0 || world.isBlockIndirectlyGettingPowered(pos.up()) != 0) && hasPower;
 	}

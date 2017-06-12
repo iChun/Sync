@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.Optional;
 import java.util.List;
 
 //@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
-public class TileEntityShellConstructor extends TileEntityDualVertical //implements IEnergyInfo TODO Energy
+public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntityShellConstructor> //implements IEnergyInfo TODO Energy
 {
 	public float constructionProgress;
 	public int doorTime;
@@ -39,8 +39,8 @@ public class TileEntityShellConstructor extends TileEntityDualVertical //impleme
 		
 		if(top && pair != null)
 		{
-			constructionProgress = ((TileEntityShellConstructor)pair).constructionProgress;
-			doorOpen = ((TileEntityShellConstructor)pair).doorOpen;
+			constructionProgress = pair.constructionProgress;
+			doorOpen = pair.doorOpen;
 		}
 		if(isPowered())
 		{
@@ -120,8 +120,9 @@ public class TileEntityShellConstructor extends TileEntityDualVertical //impleme
 			powReceived = 0;
 		}
 	}
-	
-	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
+
+	@Override
+	public void setup(TileEntityShellConstructor scPair, boolean isTop, int placeYaw)
 	{
 		pair = scPair;
 		top = isTop;
@@ -132,7 +133,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical //impleme
 	{
 		if(top && pair != null)
 		{
-			return ((TileEntityShellConstructor)pair).isPowered();
+			return pair.isPowered();
 		}
 		return !playerName.equalsIgnoreCase("");
 	}
