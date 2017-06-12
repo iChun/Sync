@@ -4,7 +4,6 @@ import me.ichun.mods.ichunutil.client.keybind.KeyEvent;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
 import me.ichun.mods.sync.client.render.TileRendererDualVertical;
 import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.core.ProxyCommon;
 import me.ichun.mods.sync.common.packet.PacketSyncRequest;
 import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import me.ichun.mods.sync.common.shell.ShellState;
@@ -21,7 +20,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
@@ -30,7 +28,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -39,8 +36,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GLContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -517,7 +512,7 @@ public class EventHandlerClient
                     GL11.glEnable(GL11.GL_DEPTH_TEST);
                     GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-                    ArrayList<ShellState> selectedShells = new ArrayList<ShellState>(shells);
+                    ArrayList<ShellState> selectedShells = new ArrayList<>(shells);
 
                     Collections.sort(selectedShells);
 

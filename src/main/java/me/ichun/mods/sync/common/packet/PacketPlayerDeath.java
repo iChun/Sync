@@ -1,6 +1,5 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

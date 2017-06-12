@@ -13,7 +13,6 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 
 public class RenderShellDestruction extends Render<EntityShellDestruction>
 {
-	public HashMap<ResourceLocation, BufferedImage[]> restitchedSkins = new HashMap<ResourceLocation, BufferedImage[]>();
+	public HashMap<ResourceLocation, BufferedImage[]> restitchedSkins = new HashMap<>();
 	public HashMap<ResourceLocation, int[]> restitchedSkinsId = new HashMap<>();
 	public ModelPixel model;
 	

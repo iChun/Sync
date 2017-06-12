@@ -127,7 +127,7 @@ public class EventHandlerServer
     public void onEntityAttacked(LivingAttackEvent event) {
         //Prevent damage during sync
         if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.outOfWorld) {
-            if (ShellHandler.syncInProgress.containsKey(((EntityPlayer) event.getEntityLiving()).getName())) {
+            if (ShellHandler.syncInProgress.containsKey(event.getEntityLiving().getName())) {
                 event.setCanceled(true);
             }
         }
@@ -145,9 +145,8 @@ public class EventHandlerServer
             }
         }
         if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.outOfWorld) {
-            if (ShellHandler.syncInProgress.containsKey(((EntityPlayer) event.getEntityLiving()).getName())) {
+            if (ShellHandler.syncInProgress.containsKey(event.getEntityLiving().getName())) {
                 event.setCanceled(true);
-                return;
             }
         }
     }
@@ -211,7 +210,7 @@ public class EventHandlerServer
 
     //Will return the closest shell that the player can be synced too
     public static TileEntityDualVertical getClosestRespawnShell(EntityPlayer player) {
-        ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
+        ArrayList<TileEntityDualVertical> dvs = new ArrayList<>();
         boolean reiterateShells = false;
 
         //Shells are chunk loaded so look through the tickets for the players shells

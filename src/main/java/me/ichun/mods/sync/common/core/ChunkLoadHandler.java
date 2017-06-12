@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class ChunkLoadHandler implements LoadingCallback {
 
-	public static final HashMap<TileEntityDualVertical, Ticket> shellTickets = new HashMap<TileEntityDualVertical, Ticket>();
+	public static final HashMap<TileEntityDualVertical, Ticket> shellTickets = new HashMap<>();
 	
 	@Override
 	public void ticketsLoaded(List<Ticket> tickets, World world) 

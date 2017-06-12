@@ -249,7 +249,7 @@ public class BlockDualVertical extends BlockContainer {
         if (tileEntity instanceof TileEntityShellStorage) {
             TileEntityShellStorage shellStorage = (TileEntityShellStorage) tileEntity;
 
-            if ((shellStorage.top && shellStorage.pair != null && ((TileEntityShellStorage)shellStorage.pair).occupied || shellStorage.occupied) && shellStorage.getWorld().isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
+            if ((shellStorage.top && shellStorage.pair != null && shellStorage.pair.occupied || shellStorage.occupied) && shellStorage.getWorld().isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
                 double dist = getDistance(pos);
 
                 if (dist < (shellStorage.top ? 1.1D : 0.6D)) {

@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.util.IStringSerializable;
 
 /**
- * Created by Tobias on 11.06.2017.
+ * Types for blockstates of {@link BlockDualVertical}
  */
 public enum EnumType implements IStringSerializable {
     CONSTRUCTOR {

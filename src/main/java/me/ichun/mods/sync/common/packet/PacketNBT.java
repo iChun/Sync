@@ -9,7 +9,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.WorldSettings;
 
 public class PacketNBT extends AbstractPacket
 {

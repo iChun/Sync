@@ -3,7 +3,6 @@ package me.ichun.mods.sync.client.render;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import me.ichun.mods.sync.client.model.ModelTreadmill;

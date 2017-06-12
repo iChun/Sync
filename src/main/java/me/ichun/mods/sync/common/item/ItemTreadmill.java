@@ -3,7 +3,6 @@ package me.ichun.mods.sync.common.item;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.block.EnumType;
-import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
@@ -23,9 +22,6 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-/**
- * Created by Tobias on 11.06.2017.
- */
 public class ItemTreadmill extends Item {
 
     public ItemTreadmill() {

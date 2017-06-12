@@ -1,13 +1,11 @@
 package me.ichun.mods.sync.client.model;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
 import org.lwjgl.opengl.GL11;
@@ -64,7 +62,7 @@ public class ModelShellConstructor extends ModelBase
 	{
 		rand = new Random();
 		
-		bodyPixelCoords = new ArrayList<int[]>();
+		bodyPixelCoords = new ArrayList<>();
 		
 		for(int x = -7; x <= 7; x += 2)
 		{
@@ -74,7 +72,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 		
-		armPixelCoords = new ArrayList<int[]>();
+		armPixelCoords = new ArrayList<>();
 		
 		for(int x = 9; x <= 15; x += 2)
 		{
@@ -84,7 +82,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 		
-		headPixelCoords = new ArrayList<int[]>();
+		headPixelCoords = new ArrayList<>();
 		
 		for(int x = -7; x <= 7; x += 2)
 		{
@@ -425,7 +423,7 @@ public class ModelShellConstructor extends ModelBase
 			
 			if(prog < 0.75F)
 			{
-				ArrayList<int[]> bodyPix = new ArrayList<int[]>(bodyPixelCoords);
+				ArrayList<int[]> bodyPix = new ArrayList<>(bodyPixelCoords);
 				
 				float progPerLayer = (0.75F * (1F/24F));
 				
@@ -459,7 +457,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 			else if(prog < 0.95F)
 			{
-				ArrayList<int[]> armPix = new ArrayList<int[]>(armPixelCoords);
+				ArrayList<int[]> armPix = new ArrayList<>(armPixelCoords);
 				
 				float progPerArmLayer = (0.20F * (1F/12F));
 				
@@ -497,7 +495,7 @@ public class ModelShellConstructor extends ModelBase
 				
 				rand.setSeed("headConstructor".hashCode());
 				
-				ArrayList<int[]> headPix = new ArrayList<int[]>(headPixelCoords);
+				ArrayList<int[]> headPix = new ArrayList<>(headPixelCoords);
 				
 				float progPerHeadLayer = (0.20F * (1F/8F));
 				

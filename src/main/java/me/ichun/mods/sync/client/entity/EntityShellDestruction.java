@@ -11,7 +11,6 @@ import me.ichun.mods.sync.client.model.ModelPixel;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class EntityShellDestruction extends EntityLivingBase 
 {
