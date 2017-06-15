@@ -171,7 +171,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
-		super.writeToNBT(tag);
+		tag = super.writeToNBT(tag);
 		tag.setBoolean("occupied", occupied);
 		tag.setBoolean("syncing", canSavePlayer <= 0 && syncing);
 		tag.setBoolean("hasPower", hasPower);

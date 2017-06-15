@@ -382,15 +382,20 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         NBTTagCompound tag = new NBTTagCompound();
-        writeToNBT(tag);
+        tag = writeToNBT(tag);
         return new SPacketUpdateTileEntity(pos, 0, tag);
     }
+
+	@Override
+	public NBTTagCompound getUpdateTag() {
+		return writeToNBT(new NBTTagCompound());
+	}
 
 	@Override
 	@Nonnull
 	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
-		super.writeToNBT(tag);
+		tag = super.writeToNBT(tag);
 		tag.setBoolean("back", back);
 		tag.setInteger("face", face.getIndex());
 		tag.setInteger("latchedID", latchedEnt != null ? latchedEnt.getEntityId() : -1);

@@ -138,7 +138,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
-		super.writeToNBT(tag);
+		tag = super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
 		return tag;

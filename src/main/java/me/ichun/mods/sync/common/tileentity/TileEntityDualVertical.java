@@ -327,7 +327,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
-        super.writeToNBT(tag);
+        tag = super.writeToNBT(tag);
         tag.setBoolean("top", top);
         tag.setInteger("face", face.getHorizontalIndex());
         tag.setBoolean("vacating", vacating);
