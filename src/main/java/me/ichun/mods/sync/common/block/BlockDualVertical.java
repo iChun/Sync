@@ -111,7 +111,8 @@ public class BlockDualVertical extends BlockContainer {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof TileEntityDualVertical && !(player instanceof FakePlayer)) {
             TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-            if (dualVertical.top) {
+            boolean top = dualVertical.top;
+            if (top) {
                 TileEntity tileEntityPair = world.getTileEntity(pos.down());
                 if (tileEntityPair instanceof TileEntityDualVertical) {
                     dualVertical = (TileEntityDualVertical) tileEntityPair;
@@ -137,14 +138,14 @@ public class BlockDualVertical extends BlockContainer {
                         DamageSource.outOfWorld.damageType = name;
                     }
 
-                    notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, dualVertical.top);
+                    notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, top);
                     return true;
                 }
                 else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getName()) && player.capabilities.isCreativeMode) {
                     if (!world.isRemote) {
                         shellConstructor.constructionProgress = Sync.config.shellConstructionPowerRequirement;
                         ShellHandler.updatePlayerOfShells(player, null, true);
-                        notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, dualVertical.top);
+                        notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, top);
                     }
                     return true;
                 }
@@ -167,7 +168,7 @@ public class BlockDualVertical extends BlockContainer {
                         if (!player.capabilities.isCreativeMode && itemStack.stackSize-- <= 0) {
                             player.setItemStackToSlot(hand == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
                         }
-                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
+                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
 
                         if (!world.isRemote) {
                             EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
@@ -182,7 +183,7 @@ public class BlockDualVertical extends BlockContainer {
                         //Changes state
                         shellStorage.isHomeUnit = !shellStorage.isHomeUnit;
 
-                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
+                        notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
 
                         if (!world.isRemote) {
                             EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
@@ -599,7 +600,7 @@ public class BlockDualVertical extends BlockContainer {
     }
 
     private static void notifyThisAndAbove(IBlockState oldState, EnumType newType, BlockPos thisPos, World world, boolean isTop) {
-        BlockPos other = isTop ? thisPos.up() : thisPos.down();
+        BlockPos other = isTop ? thisPos.down() : thisPos.up();
         IBlockState above = world.getBlockState(other);
         world.notifyBlockUpdate(thisPos, oldState, oldState.withProperty(TYPE, newType), 3);
         world.notifyBlockUpdate(other, above, above.withProperty(TYPE, newType), 3);
