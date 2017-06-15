@@ -71,7 +71,7 @@ public class PacketShellDeath extends AbstractPacket
         TileEntity te = mc.world.getTileEntity(new BlockPos(xCoord, yCoord, zCoord));
         if(te instanceof TileEntityDualVertical)
         {
-            EntityShellDestruction sd = new EntityShellDestruction(mc.world, face.getHorizontalAngle(), face.getHorizontalAngle() * 90F, 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
+            EntityShellDestruction sd = new EntityShellDestruction(mc.world, face.getOpposite().getHorizontalAngle(), face.getOpposite().getHorizontalAngle(), 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
             sd.setLocationAndAngles(xCoord + 0.5D, yCoord, zCoord + 0.5D, 0.0F, 0.0F);
             mc.world.spawnEntity(sd);
         }

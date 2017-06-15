@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.packet;
 
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
@@ -19,13 +20,13 @@ public class PacketZoomCamera extends AbstractPacket
 
     public PacketZoomCamera(){}
 
-    public PacketZoomCamera(int posX, int posY, int posZ, int dimID, int zoomFace, boolean zoom, boolean zoomDeath)
+    public PacketZoomCamera(int posX, int posY, int posZ, int dimID, EnumFacing zoomFace, boolean zoom, boolean zoomDeath)
     {
         this.posX = posX;
         this.posY = posY;
         this.posZ = posZ;
         this.dimID = dimID;
-        this.zoomFace = zoomFace;
+        this.zoomFace = zoomFace.getIndex();
         this.zoom = zoom;
         this.zoomDeath = zoomDeath;
     }
@@ -51,7 +52,7 @@ public class PacketZoomCamera extends AbstractPacket
 
         Sync.eventHandlerClient.zoomDimension = buffer.readInt();
 
-        Sync.eventHandlerClient.zoomFace = buffer.readInt();
+        Sync.eventHandlerClient.zoomFace = EnumFacing.getFront(buffer.readInt());
         Sync.eventHandlerClient.zoom = buffer.readBoolean();
 
         Sync.eventHandlerClient.zoomTimer = 60;

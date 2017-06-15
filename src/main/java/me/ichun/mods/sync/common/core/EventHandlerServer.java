@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -43,7 +44,7 @@ public class EventHandlerServer
             TileEntityDualVertical tpPosition = EventHandlerServer.getClosestRespawnShell(entityPlayerMP);
 
             if (tpPosition != null) {
-                Sync.channel.sendTo(new PacketZoomCamera((int)Math.floor(entityPlayerMP.posX), (int)Math.floor(entityPlayerMP.posY), (int)Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, -1, false, true), event.player);
+                Sync.channel.sendTo(new PacketZoomCamera((int)Math.floor(entityPlayerMP.posX), (int)Math.floor(entityPlayerMP.posY), (int)Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, EnumFacing.UP, false, true), event.player);
 
                 tpPosition.resyncPlayer = 120;
 
@@ -101,7 +102,7 @@ public class EventHandlerServer
 
                 //If we have a valid location to sync into, tell the player to zoom out
                 if (tpPosition != null) {
-                    Sync.channel.sendTo(new PacketZoomCamera((int) Math.floor(event.getEntityLiving().posX), (int) Math.floor(event.getEntityLiving().posY), (int) Math.floor(event.getEntityLiving().posZ), event.getEntityLiving().dimension, -1, false, true), player);
+                    Sync.channel.sendTo(new PacketZoomCamera((int) Math.floor(event.getEntityLiving().posX), (int) Math.floor(event.getEntityLiving().posY), (int) Math.floor(event.getEntityLiving().posZ), event.getEntityLiving().dimension, EnumFacing.UP, false, true), player);
 
                     tpPosition.resyncPlayer = 120;
 

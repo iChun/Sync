@@ -213,7 +213,7 @@ public class BlockDualVertical extends BlockContainer {
                             if (!world.isRemote) {
                                 treadmill.latchedEnt = entityliving;
                                 treadmill.latchedHealth = entityliving.getHealth();
-                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getHorizontalAngle(), 0.0F);
+                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getOpposite().getHorizontalAngle(), 0.0F);
                                 world.notifyBlockUpdate(pos, state, state.withProperty(TYPE, EnumType.TREADMILL), 3);
                                 entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
                             }
@@ -230,7 +230,7 @@ public class BlockDualVertical extends BlockContainer {
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
                             treadmill.latchedHealth = ((EntityLiving)entity).getHealth();
-                            entity.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getHorizontalAngle(), 0.0F);
+                            entity.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getOpposite().getHorizontalAngle(), 0.0F);
                             world.notifyBlockUpdate(pos, state, state.withProperty(TYPE, EnumType.TREADMILL), 3);
                             return true;
                         }
@@ -307,7 +307,7 @@ public class BlockDualVertical extends BlockContainer {
                             }
                             else {
                                 Sync.channel.sendTo(new PacketPlayerEnterStorage(pos), player);
-                                player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, shellStorage.face.getHorizontalAngle(), 0F);
+                                player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, shellStorage.face.getOpposite().getHorizontalAngle(), 0F);
                             }
 
                             //Mark this as in use
@@ -364,19 +364,19 @@ public class BlockDualVertical extends BlockContainer {
 
     //This makes the sides solid but not the front
     private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity) {
-        if (dualVertical.face != EnumFacing.NORTH) {
+        if (dualVertical.face != EnumFacing.SOUTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != EnumFacing.EAST) {
+        if (dualVertical.face != EnumFacing.WEST) {
             boundingBox = new AxisAlignedBB(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != EnumFacing.SOUTH) {
+        if (dualVertical.face != EnumFacing.NORTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
-        if (dualVertical.face != EnumFacing.WEST) {
+        if (dualVertical.face != EnumFacing.EAST) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
             super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
         }
@@ -469,7 +469,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
                         FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelper.getGameProfile(dualVertical.getPlayerName()));
                         fake.readFromNBT(dualVertical.getPlayerNBT());
-                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVertical.face.getHorizontalAngle(), 0F);
+                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVertical.face.getOpposite().getHorizontalAngle(), 0F);
 
                         fake.captureDrops = true;
                         fake.capturedDrops.clear();
@@ -508,8 +508,7 @@ public class BlockDualVertical extends BlockContainer {
         }
         else if (tileEntity instanceof TileEntityTreadmill) {
             TileEntityTreadmill treadmill = (TileEntityTreadmill) tileEntity;
-            BlockPos toClean = pos.offset(treadmill.face);
-//            BlockPos toClean = new BlockPos(treadmill.back ? (treadmill.face == 1 ? pos.getX() + 1 : treadmill.face == 3 ? pos.getX() - 1 : pos.getX()) : (treadmill.face == 1 ? pos.getX() - 1 : treadmill.face == 3 ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == 0 ? pos.getZ() - 1 : treadmill.face == 2 ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == 0 ? pos.getZ() + 1 : treadmill.face == 2 ? pos.getZ() - 1 : pos.getZ()));
+            BlockPos toClean = new BlockPos(treadmill.back ? (treadmill.face == EnumFacing.WEST ? pos.getX() + 1 : treadmill.face == EnumFacing.EAST ? pos.getX() - 1 : pos.getX()) : (treadmill.face == EnumFacing.WEST ? pos.getX() - 1 : treadmill.face == EnumFacing.EAST ? pos.getX() + 1 : pos.getX()), pos.getY(), treadmill.back ? (treadmill.face == EnumFacing.SOUTH ? pos.getZ() - 1 : treadmill.face == EnumFacing.NORTH ? pos.getZ() + 1 : pos.getZ()) : (treadmill.face == EnumFacing.SOUTH ? pos.getZ() + 1 : treadmill.face == EnumFacing.NORTH ? pos.getZ() - 1 : pos.getZ()));
             TileEntity tileEntityPair = world.getTileEntity(toClean);
 
             if (tileEntityPair instanceof TileEntityTreadmill) {
@@ -560,7 +559,7 @@ public class BlockDualVertical extends BlockContainer {
             TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
             if (side == EnumFacing.DOWN || side == EnumFacing.UP) return true;
             if (!(tileEntity instanceof TileEntityShellConstructor)) {
-                return side == dualVertical.face.getOpposite();
+                return side == dualVertical.face;
             }
         }
         return false;

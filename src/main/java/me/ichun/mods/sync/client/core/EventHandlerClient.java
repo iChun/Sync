@@ -23,6 +23,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -59,7 +60,7 @@ public class EventHandlerClient
 
     public long clock;
 
-    public int zoomFace;
+    public EnumFacing zoomFace;
     public int zoomTimer;
     public int zoomTimeout;
     public boolean zoom;
@@ -272,7 +273,7 @@ public class EventHandlerClient
 
                     if(lockedStorage != null)
                     {
-                        mc.player.setLocationAndAngles(lockedStorage.getPos().getX() + 0.5D, lockedStorage.getPos().getY(), lockedStorage.getPos().getZ() + 0.5D, ((lockedStorage.face).getIndex() - 2) * 90F, 0F);
+                        mc.player.setLocationAndAngles(lockedStorage.getPos().getX() + 0.5D, lockedStorage.getPos().getY(), lockedStorage.getPos().getZ() + 0.5D, lockedStorage.face.getOpposite().getHorizontalAngle(), 0F);
                     }
                 }
 
@@ -289,7 +290,7 @@ public class EventHandlerClient
                     }
                     if(zoomTimer > -5 && !zoomDeath)
                     {
-                        mc.player.setLocationAndAngles(Sync.eventHandlerClient.zoomPos.getX() + 0.5D, Sync.eventHandlerClient.zoomPos.getY(), Sync.eventHandlerClient.zoomPos.getZ() + 0.5D, (Sync.eventHandlerClient.zoomFace - 2) * 90F, 0F);
+                        mc.player.setLocationAndAngles(Sync.eventHandlerClient.zoomPos.getX() + 0.5D, Sync.eventHandlerClient.zoomPos.getY(), Sync.eventHandlerClient.zoomPos.getZ() + 0.5D, Sync.eventHandlerClient.zoomFace.getOpposite().getHorizontalAngle(), 0F);
                     }
                     if(zoomTimer > -10)
                     {
@@ -609,8 +610,8 @@ public class EventHandlerClient
             hideGui = Minecraft.getMinecraft().gameSettings.hideGUI;
             Minecraft.getMinecraft().gameSettings.hideGUI = true;
         }
-        ent.prevRotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : (zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
-        ent.rotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : (zoomFace - 2) * 90F + 180F * rotProg - zoomPrevYaw);
+        ent.prevRotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : zoomFace.getOpposite().getHorizontalAngle() + 180F * rotProg - zoomPrevYaw);
+        ent.rotationYaw += (revert ? -1 : 1) * (zoomDeath ? (180F * rotProg) : zoomFace.getOpposite().getHorizontalAngle() + 180F * rotProg - zoomPrevYaw);
         if(ent instanceof EntityLivingBase)
         {
             ((EntityLivingBase)ent).prevRotationYawHead = ent.prevRotationYaw;
@@ -632,28 +633,28 @@ public class EventHandlerClient
 
         switch(zoomFace)
         {
-            case 0:
+            case SOUTH:
             {
                 ent.lastTickPosZ -= (revert ? -1 : 1) * (1.5D * disProg);
                 ent.prevPosZ -= (revert ? -1 : 1) * (1.5D * disProg);
                 ent.posZ -= (revert ? -1 : 1) * (1.5D * disProg);
                 break;
             }
-            case 1:
+            case WEST:
             {
                 ent.lastTickPosX += (revert ? -1 : 1) * (1.5D * disProg);
                 ent.prevPosX += (revert ? -1 : 1) * (1.5D * disProg);
                 ent.posX += (revert ? -1 : 1) * (1.5D * disProg);
                 break;
             }
-            case 2:
+            case NORTH:
             {
                 ent.lastTickPosZ += (revert ? -1 : 1) * (1.5D * disProg);
                 ent.prevPosZ += (revert ? -1 : 1) * (1.5D * disProg);
                 ent.posZ += (revert ? -1 : 1) * (1.5D * disProg);
                 break;
             }
-            case 3:
+            case EAST:
             {
                 ent.lastTickPosX -= (revert ? -1 : 1) * (1.5D * disProg);
                 ent.prevPosX -= (revert ? -1 : 1) * (1.5D * disProg);

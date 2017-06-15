@@ -39,7 +39,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 
     public T pair;
     public boolean top;
-    public EnumFacing face; //TODO use EnumFacing in 1.10?
+    public EnumFacing face;
     public boolean vacating;
     public boolean isHomeUnit;
 
@@ -63,7 +63,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         top = false;
         vacating = false;
         isHomeUnit = false;
-        face = EnumFacing.NORTH;
+        face = EnumFacing.SOUTH;
         playerName = "";
         name = "";
 
@@ -122,7 +122,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         int dim = player.dimension;
                         //If player is in different dimension, bring them here
                         if (player.dimension != world.provider.getDimension()) {
-                            FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().transferPlayerToDimension(player, this.world.provider.getDimension(), new TeleporterShell((WorldServer) this.world, this.world.provider.getDimension(), this.getPos(), this.face.getHorizontalAngle(), 0F));
+                            FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().transferPlayerToDimension(player, this.world.provider.getDimension(), new TeleporterShell((WorldServer) this.world, this.world.provider.getDimension(), this.getPos(), face.getOpposite().getHorizontalAngle(), 0F));
 
                             //Refetch player TODO is this needed?
                             player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.getPlayerName());
@@ -130,19 +130,19 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 							if (dim == 1) {
 								if (player.isEntityAlive()) {
 									this.world.spawnEntity(player);
-									player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getHorizontalAngle(), 0F);
+									player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getOpposite().getHorizontalAngle(), 0F);
 									this.world.updateEntityWithOptionalForce(player, false);
 									player.fallDistance = 0F;
 								}
 							}
                         }
                         else {
-                            player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getHorizontalAngle(), 0F);
+                            player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
                             player.fallDistance = 0F;
                         }
 
 
-                        Sync.channel.sendTo(new PacketZoomCamera(getPos().getX(), getPos().getY(), getPos().getZ(), this.world.provider.getDimension(), this.face.getIndex(), true, false), player);
+                        Sync.channel.sendTo(new PacketZoomCamera(getPos().getX(), getPos().getY(), getPos().getZ(), this.world.provider.getDimension(), this.face, true, false), player);
                     }
                 }
                 //Beginning of kicking the player out
@@ -180,7 +180,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                             //Setup location for dummy
                             EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
                             dummy.connection = player.connection;
-                            dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getHorizontalAngle(), 0F);
+                            dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
                             dummy.fallDistance = 0F;
 
                             //Clone data
@@ -329,7 +329,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     {
         super.writeToNBT(tag);
         tag.setBoolean("top", top);
-        tag.setInteger("face", face.getIndex());
+        tag.setInteger("face", face.getHorizontalIndex());
         tag.setBoolean("vacating", vacating);
         tag.setBoolean("isHomeUnit", isHomeUnit);
         tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
@@ -344,7 +344,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     {
         super.readFromNBT(tag);
         top = tag.getBoolean("top");
-        face = EnumFacing.getFront(tag.getInteger("face"));
+        face = EnumFacing.getHorizontal(tag.getInteger("face"));
         vacating = tag.getBoolean("vacating");
         isHomeUnit = tag.getBoolean("isHomeUnit");
         playerName = tag.getString("playerName");

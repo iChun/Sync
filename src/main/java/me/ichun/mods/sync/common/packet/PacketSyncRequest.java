@@ -144,7 +144,7 @@ public class PacketSyncRequest extends AbstractPacket
                         worldOri.notifyBlockUpdate(ss.getPos().add(0, 1, 0), state1, state1, 3);
                     }
 
-                    Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face.getIndex(), false, false), player);
+                    Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);
 
                     targetShell.resyncPlayer = 120;
                     originShell.canSavePlayer = -1;
