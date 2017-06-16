@@ -21,6 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -223,11 +224,12 @@ public class BlockDualVertical extends BlockContainer {
                     }
                 }
 
-                ItemStack itemStack = player.getActiveItemStack();
+                ItemStack itemStack = player.getHeldItem(hand);
                 //Allow easier creative testing. Only works for pig and wolves cause easier
-                if (itemStack != null && itemStack.getItem() instanceof ItemMonsterPlacer && (itemStack.getItemDamage() == 90 || itemStack.getItemDamage() == 95)) {
-                    if (!world.isRemote) {
-                        Entity entity = ItemMonsterPlacer.spawnCreature(world, ItemMonsterPlacer.getEntityIdFromItem(itemStack), treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1));
+                if (!world.isRemote && itemStack != null && itemStack.getItem() instanceof ItemMonsterPlacer) {
+                    String mob = ItemMonsterPlacer.getEntityIdFromItem(itemStack);
+                    if ("Pig".equalsIgnoreCase(mob) || "Wolf".equalsIgnoreCase(mob)) {
+                        Entity entity = ItemMonsterPlacer.spawnCreature(world, mob, treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1));
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
                             treadmill.latchedHealth = ((EntityLiving)entity).getHealth();

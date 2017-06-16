@@ -7,12 +7,19 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShellStorage>
+import javax.annotation.Nonnull;
+
+public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShellStorage> implements IEnergyStorage
 {
 	public boolean occupied;
 	public boolean syncing;
@@ -202,43 +209,58 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 		this.prevPlayerName = "";
 	}
 
-//	@Override TODO Implement Power System
-//	@Optional.Method(modid = "CoFHCore")
-//	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate) {
-//		if (Sync.config.shellStoragePowerRequirement == 0) {
-//			return 0;
-//		}
-//		int pow = maxReceive;
-//		if (pow > Sync.config.shellStoragePowerRequirement) {
-//			pow = Sync.config.shellStoragePowerRequirement;
-//		}
-//		if (!simulate) {
-//			powReceived += (float)pow * (float)Sync.config.ratioRF;
-//		}
-//		return pow;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int extractEnergy(ForgeDirection from, int maxExtract, boolean simulate) {
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public boolean canConnectEnergy(ForgeDirection from) {
-//		return !top;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getEnergyStored(ForgeDirection from) {
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getMaxEnergyStored(ForgeDirection from) {
-//		return 0;
-//	}
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY && !top)
+			return true;
+		return super.hasCapability(capability, facing);
+	}
+
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY)
+			//noinspection unchecked
+			return (T) this;
+		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
+		if (Sync.config.shellStoragePowerRequirement == 0) {
+			return 0;
+		}
+		int pow = maxReceive;
+		if (pow > Sync.config.shellStoragePowerRequirement) {
+			pow = Sync.config.shellStoragePowerRequirement;
+		}
+		if (!simulate) {
+			powReceived += (float)pow * (float)Sync.config.ratioRF;
+		}
+		return pow;
+	}
+
+	@Override
+	public int extractEnergy(int maxExtract, boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public boolean canExtract() {
+		return false;
+	}
+
+	@Override
+	public boolean canReceive() {
+		return !top && Sync.config.shellStoragePowerRequirement != 0;
+	}
 }

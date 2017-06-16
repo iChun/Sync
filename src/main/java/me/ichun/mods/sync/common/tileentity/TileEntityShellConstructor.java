@@ -6,14 +6,18 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.List;
 
 //@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
-public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntityShellConstructor> //implements IEnergyInfo TODO Energy
+public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntityShellConstructor> implements IEnergyStorage
 {
 	public float constructionProgress;
 	public int doorTime;
@@ -158,82 +162,69 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
 		super.reset();
 		this.constructionProgress = 0F;
 	}
-	
-//	// TE methods
-//	@Override
-//	@Optional.Method(modid = "CoFHCore") TODO Energy
-//	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
-//	{
-//		int powReq = Math.max((int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress), 0);
-//		if(powReq == 0 || playerName.equalsIgnoreCase(""))
-//		{
-//			return 0;
-//		}
-//		int pow = maxReceive;
-//		if(pow > 24)
-//		{
-//			pow = 24;
-//		}
-//		if(pow > powReq)
-//		{
-//			pow = powReq;
-//		}
-//		if(!simulate)
-//		{
-//			powReceived += (float)pow * (float)Sync.config.ratioRF;
-//		}
-//		return pow;
-//	}
 
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
-//	{
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public boolean canConnectEnergy(ForgeDirection from)
-//	{
-//		return !top;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getEnergyStored(ForgeDirection from)
-//	{
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getMaxEnergyStored(ForgeDirection from)
-//	{
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getInfoEnergyPerTick() {
-//		return powReceived;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getInfoMaxEnergyPerTick() {
-//		return 24;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getInfoEnergyStored() {
-//		return 0;
-//	}
-//
-//	@Override
-//	@Optional.Method(modid = "CoFHCore")
-//	public int getInfoMaxEnergyStored() {
-//		return 0;
-//	}
+	// Energy
+
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY && !top)
+			return true;
+		return super.hasCapability(capability, facing);
+	}
+
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY)
+			//noinspection unchecked
+			return (T) this;
+		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
+		int powReq = Math.max((int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress), 0);
+		if(powReq == 0 || playerName.equalsIgnoreCase(""))
+		{
+			return 0;
+		}
+		int pow = maxReceive;
+		if(pow > 24)
+		{
+			pow = 24;
+		}
+		if(pow > powReq)
+		{
+			pow = powReq;
+		}
+		if(!simulate)
+		{
+			powReceived += (float)pow * (float)Sync.config.ratioRF;
+		}
+		return pow;
+	}
+
+	@Override
+	public int extractEnergy(int maxExtract, boolean doExtract) {
+		return 0;
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public boolean canExtract() {
+		return false;
+	}
+
+	@Override
+	public boolean canReceive() {
+		return (int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress) > 0;
+	}
 }
