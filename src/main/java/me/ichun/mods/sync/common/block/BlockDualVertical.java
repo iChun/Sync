@@ -21,7 +21,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -132,7 +131,7 @@ public class BlockDualVertical extends BlockContainer {
                     }
                     shellConstructor.setPlayerName(player.getName());
 
-                    if (!world.isRemote && !player.capabilities.isCreativeMode) {
+                    if (!world.isRemote && !player.isCreative()) {
                         String name = DamageSource.outOfWorld.damageType;
                         DamageSource.outOfWorld.damageType = "shellConstruct";
                         player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.config.damageGivenOnShellConstruction);
@@ -142,7 +141,7 @@ public class BlockDualVertical extends BlockContainer {
                     notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, top);
                     return true;
                 }
-                else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getName()) && player.capabilities.isCreativeMode) {
+                else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getName()) && player.isCreative()) {
                     if (!world.isRemote) {
                         shellConstructor.constructionProgress = Sync.config.shellConstructionPowerRequirement;
                         ShellHandler.updatePlayerOfShells(player, null, true);
@@ -166,7 +165,7 @@ public class BlockDualVertical extends BlockContainer {
                         }
                         dualVertical.setName(itemStack.hasDisplayName() ? itemStack.getDisplayName() : "");
 
-                        if (!player.capabilities.isCreativeMode && itemStack.stackSize-- <= 0) {
+                        if (!player.isCreative() && itemStack.stackSize-- <= 0) {
                             player.setItemStackToSlot(hand == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
                         }
                         notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
@@ -210,14 +209,13 @@ public class BlockDualVertical extends BlockContainer {
 
                 if (!list.isEmpty()) {
                     for (EntityLiving obj : list) {
-                        EntityLiving entityliving = obj;
-                        if (entityliving.getLeashed() && entityliving.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(entityliving)) {
+                        if (obj.getLeashed() && obj.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(obj)) {
                             if (!world.isRemote) {
-                                treadmill.latchedEnt = entityliving;
-                                treadmill.latchedHealth = entityliving.getHealth();
-                                entityliving.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getOpposite().getHorizontalAngle(), 0.0F);
+                                treadmill.latchedEnt = obj;
+                                treadmill.latchedHealth = obj.getHealth();
+                                obj.setLocationAndAngles(treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1), treadmill.face.getOpposite().getHorizontalAngle(), 0.0F);
                                 world.notifyBlockUpdate(pos, state, state.withProperty(TYPE, EnumType.TREADMILL), 3);
-                                entityliving.clearLeashed(true, !player.capabilities.isCreativeMode);
+                                obj.clearLeashed(true, !player.isCreative());
                             }
                             return true;
                         }
@@ -433,7 +431,7 @@ public class BlockDualVertical extends BlockContainer {
                         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendChatMsg(new TextComponentTranslation("sync.breakShellUnit", player.getName(), bottom.getPlayerName()));
                     }
 
-                    if (!player.capabilities.isCreativeMode) {
+                    if (!player.isCreative()) {
                         float f = 0.5F;
                         double d = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
                         double d1 = (double)(world.rand.nextFloat() * f) + (double)(1.0F - f) * 0.5D;
@@ -448,8 +446,6 @@ public class BlockDualVertical extends BlockContainer {
         }
         return super.removedByPlayer(state, world, pos, player, willHarvest);
     }
-
-
 
     @Override
     public void breakBlock(World world, @Nonnull BlockPos pos, @Nonnull IBlockState state) {

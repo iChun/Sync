@@ -16,7 +16,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.List;
 
-//@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
 public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntityShellConstructor> implements IEnergyStorage
 {
 	public float constructionProgress;
@@ -163,13 +162,11 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
 		this.constructionProgress = 0F;
 	}
 
-	// Energy
+	//----------ENERGY METHODS----------
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY && !top)
-			return true;
-		return super.hasCapability(capability, facing);
+		return capability == CapabilityEnergy.ENERGY && !top || super.hasCapability(capability, facing);
 	}
 
 	@Override

@@ -35,8 +35,6 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -46,7 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-@SideOnly(Side.CLIENT)
 public class EventHandlerClient
 {
     public static final ResourceLocation txHome = new ResourceLocation("sync", "textures/icon/home.png");

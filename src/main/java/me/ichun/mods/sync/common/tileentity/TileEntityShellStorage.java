@@ -11,13 +11,10 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import javax.annotation.Nonnull;
 
 public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShellStorage> implements IEnergyStorage
 {
@@ -63,15 +60,14 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 		}
 		if(top && pair != null)
 		{
-			TileEntityShellStorage ss = pair;
-			occupied = ss.occupied;
-			syncing = ss.syncing;
-			hasPower = ss.hasPower;
+			occupied = pair.occupied;
+			syncing = pair.syncing;
+			hasPower = pair.hasPower;
 			
-			playerInstance = ss.playerInstance;
+			playerInstance = pair.playerInstance;
 			
-			prevPlayerName = ss.prevPlayerName;
-			occupationTime = ss.occupationTime;
+			prevPlayerName = pair.prevPlayerName;
+			occupationTime = pair.occupationTime;
 		}
 		super.update();
 		
@@ -209,11 +205,11 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 		this.prevPlayerName = "";
 	}
 
+	//----------ENERGY METHODS----------
+
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		if (capability == CapabilityEnergy.ENERGY && !top)
-			return true;
-		return super.hasCapability(capability, facing);
+		return capability == CapabilityEnergy.ENERGY && !top || super.hasCapability(capability, facing);
 	}
 
 	@Override

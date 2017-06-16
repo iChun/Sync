@@ -8,7 +8,6 @@ import me.ichun.mods.sync.client.core.EventHandlerClient;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;
-import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -23,7 +22,6 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -73,8 +71,6 @@ public class Sync
 
     public static Item itemPlaceholder;
 
-    public static boolean hasCoFHCore;
-
     @EventHandler
     public void preLoad(FMLPreInitializationEvent event)
     {
@@ -93,8 +89,6 @@ public class Sync
     public void load(FMLInitializationEvent event)
     {
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
-
-        hasCoFHCore = Loader.isModLoaded("CoFHCore") || Loader.isModLoaded("cofhcore");
 
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityDualVertical");
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityTreadmill");

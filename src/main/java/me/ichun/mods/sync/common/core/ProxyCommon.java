@@ -20,7 +20,6 @@ import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
-import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -55,9 +54,6 @@ public class ProxyCommon
 
 		Sync.eventHandlerServer = new EventHandlerServer();
 		MinecraftForge.EVENT_BUS.register(Sync.eventHandlerServer);
-
-		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled())
-			Minecraft.getMinecraft().getFramebuffer().enableStencil();
 
 		Sync.channel = new PacketChannel("Sync", PacketSyncRequest.class, PacketZoomCamera.class, PacketPlayerDeath.class, PacketUpdatePlayerOnZoomFinish.class, PacketPlayerEnterStorage.class, PacketShellDeath.class, PacketClearShellList.class, PacketShellState.class, PacketNBT.class);
 	}

@@ -44,6 +44,9 @@ public class ProxyClient extends ProxyCommon
 
 		RenderingRegistry.registerEntityRenderingHandler(EntityShellDestruction.class, new RenderShellDestruction.RenderFactory());
 
+		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled()) //We use stencil, make sure it's enabled
+			Minecraft.getMinecraft().getFramebuffer().enableStencil();
+
 		registerItemWithTESR(Sync.itemShellConstructor, RenderItemShellConstructor.ItemShellConstructorRenderHack.class, new RenderItemShellConstructor());
 		registerItemWithTESR(Sync.itemShellStorage, RenderItemShellStorage.ItemShellStorageRenderHack.class, new RenderItemShellStorage());
 		registerItemWithTESR(Sync.itemTreadmill, RenderItemTreadmill.ItemTreadmillRenderHack.class, new RenderItemTreadmill());
