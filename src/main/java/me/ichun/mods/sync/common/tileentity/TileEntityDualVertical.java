@@ -391,42 +391,27 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 
         NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
 
-        int currentItem = tag.getInteger("SelectedItemSlot");
+        EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
 
-        ItemStack[] items = new ItemStack[5];
+        ItemStack[] items = new ItemStack[slots.length];
 
-        for (int i = 0; i < nbttaglist.tagCount(); ++i)
-        {
-            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-            int j = nbttagcompound.getByte("Slot") & 255;
-            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
-
-            if (itemstack != null)
-            {
-                if (j == currentItem)
-                {
-                    items[0] = itemstack;
-                }
-
-                if (j >= 100 && j < 104)
-                {
-                    items[j - 100 + 1] = itemstack;
-                }
+        for (int i = 0; i < slots.length; i++) {
+            NBTTagCompound compound = nbttaglist.getCompoundTagAt(i);
+            ItemStack stack = ItemStack.loadItemStackFromNBT(compound);
+            //noinspection ConstantConditions stacks can be null
+            if (stack != null) {
+                items[i] = stack;
             }
         }
 
-        int i;
         NBTTagCompound nbttagcompound;
 
-        for (i = 0; i < items.length; ++i)
-        {
-            if (items[i] != null)
-            {
-                nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setByte("Slot", (byte)i);
-                items[i].writeToNBT(nbttagcompound);
-                list.appendTag(nbttagcompound);
-            }
+        for (ItemStack item : items) {
+            nbttagcompound = new NBTTagCompound();
+            nbttagcompound.setBoolean("hasItem", item != null);
+            if (item != null)
+                item.writeToNBT(nbttagcompound);
+            list.appendTag(nbttagcompound);
         }
 
         return list;
@@ -436,16 +421,15 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     {
         NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
 
+        EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
+
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-            String j = nbttagcompound.getString("Slot");
-            EntityEquipmentSlot slot = EntityEquipmentSlot.fromString(j);
-            ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+            EntityEquipmentSlot slot = slots[i];
+            if (nbttagcompound.getBoolean("hasItem")) {
+                ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
 
-            //noinspection ConstantConditions This can definitly be null
-            if (itemstack != null)
-            {
                 player.setItemStackToSlot(slot, itemstack);
             }
         }
