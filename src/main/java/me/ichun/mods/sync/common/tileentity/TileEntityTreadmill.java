@@ -15,6 +15,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -237,26 +238,26 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 	@SideOnly(Side.CLIENT)
 	public void spawnParticles() 
 	{
-//		if(latchedEnt != null && pair != null) TODO figure this out
-//		{
-//			double xVelo = (face == 1 ? -30D : face == 3 ? 30.0D : 0.0D);
-//			double zVelo = face == 0 ? 30D : face == 2 ? -30D : 0.0D;
-//			if(world.rand.nextFloat() < 0.5F)
-//			{
-//				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, pair.xCoord + worldObj.rand.nextFloat(), pair.pos.getY() + 0.4D, pair.zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
-//			}
-//			else
-//			{
-//				Minecraft.getMinecraft().effectRenderer.addEffect((new EntityDiggingFX(worldObj, xCoord + worldObj.rand.nextFloat(), pos.getY() + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo, Sync.blockDualVertical, 2)).applyRenderColor(2));
-//			}
-//
-//			if(timeRunning == 12000 && world.rand.nextFloat() < 0.2F)
-//			{
-//				xVelo *= 0.01D;
-//				zVelo *= 0.01D;
-//				Minecraft.getMinecraft().effectRenderer.addEffect(new EntitySmokeFX(worldObj, xCoord + worldObj.rand.nextFloat(), pos.getY() + 0.4D, zCoord + worldObj.rand.nextFloat(), xVelo, 0.0D, zVelo));
-//			}
-//		}
+		if(latchedEnt != null && pair != null)
+		{
+			double xVelo = (face == EnumFacing.EAST ? -30D : face == EnumFacing.WEST ? 30.0D : 0.0D);
+			double zVelo = face == EnumFacing.DOWN ? 30D : face == EnumFacing.UP ? -30D : 0.0D;
+			if(world.rand.nextFloat() < 0.5F)
+			{
+				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, pair.pos.getX()+ world.rand.nextDouble(), pair.pos.getY() + 0.4D, pair.pos.getZ() + world.rand.nextDouble(), xVelo, 0.0D, zVelo, Block.getStateId(Sync.blockDualVertical.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL)));
+			}
+			else
+			{
+				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, pos.getX() + world.rand.nextDouble(), pos.getY() + 0.4D, pos.getZ() + world.rand.nextFloat(), xVelo, 0.0D, zVelo, Block.getStateId(Sync.blockDualVertical.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL)));
+			}
+
+			if(timeRunning == 12000 && world.rand.nextFloat() < 0.2F)
+			{
+				xVelo *= 0.01D;
+				zVelo *= 0.01D;
+				world.spawnParticle(EnumParticleTypes.SMOKE_LARGE, pos.getX() + world.rand.nextDouble(), pos.getY() + 0.4D, pos.getZ() + world.rand.nextFloat(), xVelo, 0.0D, zVelo);
+			}
+		}
 	}
 
 	public double getMidCoord(int i)
