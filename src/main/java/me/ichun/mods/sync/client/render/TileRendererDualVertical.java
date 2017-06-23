@@ -140,7 +140,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					
 					ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
 					
-					ItemStack is = ss.playerInstance.getActiveItemStack();
+					ItemStack is = ss.playerInstance.getHeldItem(ss.playerInstance.getActiveHand());
 					
 					ss.playerInstance.setItemStackToSlot(ss.playerInstance.getActiveHand() == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
 					

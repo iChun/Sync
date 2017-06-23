@@ -178,8 +178,8 @@ public class EventHandlerClient
     public void onMouseEvent(MouseEvent event) {
         if (Sync.eventHandlerClient.radialShow) {
             if (!Sync.eventHandlerClient.shells.isEmpty()) {
-                Sync.eventHandlerClient.radialDeltaX += event.getX() / 100D;
-                Sync.eventHandlerClient.radialDeltaY += event.getY() / 100D;
+                Sync.eventHandlerClient.radialDeltaX += event.getDx() / 100D;
+                Sync.eventHandlerClient.radialDeltaY += event.getDy() / 100D;
 
                 double mag = Math.sqrt(Sync.eventHandlerClient.radialDeltaX * Sync.eventHandlerClient.radialDeltaX + Sync.eventHandlerClient.radialDeltaY * Sync.eventHandlerClient.radialDeltaY);
                 if(mag > 1.0D) {

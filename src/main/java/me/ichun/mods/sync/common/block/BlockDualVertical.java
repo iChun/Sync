@@ -154,7 +154,7 @@ public class BlockDualVertical extends BlockContainer {
             //Shell Storage
             else if (dualVertical instanceof TileEntityShellStorage) {
                 TileEntityShellStorage shellStorage = (TileEntityShellStorage) dualVertical;
-                ItemStack itemStack = player.getActiveItemStack();
+                ItemStack itemStack = player.getHeldItem(hand);
 
                 if (itemStack != null) {
                     //Set storage name
