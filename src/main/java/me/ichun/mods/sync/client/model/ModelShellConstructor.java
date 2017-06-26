@@ -1,10 +1,10 @@
 package me.ichun.mods.sync.client.model;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -54,7 +54,7 @@ public class ModelShellConstructor extends ModelBase
 	public ArrayList<int[]> armPixelCoords;
 	public ArrayList<int[]> headPixelCoords;
 	
-	public ModelBiped modelBiped;
+	public ModelPlayer modelBiped;
 	
 	public ResourceLocation txBiped;
 
@@ -62,7 +62,7 @@ public class ModelShellConstructor extends ModelBase
 	{
 		rand = new Random();
 		
-		bodyPixelCoords = new ArrayList<int[]>();
+		bodyPixelCoords = new ArrayList<>();
 		
 		for(int x = -7; x <= 7; x += 2)
 		{
@@ -72,7 +72,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 		
-		armPixelCoords = new ArrayList<int[]>();
+		armPixelCoords = new ArrayList<>();
 		
 		for(int x = 9; x <= 15; x += 2)
 		{
@@ -82,7 +82,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 		
-		headPixelCoords = new ArrayList<int[]>();
+		headPixelCoords = new ArrayList<>();
 		
 		for(int x = -7; x <= 7; x += 2)
 		{
@@ -92,7 +92,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 
-		modelBiped = new ModelBiped();
+		modelBiped = new ModelPlayer(1F, false);
 		modelBiped.isChild = false;
 		
 		txBiped = DefaultPlayerSkin.getDefaultSkinLegacy();
@@ -322,8 +322,8 @@ public class ModelShellConstructor extends ModelBase
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 		
-		float retractProg = MathHelper.clamp_float(doorProg / 0.4F, 0.0F, 1.0F);
-		float swingProg = MathHelper.clamp_float((doorProg - 0.3F) / 0.4F, 0.0F, 1.0F);
+		float retractProg = MathHelper.clamp(doorProg / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp((doorProg - 0.3F) / 0.4F, 0.0F, 1.0F);
 
 		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
 		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;
@@ -345,7 +345,7 @@ public class ModelShellConstructor extends ModelBase
 			{
 				if(prog >= 0.940F)
 				{
-					renderSprayStand = 22F + (-55F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;  
+					renderSprayStand = 22F + (-55F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F)) < -8F;
 				}
 			}
 			else
@@ -373,8 +373,8 @@ public class ModelShellConstructor extends ModelBase
 				
 				if(prog >= 0.940F)
 				{
-					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));  
-					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp_float((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+					sprayRStand.rotationPointY = sprayGStand.rotationPointY = sprayBStand.rotationPointY = 22F + (-58F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
+					sprayerR.rotationPointY = sprayerG.rotationPointY = sprayerB.rotationPointY = 21F + (-58F * MathHelper.clamp((float)Math.pow((prog - 0.940F) / 0.005F , 0.5D), 0.0F, 1.0F));
 				}
 				else
 				{
@@ -409,21 +409,21 @@ public class ModelShellConstructor extends ModelBase
 		
 		if(renderPlayer)
 		{
-			GL11.glPushMatrix();
+			GlStateManager.pushMatrix();
 			
 			float scale = 0.9375F;
-			GL11.glScalef(scale, scale, scale);
+			GlStateManager.scale(scale, scale, scale);
 			
 			float brightness = 0.7F;
-			GL11.glColor4f(brightness, brightness, brightness, 1.0F);
+			GlStateManager.color(brightness, brightness, brightness, 1.0F);
 			
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
+			GlStateManager.disableTexture2D();
 			
 			bodyLayer.rotationPointX = armLayer.rotationPointX = headLayer.rotationPointX = 0.0F;
 			
 			if(prog < 0.75F)
 			{
-				ArrayList<int[]> bodyPix = new ArrayList<int[]>(bodyPixelCoords);
+				ArrayList<int[]> bodyPix = new ArrayList<>(bodyPixelCoords);
 				
 				float progPerLayer = (0.75F * (1F/24F));
 				
@@ -457,7 +457,7 @@ public class ModelShellConstructor extends ModelBase
 			}
 			else if(prog < 0.95F)
 			{
-				ArrayList<int[]> armPix = new ArrayList<int[]>(armPixelCoords);
+				ArrayList<int[]> armPix = new ArrayList<>(armPixelCoords);
 				
 				float progPerArmLayer = (0.20F * (1F/12F));
 				
@@ -495,7 +495,7 @@ public class ModelShellConstructor extends ModelBase
 				
 				rand.setSeed("headConstructor".hashCode());
 				
-				ArrayList<int[]> headPix = new ArrayList<int[]>(headPixelCoords);
+				ArrayList<int[]> headPix = new ArrayList<>(headPixelCoords);
 				
 				float progPerHeadLayer = (0.20F * (1F/8F));
 				
@@ -563,14 +563,13 @@ public class ModelShellConstructor extends ModelBase
 					armLayer.render(f5);
 				}
 				
-				GL11.glEnable(GL11.GL_TEXTURE_2D);
+				GlStateManager.enableTexture2D();
 			}
 			else
 			{
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-				GL11.glScalef(2.0F, 2.0F, 2.0F);
-				GL11.glTranslated(0.0D, -0.72D, 0.0D);
-				
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.scale(2.0F, 2.0F, 2.0F);
+				GlStateManager.translate(0.0D, -0.72D, 0.0D);
 				final int stencilBit = MinecraftForgeClient.reserveStencilBit();
 				
 				if(stencilBit >= 0 && prog < 1.0F)
@@ -579,7 +578,7 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glEnable(GL11.GL_STENCIL_TEST);
 					
-					GL11.glColorMask(false, false, false, false);
+					GlStateManager.colorMask(false, false, false, false);
 					
 					final int stencilMask = 1 << stencilBit;
 					
@@ -588,7 +587,7 @@ public class ModelShellConstructor extends ModelBase
 					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 					
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	
 					modelBiped.bipedHead.render(f5);
                     modelBiped.bipedHeadwear.render(f5);
@@ -600,20 +599,20 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 					
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					
-					GL11.glScalef(0.5F, 0.5F, 0.5F);
+					GlStateManager.scale(0.5F, 0.5F, 0.5F);
 					stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
 					stencilBuffer.render(f5);
 					
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 					
 					GL11.glStencilMask(0x00);
 					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 	
-					GL11.glColorMask(true, true, true, true);
+					GlStateManager.colorMask(true, true, true, true);
 	
 					GL11.glDepthMask(true);
 	
@@ -631,14 +630,14 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glDepthMask(false);
 					
-					GL11.glColorMask(false, false, false, false);
+					GlStateManager.colorMask(false, false, false, false);
 					
 					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					GL11.glStencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
 					GL11.glStencilMask(stencilMask);
 					GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 					
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	
 					modelBiped.bipedHead.render(f5);
                     modelBiped.bipedHeadwear.render(f5);
@@ -650,29 +649,29 @@ public class ModelShellConstructor extends ModelBase
 					
 					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 					
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 					
-					GL11.glPushMatrix();
+					GlStateManager.pushMatrix();
 					
-					GL11.glScalef(0.5F, 0.5F, 0.5F);
+					GlStateManager.scale(0.5F, 0.5F, 0.5F);
 					stencilBuffer.rotationPointY = 48F + (-64F * (1.0F - prog) / 0.05F);
 					stencilBuffer.render(f5);
 					
-					GL11.glPopMatrix();
+					GlStateManager.popMatrix();
 					
 					GL11.glStencilMask(0x00);
 					GL11.glStencilFunc(GL11.GL_EQUAL, stencilMask, stencilMask);
 	
-					GL11.glColorMask(true, true, true, true);
+					GlStateManager.colorMask(true, true, true, true);
 	
 					GL11.glDepthMask(true);
 	
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					GlStateManager.enableTexture2D();
 					Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
 					
-					GL11.glScalef(1.001F, 1.001F, 1.001F);
-					GL11.glTranslated(0.0D, -0.00005D, 0.0D);
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.scale(1.001F, 1.001F, 1.001F);
+					GlStateManager.translate(0.0D, -0.00005D, 0.0D);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 					
 					modelBiped.bipedHead.render(f5);
                     modelBiped.bipedHeadwear.render(f5);
@@ -698,12 +697,12 @@ public class ModelShellConstructor extends ModelBase
 						modelBiped.bipedLeftLeg.render(f5);
 					}
 	
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					GlStateManager.enableTexture2D();
 					Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
 					
-					GL11.glScalef(1.001F, 1.001F, 1.001F);
-					GL11.glTranslated(0.0D, -0.00005D, 0.0D);
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
+					GlStateManager.scale(1.001F, 1.001F, 1.001F);
+					GlStateManager.translate(0.0D, -0.00005D, 0.0D);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
 					
 					modelBiped.bipedHead.render(f5);
                     modelBiped.bipedHeadwear.render(f5);
@@ -717,8 +716,8 @@ public class ModelShellConstructor extends ModelBase
 				MinecraftForgeClient.releaseStencilBit(stencilBit);
 			}
 			
-			GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-			GL11.glPopMatrix();
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.popMatrix();
 		}
 	}
 

@@ -1,9 +1,6 @@
 package me.ichun.mods.sync.common.packet;
 
 import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
-import me.ichun.mods.sync.api.SyncStartEvent;
-import me.ichun.mods.sync.common.shell.ShellHandler;
-import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
@@ -34,6 +31,10 @@ public class PacketSyncRequest extends AbstractPacket
     public int shellDimID;
 
     public PacketSyncRequest(){}
+
+    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos shellPos, int shellDimID) {
+        this(pos.getX(), pos.getY(), pos.getZ(), dimID, shellPos.getX(), shellPos.getY(), shellPos.getZ(), shellDimID);
+    }
 
     public PacketSyncRequest(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID)
     {

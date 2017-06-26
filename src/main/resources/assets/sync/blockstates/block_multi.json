@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "type=storage": { "model": "sync:placeholder"},
+    "type=constructor": { "model": "sync:placeholder"},
+    "type=treadmill": { "model": "sync:placeholder"}
+  }
+}

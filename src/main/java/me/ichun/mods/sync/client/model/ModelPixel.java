@@ -2,6 +2,7 @@ package me.ichun.mods.sync.client.model;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 
@@ -133,24 +134,24 @@ public class ModelPixel extends ModelBase
 	public void renderPlayer(int prog, float renderYaw, float rotationYaw, float rotationPitch, float limbSwing, float limbSwingAmount, float f5, float renderTick, int[] skins)
 	{
 		//		prog = 0;
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 
 		if(skins == null)
 		{
-			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			GL11.glColor4f(0.7F, 0.7F, 0.7F, 0.8F);
+			GlStateManager.disableTexture2D();
+			GlStateManager.color(0.7F, 0.7F, 0.7F, 0.8F);
 		}
 		else
 		{
-			GL11.glColor4f(0.95F, 0.95F, 0.95F, 0.9F);
+			GlStateManager.color(0.95F, 0.95F, 0.95F, 0.9F);
 		}
 
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		GL11.glTranslatef(0.0F, -0.7F, 0.0F);
+		GlStateManager.translate(0.0F, -0.7F, 0.0F);
 
-		GL11.glRotatef(180F, 0.0F, 1.0F, 0.0F);
+		GlStateManager.rotate(180F, 0.0F, 1.0F, 0.0F);
 
 		for(int i = 0; i < 6; i++)
 		//        for(int i = 5; i < 6; i++)
@@ -159,33 +160,33 @@ public class ModelPixel extends ModelBase
 			{
 				if(i < 2)
 				{
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, skins[0]);
+					GlStateManager.bindTexture(skins[0]);
 				}
 				else if(i < 4)
 				{
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, skins[1]);
+					GlStateManager.bindTexture(skins[1]);
 				}
 				else
 				{
-					GL11.glBindTexture(GL11.GL_TEXTURE_2D, skins[i - 2]);
+					GlStateManager.bindTexture(skins[i - 2]);
 				}
 			}
 			renderLimb(prog, i, renderYaw, rotationYaw, rotationPitch, limbSwing, limbSwingAmount, f5, renderTick);
 		}
 
-		GL11.glDisable(GL11.GL_BLEND);
+		GlStateManager.disableBlend();
 
 		if(skins == null)
 		{
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			GlStateManager.enableTexture2D();
 		}
 
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 
 	public void renderLimb(int progInt, int limb, float renderYaw, float rotationYaw, float rotationPitch, float limbSwing, float limbSwingAmount, float f5, float renderTick)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		//0 = left leg
 		//1 = right leg
 		//2 = left arm
@@ -193,20 +194,20 @@ public class ModelPixel extends ModelBase
 		//4 = body
 		//5 = head
 
-		float prog = MathHelper.clamp_float((progInt + renderTick) / 100F, 0.0F, 1.0F);
+		float prog = MathHelper.clamp((progInt + renderTick) / 100F, 0.0F, 1.0F);
 
-		float shatterProg = MathHelper.clamp_float((float)(Math.pow(1.0F - MathHelper.clamp_float(((prog - 0.05F) / 0.125F), 0.0F, 1.0F), 3D)), 0.0F, 1.0F);
-		float properShatterProg = 1.0F - MathHelper.clamp_float((float)(Math.pow(1.0F - MathHelper.clamp_float(((prog - 0.025F) / 0.2F), 0.0F, 1.0F), 2D)), 0.0F, 1.0F);
+		float shatterProg = MathHelper.clamp((float)(Math.pow(1.0F - MathHelper.clamp(((prog - 0.05F) / 0.125F), 0.0F, 1.0F), 3D)), 0.0F, 1.0F);
+		float properShatterProg = 1.0F - MathHelper.clamp((float)(Math.pow(1.0F - MathHelper.clamp(((prog - 0.025F) / 0.2F), 0.0F, 1.0F), 2D)), 0.0F, 1.0F);
 
 		rotationPitch *= shatterProg;
 
 		if(limb != 5)
 		{
-			GL11.glRotatef(renderYaw, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(renderYaw, 0.0F, 1.0F, 0.0F);
 		}
 		else
 		{
-			GL11.glRotatef(rotationYaw, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(rotationYaw, 0.0F, 1.0F, 0.0F);
 		}
 
 
@@ -242,7 +243,7 @@ public class ModelPixel extends ModelBase
 					if(i == -(sizeX / 2) || i == (sizeX / 2) - 1 || j == -sizeY || j == -1 || k == -(sizeZ / 2) || k == (sizeZ / 2) - 1)
 					//                	if(i == -(sizeX / 2) && j == -sizeY && k == -(sizeZ / 2))
 					{
-						GL11.glPushMatrix();
+						GlStateManager.pushMatrix();
 
 						ModelRenderer[] list;
 						if(limb < 4)
@@ -267,37 +268,37 @@ public class ModelPixel extends ModelBase
 
 						if(limb == 0)
 						{
-							GL11.glTranslatef(2F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), 0.0F, 0.0F);
+							GlStateManager.translate(2F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), 0.0F, 0.0F);
 						}
 						else if(limb == 1)
 						{
-							GL11.glTranslatef(-2F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), 0.0F, 0.0F);
+							GlStateManager.translate(-2F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), 0.0F, 0.0F);
 						}
 						else if(limb == 2)
 						{
-							GL11.glTranslatef(4F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), -10F/16F * shatterProg, 0.0F);
+							GlStateManager.translate(4F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), -10F/16F * shatterProg, 0.0F);
 							pixel.rotationPointX = 2F;
 							pixel.rotationPointY = -2F * shatterProg;
 						}
 						else if(limb == 3)
 						{
-							GL11.glTranslatef(-4F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), -10F/16F * shatterProg, 0.0F);
+							GlStateManager.translate(-4F/16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), -10F/16F * shatterProg, 0.0F);
 							pixel.rotationPointX = -2F;
 							pixel.rotationPointY = -2F * shatterProg;
 						}
 						else if(limb == 4)
 						{
 							sizeX = 8;
-							GL11.glTranslatef(0.0F, -12F/16F * shatterProg, 0.0F);
+							GlStateManager.translate(0.0F, -12F/16F * shatterProg, 0.0F);
 						}
 						else if(limb == 5)
 						{
 							sizeX = 8;
 							sizeY = 8;
 							sizeZ = 8;
-							GL11.glTranslatef(0.0F, -12F/16F * shatterProg, 0.0F);
+							GlStateManager.translate(0.0F, -12F/16F * shatterProg, 0.0F);
 
-							GL11.glRotatef(rotationPitch, 1.0F, 0.0F, 0.0F);
+							GlStateManager.rotate(rotationPitch, 1.0F, 0.0F, 0.0F);
 							pixel.rotationPointY = -8F * shatterProg;
 						}
 
@@ -313,18 +314,18 @@ public class ModelPixel extends ModelBase
 							}
 						}
 
-						GL11.glTranslatef(0.0F, 11F/16F * (1.0F - shatterProg) + rand.nextFloat() * 0.01F, 0.0F);
+						GlStateManager.translate(0.0F, 11F/16F * (1.0F - shatterProg) + rand.nextFloat() * 0.01F, 0.0F);
 
-						GL11.glTranslatef(-(offsetX + (i + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), (-(offsetY + (j + 0.5F)) / 16F) * shatterProg, -(offsetZ + (k + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg));
+						GlStateManager.translate(-(offsetX + (i + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg), (-(offsetY + (j + 0.5F)) / 16F) * shatterProg, -(offsetZ + (k + 0.5F)) / 16F + ((rand.nextFloat() - 0.5F) * spread * properShatterProg));
 						if(prog < rand.nextFloat())
 						{
 							pixel.render(f5);
 						}
-						GL11.glPopMatrix();
+						GlStateManager.popMatrix();
 					}
 				}
 			}
 		}
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 }

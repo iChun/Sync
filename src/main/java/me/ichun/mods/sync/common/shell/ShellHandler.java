@@ -18,7 +18,7 @@ import java.util.Map;
 public class ShellHandler {
 
 	public static SetMultimap<String, TileEntityDualVertical> playerShells = HashMultimap.create();
-	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<String, TileEntityDualVertical>();
+	public static HashMap<String, TileEntityDualVertical> syncInProgress = new HashMap<>();
 
 	public static void addShell(String playerName, TileEntityDualVertical dualVertical, boolean shouldChunkLoad) {
 		if (!playerShells.containsEntry(playerName, dualVertical)) {
@@ -45,8 +45,8 @@ public class ShellHandler {
 	}
 
 	public static void updatePlayerOfShells(EntityPlayer player, TileEntityDualVertical dv, boolean all) {
-		ArrayList<TileEntityDualVertical> dvs = new ArrayList<TileEntityDualVertical>();
-		ArrayList<TileEntityDualVertical> remove = new ArrayList<TileEntityDualVertical>();
+		ArrayList<TileEntityDualVertical> dvs = new ArrayList<>();
+		ArrayList<TileEntityDualVertical> remove = new ArrayList<>();
 
 		if (all) {
 			//Tell player client to clear current list

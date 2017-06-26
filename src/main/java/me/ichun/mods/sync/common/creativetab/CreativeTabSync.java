@@ -1,6 +1,5 @@
 package me.ichun.mods.sync.common.creativetab;
 
-import me.ichun.mods.sync.common.Sync;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import me.ichun.mods.sync.common.Sync;

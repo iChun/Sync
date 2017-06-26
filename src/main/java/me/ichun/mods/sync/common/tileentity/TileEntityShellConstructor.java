@@ -1,21 +1,22 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import cofh.api.tileentity.IEnergyInfo;
+import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.shell.ShellHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Optional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
-import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.List;
 
-@Optional.Interface(iface = "cofh.api.tileentity.IEnergyInfo", modid = "CoFHCore")
-public class TileEntityShellConstructor extends TileEntityDualVertical implements IEnergyInfo
+public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntityShellConstructor> implements IEnergyStorage
 {
 	public float constructionProgress;
 	public int doorTime;
@@ -34,22 +35,22 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 	
 	@Override
-	public void updateEntity()
+	public void update()
 	{
-		super.updateEntity();
+		super.update();
 		
 		if(top && pair != null)
 		{
-			constructionProgress = ((TileEntityShellConstructor)pair).constructionProgress;
-			doorOpen = ((TileEntityShellConstructor)pair).doorOpen;
+			constructionProgress = pair.constructionProgress;
+			doorOpen = pair.doorOpen;
 		}
 		if(isPowered())
 		{
 			float power = powerAmount();
-			if(worldObj.getWorldTime() % 200L == 0 && prevPower != power)
+			if(world.getWorldTime() % 200L == 0 && prevPower != power)
 			{
 				prevPower = power;
-				if(!top && !worldObj.isRemote)
+				if(!top && !world.isRemote)
 				{
 					EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
 					if(player != null)
@@ -65,14 +66,14 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			}
 
             /*
-			if(worldObj.isRemote && !top)
+			if(world.isRemote && !top)
 			{
 				spawnParticles();
 			}
 			*/
 
 			//Notifies neighbours of block update, used for comparator
-			if (worldObj.getWorldTime() % 40L == 0) worldObj.func_147453_f(xCoord, yCoord, zCoord, worldObj.getBlock(xCoord, yCoord, zCoord));
+			if (world.getWorldTime() % 40L == 0) world.notifyNeighborsOfStateChange(getPos(), world.getBlockState(getPos()).getBlock());
 		}
 		if(!top)
 		{
@@ -82,14 +83,16 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 				{
 					doorTime++;
 				}
-				if(!worldObj.isRemote && doorTime == animationTime)
+				if(!world.isRemote && doorTime == animationTime)
 				{
-					List list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getBoundingBox(xCoord, yCoord, zCoord, xCoord + 1, yCoord + 2, zCoord + 1));
+					BlockPos pos = getPos();
+					List list = world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 2, pos.getZ() + 1));
 					if(list.isEmpty())
 					{
 						doorOpen = false;
-						
-						worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+
+						IBlockState state = world.getBlockState(pos);
+						world.notifyBlockUpdate(pos, state, state, 3);
 					}
 				}
 			}
@@ -100,12 +103,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 					doorTime--;
 				}
 			}
-			if(!worldObj.isRemote && !playerName.equalsIgnoreCase("") && !ShellHandler.isShellAlreadyRegistered(this))
+			if(!world.isRemote && !playerName.equalsIgnoreCase("") && !ShellHandler.isShellAlreadyRegistered(this))
 			{
 				ShellHandler.addShell(playerName, this, true);
 			}
 		}
-		if(!top && !worldObj.isRemote) 
+		if(!top && !world.isRemote)
 		{
 			rfBuffer += Math.abs(powReceived - rfIntake);
 			//If buffer has exceeded 5% of shell build, or if rfIntake has changed more than 10% of previous tick's, resync
@@ -113,24 +116,18 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 			{
 				rfIntake = powReceived;
 				rfBuffer = 0;
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+				IBlockState state = world.getBlockState(pos);
+				world.notifyBlockUpdate(pos, state, state, 3);
 			}
 			powReceived = 0;
 		}
-	}
-	
-	public void setup(TileEntityDualVertical scPair, boolean isTop, int placeYaw)
-	{
-		pair = scPair;
-		top = isTop;
-		face = placeYaw;
 	}
 	
 	public boolean isPowered()
 	{
 		if(top && pair != null)
 		{
-			return ((TileEntityShellConstructor)pair).isPowered();
+			return pair.isPowered();
 		}
 		return !playerName.equalsIgnoreCase("");
 	}
@@ -142,11 +139,12 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 
 	@Override
-	public void writeToNBT(NBTTagCompound tag)
+	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
-		super.writeToNBT(tag);
+		tag = super.writeToNBT(tag);
 		tag.setFloat("constructionProgress", constructionProgress);
 		tag.setBoolean("doorOpen", doorOpen);
+		return tag;
 	}
 	 
 	@Override
@@ -163,12 +161,24 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 		super.reset();
 		this.constructionProgress = 0F;
 	}
-	
-	// TE methods
+
+	//----------ENERGY METHODS----------
+
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int receiveEnergy(ForgeDirection from, int maxReceive, boolean simulate)
-	{
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		return capability == CapabilityEnergy.ENERGY && !top || super.hasCapability(capability, facing);
+	}
+
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY)
+			//noinspection unchecked
+			return (T) this;
+		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
 		int powReq = Math.max((int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress), 0);
 		if(powReq == 0 || playerName.equalsIgnoreCase(""))
 		{
@@ -191,54 +201,27 @@ public class TileEntityShellConstructor extends TileEntityDualVertical implement
 	}
 
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int extractEnergy(ForgeDirection from, int maxExtract, boolean doExtract)
-	{
+	public int extractEnergy(int maxExtract, boolean doExtract) {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public boolean canConnectEnergy(ForgeDirection from)
-	{
-		return !top;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getEnergyStored(ForgeDirection from)
-	{
+	public int getEnergyStored() {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getMaxEnergyStored(ForgeDirection from)
-	{
+	public int getMaxEnergyStored() {
 		return 0;
 	}
 
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoEnergyPerTick() {
-		return powReceived;
+	public boolean canExtract() {
+		return false;
 	}
 
 	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoMaxEnergyPerTick() {
-		return 24;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoEnergyStored() {
-		return 0;
-	}
-
-	@Override
-	@Optional.Method(modid = "CoFHCore")
-	public int getInfoMaxEnergyStored() {
-		return 0;
+	public boolean canReceive() {
+		return (int)Math.ceil(Sync.config.shellConstructionPowerRequirement - constructionProgress) > 0;
 	}
 }

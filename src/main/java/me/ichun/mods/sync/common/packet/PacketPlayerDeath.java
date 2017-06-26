@@ -1,6 +1,5 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -59,16 +58,16 @@ public class PacketPlayerDeath extends AbstractPacket
         Sync.eventHandlerClient.refusePlayerRender.put(playerName, 120);
         if(doDeathAnim)
         {
-            EntityPlayer player = Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
+            EntityPlayer player = Minecraft.getMinecraft().world.getPlayerEntityByName(playerName);
 
             if(player != null)
             {
                 player.deathTime = 0;
                 player.setHealth(1);
 
-                EntityShellDestruction sd = new EntityShellDestruction(player.worldObj, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, ((AbstractClientPlayer)player).getLocationSkin());
+                EntityShellDestruction sd = new EntityShellDestruction(player.world, player.rotationYaw, player.renderYawOffset, player.rotationPitch, player.limbSwing, player.limbSwingAmount, ((AbstractClientPlayer)player).getLocationSkin());
                 sd.setLocationAndAngles(player.posX, player.posY, player.posZ, 0.0F, 0.0F);
-                player.worldObj.spawnEntityInWorld(sd);
+                player.world.spawnEntity(sd);
 
             }
         }

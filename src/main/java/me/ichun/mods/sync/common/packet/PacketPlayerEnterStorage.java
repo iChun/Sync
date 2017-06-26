@@ -16,8 +16,13 @@ public class PacketPlayerEnterStorage extends AbstractPacket
     public int x;
     public int y;
     public int z;
+    public BlockPos pos;
 
     public PacketPlayerEnterStorage(){}
+
+    public PacketPlayerEnterStorage(BlockPos pos) {
+        this(pos.getX(), pos.getY(), pos.getZ());
+    }
 
     public PacketPlayerEnterStorage(int x, int y, int z)
     {
@@ -60,13 +65,13 @@ public class PacketPlayerEnterStorage extends AbstractPacket
     {
         Minecraft mc = Minecraft.getMinecraft();
         BlockPos pos = new BlockPos(x, y, z);
-        TileEntity te = mc.theWorld.getTileEntity(pos);
+        TileEntity te = mc.world.getTileEntity(pos);
 
         if(te instanceof TileEntityShellStorage)
         {
             TileEntityShellStorage ss = (TileEntityShellStorage)te;
 
-            mc.thePlayer.setLocationAndAngles(ss.getPos().getX() + 0.5D, ss.getPos().getY(), ss.getPos().getZ() + 0.5D, (ss.face - 2) * 90F, 0F);
+            mc.player.setLocationAndAngles(ss.getPos().getX() + 0.5D, ss.getPos().getY(), ss.getPos().getZ() + 0.5D, ss.face.getOpposite().getHorizontalAngle(), 0F);
 
             Sync.eventHandlerClient.lockedStorage = ss;
             Sync.eventHandlerClient.lockTime = 5;

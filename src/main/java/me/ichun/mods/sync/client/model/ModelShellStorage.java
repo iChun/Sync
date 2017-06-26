@@ -1,10 +1,9 @@
 package me.ichun.mods.sync.client.model;
 
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
@@ -337,15 +336,15 @@ public class ModelShellStorage extends ModelBase
 
 	public void renderPlayer(float prog, float f5)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glScalef(2.0F * 0.9375F, 2.0F * 0.9375F, 2.0F * 0.9375F);
-		GL11.glTranslated(0.0D, -0.72D, 0.0D);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.scale(2.0F * 0.9375F, 2.0F * 0.9375F, 2.0F * 0.9375F);
+		GlStateManager.translate(0.0D, -0.72D, 0.0D);
 		
 		Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 		modelBiped.bipedHead.rotateAngleX = (float)Math.toRadians(15F);
 		modelBiped.bipedHead.render(f5);
@@ -355,17 +354,17 @@ public class ModelShellStorage extends ModelBase
 		modelBiped.bipedRightLeg.render(f5);
 		modelBiped.bipedLeftLeg.render(f5);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 	}
 	
 	public void renderInternals(float prog, float f5)
 	{
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
-		float legClampProg = MathHelper.clamp_float(prog / 0.6F, 0.0F, 1.0F);
+		float legClampProg = MathHelper.clamp(prog / 0.6F, 0.0F, 1.0F);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		GL11.glScalef(0.9375F, 0.9375F, 0.9375F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.scale(0.9375F, 0.9375F, 0.9375F);
 		
 		bracketFeetFront.rotationPointY = bracketFeetBack.rotationPointY = bracketFeetRight.rotationPointY = bracketFeetLeft.rotationPointY = bracketFeetSupportRight.rotationPointY = bracketFeetSupportLeft.rotationPointY = 6F - (6F * legClampProg);
 		
@@ -376,9 +375,9 @@ public class ModelShellStorage extends ModelBase
 		bracketFeetSupportRight.render(f5);
 		bracketFeetSupportLeft.render(f5);
 		
-		GL11.glPopMatrix();
+		GlStateManager.popMatrix();
 		
-		float armClampProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
+		float armClampProg = MathHelper.clamp(prog / 0.4F, 0.0F, 1.0F);
 		
 		bracketShoulderSupportL.rotateAngleX = bracketShoulderSupportL2.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * armClampProg;
 		bracketShoulderSupportR.rotateAngleX = bracketShoulderSupportR2.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * armClampProg;
@@ -391,11 +390,11 @@ public class ModelShellStorage extends ModelBase
 		bracketShoulderSupportR.renderWithRotation(f5);
 		bracketShoulderSupportR2.renderWithRotation(f5);
 		
-		float headClampProg = MathHelper.clamp_float((prog - 0.5F) / 0.3F, 0.0F, 1.0F);
+		float headClampProg = MathHelper.clamp((prog - 0.5F) / 0.3F, 0.0F, 1.0F);
 		
 		headJackLeft.rotateAngleX = headJackTop.rotateAngleX = headJackBottom.rotateAngleX = headJackRight.rotateAngleX = headJackCore.rotateAngleX = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * headClampProg;
 
-		float headJackProg = MathHelper.clamp_float((prog - 0.8F) / 0.2F, 0.0F, 1.0F);
+		float headJackProg = MathHelper.clamp((prog - 0.8F) / 0.2F, 0.0F, 1.0F);
 		
 		headJackCore.rotationPointZ = 14F + -5F * headJackProg;
 		
@@ -414,21 +413,21 @@ public class ModelShellStorage extends ModelBase
 		{
 			if(isHomeUnit)
 			{
-				GL11.glColor4f(0.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.color(0.0F, 1.0F, 1.0F, 1.0F);
 			}
 			else
 			{
-				GL11.glColor4f(0.0F, 1.0F, 0.0F, 1.0F);				
+				GlStateManager.color(0.0F, 1.0F, 0.0F, 1.0F);
 			}
 		}
 		else
 		{
-			GL11.glColor4f(1.0F, 0.0F, 0.0F, 1.0F);
+			GlStateManager.color(1.0F, 0.0F, 0.0F, 1.0F);
 		}
 
 		indicator2.render(f5);
 		
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	public void render(float prog, float f5, boolean alpha)
@@ -459,8 +458,8 @@ public class ModelShellStorage extends ModelBase
 		sideWallLeft.render(f5);
 		sideWallRight.render(f5);
 
-		float retractProg = MathHelper.clamp_float(prog / 0.4F, 0.0F, 1.0F);
-		float swingProg = MathHelper.clamp_float((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
+		float retractProg = MathHelper.clamp(prog / 0.4F, 0.0F, 1.0F);
+		float swingProg = MathHelper.clamp((prog - 0.3F) / 0.4F, 0.0F, 1.0F);
 
 		doorLeft.rotateAngleY = (float)Math.toRadians(-90F) - (float)Math.toRadians(-90F) * swingProg;
 		doorRight.rotateAngleY = (float)Math.toRadians(90F) - (float)Math.toRadians(90F) * swingProg;

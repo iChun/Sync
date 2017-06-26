@@ -142,7 +142,7 @@ public class PacketShellState extends AbstractPacket
                 Sync.eventHandlerClient.shells.add(state);
             }
 
-            state.playerState = TileEntityShellStorage.createPlayer(mc.theWorld, mc.thePlayer.getName());
+            state.playerState = TileEntityShellStorage.createPlayer(mc.world, mc.player.getName());
 
             if(!state.isConstructor)
             {

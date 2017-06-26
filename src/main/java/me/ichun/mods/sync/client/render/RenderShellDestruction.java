@@ -2,21 +2,17 @@ package me.ichun.mods.sync.client.render;
 
 import me.ichun.mods.sync.client.entity.EntityShellDestruction;
 import me.ichun.mods.sync.client.model.ModelPixel;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraftforge.fml.client.registry.IRenderFactory;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
-import me.ichun.mods.sync.client.model.ModelPixel;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,8 +20,8 @@ import java.util.HashMap;
 
 public class RenderShellDestruction extends Render<EntityShellDestruction>
 {
-	public HashMap<ResourceLocation, BufferedImage[]> restitchedSkins = new HashMap<ResourceLocation, BufferedImage[]>();
-	public HashMap<ResourceLocation, int[]> restitchedSkinsId = new HashMap<ResourceLocation, int[]>();
+	public HashMap<ResourceLocation, BufferedImage[]> restitchedSkins = new HashMap<>();
+	public HashMap<ResourceLocation, int[]> restitchedSkinsId = new HashMap<>();
 	public ModelPixel model;
 	
 	public RenderShellDestruction(RenderManager manager)
@@ -43,10 +39,10 @@ public class RenderShellDestruction extends Render<EntityShellDestruction>
 	@Override
 	public void doRender(EntityShellDestruction sd, double d, double d1, double d2, float f, float f1)
 	{
-        GL11.glPushMatrix();
-        GL11.glTranslatef((float)d, (float)d1, (float)d2);
+        GlStateManager.pushMatrix();
+        GlStateManager.translate((float)d, (float)d1, (float)d2);
         
-        GL11.glScalef(-1.0F, -1.0F, 1.0F);
+        GlStateManager.scale(-1.0F, -1.0F, 1.0F);
         sd.model.rand.setSeed(sd.hashCode());
         
         BufferedImage[] skins = restitchedSkins.get(sd.txLocation);
@@ -134,7 +130,7 @@ public class RenderShellDestruction extends Render<EntityShellDestruction>
         
         sd.model.renderPlayer(sd.progress, sd.renderYaw, sd.yaw, sd.pitch, sd.limbSwingg, sd.limbSwinggAmount, 0.0625F, f1, restitchedSkinsId.get(sd.txLocation));
 
-        GL11.glPopMatrix();
+        GlStateManager.popMatrix();
 	}
 
 	public static class RenderFactory implements IRenderFactory<EntityShellDestruction>

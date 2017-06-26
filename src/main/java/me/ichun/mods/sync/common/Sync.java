@@ -5,9 +5,11 @@ import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.ichunutil.common.module.update.UpdateChecker;
 import me.ichun.mods.sync.client.core.EventHandlerClient;
+import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
@@ -20,7 +22,6 @@ import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -66,11 +67,9 @@ public class Sync
     public static Block blockDualVertical;
 
     public static PacketChannel channel;
-    public static Item itemBlockPlacer;
+    public static Item itemShellConstructor, itemShellStorage, itemTreadmill;
 
     public static Item itemPlaceholder;
-
-    public static boolean hasCoFHCore;
 
     @EventHandler
     public void preLoad(FMLPreInitializationEvent event)
@@ -81,7 +80,9 @@ public class Sync
 
         UpdateChecker.registerMod(new UpdateChecker.ModVersionInfo(MOD_NAME, iChunUtil.VERSION_OF_MC, VERSION, false));
 
-        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemBlockPlacer, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemShellConstructor, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemShellStorage, 1));
+        FMLInterModComms.sendMessage("backtools", "blacklist", new ItemStack(itemTreadmill, 1));
     }
 
     @EventHandler
@@ -89,11 +90,9 @@ public class Sync
     {
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 
-        hasCoFHCore = Loader.isModLoaded("CoFHCore") || Loader.isModLoaded("cofhcore");
-
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityDualVertical" );
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "sync.common.tileentity.TileEntityTreadmill" );
-        FMLInterModComms.sendMessage("Waila", "register", "sync.client.HUDHandlerSync.callbackRegister");
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityDualVertical");
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityTreadmill");
+        FMLInterModComms.sendMessage("Waila", "register", "me.ichun.mods.sync.client.HUDHandlerSync.callbackRegister");
 
         TREADMILL_ENTITY_HASH_MAP.put(EntityWolf.class, 4);
         TREADMILL_ENTITY_HASH_MAP.put(EntityPig.class, 2);
@@ -174,5 +173,18 @@ public class Sync
 
         GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
                 "DLD", "QEQ", "MRM", 'D', Blocks.DAYLIGHT_DETECTOR, 'L', Blocks.LAPIS_BLOCK, 'Q', Items.QUARTZ, 'E', ((Sync.config.hardcoreMode == 1 || Sync.config.hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled()) ? Blocks.BEACON : Items.ENDER_PEARL), 'M', Items.EMERALD, 'R', Blocks.REDSTONE_BLOCK);
+    }
+
+    public static boolean alwaysFalse(IBlockState state1, IBlockState state2) {
+        if (state2.getBlock() instanceof BlockDualVertical || state1.getBlock() instanceof BlockDualVertical) {
+            if (!(state1.getBlock() instanceof BlockDualVertical) || !(state2.getBlock() instanceof BlockDualVertical)) {
+                System.out.println("Wrong BlockState, BREAK");
+                return true;
+            }
+        }
+        if (state1.getBlock() instanceof BlockDualVertical) {
+            System.out.println("State 1 " + state1.getValue(BlockDualVertical.TYPE) + " State 2 " + state2.getValue(BlockDualVertical.TYPE));
+        }
+        return false;
     }
 }
