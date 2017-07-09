@@ -37,15 +37,15 @@ public class ProxyCommon
 		Sync.itemShellConstructor = GameRegistry.register(new ItemShellBase(EnumType.CONSTRUCTOR).setRegistryName("sync", "item_shell_constructor").setUnlocalizedName("Sync_ShellConstructor").setCreativeTab(Sync.creativeTabSync));
 		Sync.itemShellStorage = GameRegistry.register(new ItemShellBase(EnumType.STORAGE).setRegistryName("sync", "item_shell_storage").setUnlocalizedName("Sync_ShellStorage").setCreativeTab(Sync.creativeTabSync));
 		Sync.itemTreadmill = GameRegistry.register(new ItemTreadmill().setRegistryName("sync", "item_treadmill").setUnlocalizedName("Sync_Treadmill").setCreativeTab(Sync.creativeTabSync));
-		Sync.itemPlaceholder = GameRegistry.register((new ItemGeneric()).setRegistryName("sync", "item_placeholder").setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync));
+		Sync.itemSyncCore = GameRegistry.register((new ItemGeneric()).setRegistryName("sync", "item_placeholder").setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync));
 
 		GameRegistry.addRecipe(new ItemStack(Sync.itemShellConstructor, 1, 0),
-				"OCO", "GGG", "ORO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemPlaceholder, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE);
+				"OCO", "GGG", "ORO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemSyncCore, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE);
 
-		GameRegistry.addRecipe(new ItemStack(Sync.itemShellStorage, 1, 1),
-				"OCO", "GIG", "OPO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemPlaceholder, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE, 'I', Blocks.IRON_BLOCK, 'P', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE);
+		GameRegistry.addRecipe(new ItemStack(Sync.itemShellStorage, 1, 0),
+				"OCO", "GIG", "OPO", 'O', Blocks.OBSIDIAN, 'C', Sync.itemSyncCore, 'G', Blocks.GLASS_PANE, 'R', Items.REDSTONE, 'I', Blocks.IRON_BLOCK, 'P', Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE);
 
-		GameRegistry.addRecipe(new ItemStack(Sync.itemTreadmill, 1, 2),
+		GameRegistry.addRecipe(new ItemStack(Sync.itemTreadmill, 1, 0),
 				"  D", "CCI", "OOR", 'O', Blocks.OBSIDIAN, 'C', new ItemStack(Blocks.CARPET, 1, 15), 'I', Blocks.IRON_BARS, 'D', Blocks.DAYLIGHT_DETECTOR, 'R', Items.REDSTONE);
 
 		GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");

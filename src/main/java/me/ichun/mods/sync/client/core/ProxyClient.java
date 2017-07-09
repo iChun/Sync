@@ -50,7 +50,7 @@ public class ProxyClient extends ProxyCommon
 		registerItemWithTESR(Sync.itemShellConstructor, RenderItemShellConstructor.ItemShellConstructorRenderHack.class, new RenderItemShellConstructor());
 		registerItemWithTESR(Sync.itemShellStorage, RenderItemShellStorage.ItemShellStorageRenderHack.class, new RenderItemShellStorage());
 		registerItemWithTESR(Sync.itemTreadmill, RenderItemTreadmill.ItemTreadmillRenderHack.class, new RenderItemTreadmill());
-		ModelLoader.setCustomModelResourceLocation(Sync.itemPlaceholder, 0, new ModelResourceLocation("sync:item_sync_core", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Sync.itemSyncCore, 0, new ModelResourceLocation("sync:item_sync_core", "inventory"));
 	}
 
 	//TODO remove all this hacks, use a static fromat

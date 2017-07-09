@@ -69,7 +69,7 @@ public class Sync
     public static PacketChannel channel;
     public static Item itemShellConstructor, itemShellStorage, itemTreadmill;
 
-    public static Item itemPlaceholder;
+    public static Item itemSyncCore;
 
     @EventHandler
     public void preLoad(FMLPreInitializationEvent event)
@@ -164,27 +164,14 @@ public class Sync
             if(recipes.get(i) instanceof ShapedRecipes)
             {
                 ShapedRecipes recipe = (ShapedRecipes)recipes.get(i);
-                if(recipe.getRecipeOutput().isItemEqual(new ItemStack(Sync.itemPlaceholder)))
+                if(recipe.getRecipeOutput().isItemEqual(new ItemStack(Sync.itemSyncCore)))
                 {
                     recipes.remove(i);
                 }
             }
         }
 
-        GameRegistry.addRecipe(new ItemStack(Sync.itemPlaceholder),
+        GameRegistry.addRecipe(new ItemStack(Sync.itemSyncCore),
                 "DLD", "QEQ", "MRM", 'D', Blocks.DAYLIGHT_DETECTOR, 'L', Blocks.LAPIS_BLOCK, 'Q', Items.QUARTZ, 'E', ((Sync.config.hardcoreMode == 1 || Sync.config.hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled()) ? Blocks.BEACON : Items.ENDER_PEARL), 'M', Items.EMERALD, 'R', Blocks.REDSTONE_BLOCK);
-    }
-
-    public static boolean alwaysFalse(IBlockState state1, IBlockState state2) {
-        if (state2.getBlock() instanceof BlockDualVertical || state1.getBlock() instanceof BlockDualVertical) {
-            if (!(state1.getBlock() instanceof BlockDualVertical) || !(state2.getBlock() instanceof BlockDualVertical)) {
-                System.out.println("Wrong BlockState, BREAK");
-                return true;
-            }
-        }
-        if (state1.getBlock() instanceof BlockDualVertical) {
-            System.out.println("State 1 " + state1.getValue(BlockDualVertical.TYPE) + " State 2 " + state2.getValue(BlockDualVertical.TYPE));
-        }
-        return false;
     }
 }
