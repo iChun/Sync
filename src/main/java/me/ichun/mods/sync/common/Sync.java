@@ -5,11 +5,9 @@ import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.ichunutil.common.module.update.UpdateChecker;
 import me.ichun.mods.sync.client.core.EventHandlerClient;
-import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
@@ -38,7 +36,7 @@ import java.util.List;
 @Mod(modid = Sync.MOD_ID, name = Sync.MOD_NAME,
         version = Sync.VERSION,
         guiFactory = "me.ichun.mods.ichunutil.common.core.config.GenericModGuiFactory",
-        dependencies = "required-after:ichunutil@[" + iChunUtil.VERSION_MAJOR + ".4.0," + (iChunUtil.VERSION_MAJOR + 1) + ".0.0);after:CoFHCore;after:Waila",
+        dependencies = "required-after:ichunutil@[" + iChunUtil.VERSION_MAJOR + ".4.0," + (iChunUtil.VERSION_MAJOR + 1) + ".0.0);after:Waila",
         acceptableRemoteVersions = "[" + iChunUtil.VERSION_MAJOR +".0.0," + iChunUtil.VERSION_MAJOR + ".1.0)"
 )
 public class Sync
@@ -92,7 +90,8 @@ public class Sync
 
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityDualVertical");
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityTreadmill");
-        FMLInterModComms.sendMessage("Waila", "register", "me.ichun.mods.sync.client.HUDHandlerSync.callbackRegister");
+        FMLInterModComms.sendMessage("Waila", "register", "me.ichun.mods.sync.client.HUDHandlerWaila.callbackRegister");
+        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "me.ichun.mods.sync.client.HUDHandlerTheOneProbe");
 
         TREADMILL_ENTITY_HASH_MAP.put(EntityWolf.class, 4);
         TREADMILL_ENTITY_HASH_MAP.put(EntityPig.class, 2);

@@ -26,7 +26,7 @@ import net.minecraft.world.World;
 import java.text.DecimalFormat;
 import java.util.List;
 
-public class HUDHandlerSync implements IWailaDataProvider {
+public class HUDHandlerWaila implements IWailaDataProvider {
 
     @Override
     public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
@@ -73,7 +73,7 @@ public class HUDHandlerSync implements IWailaDataProvider {
     }
 
     public static void callbackRegister(IWailaRegistrar registrar) {
-        registrar.registerBodyProvider(new HUDHandlerSync(), BlockDualVertical.class);
+        registrar.registerBodyProvider(new HUDHandlerWaila(), BlockDualVertical.class);
 
         registrar.addConfig("Sync", "sync.showowner", I18n.translateToLocal("sync.waila.showowner"));
         registrar.addConfig("Sync", "sync.showprogress", I18n.translateToLocal("sync.waila.showprogress"));
