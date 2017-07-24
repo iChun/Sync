@@ -54,7 +54,7 @@ public class ModelShellConstructor extends ModelBase
 	public ArrayList<int[]> armPixelCoords;
 	public ArrayList<int[]> headPixelCoords;
 	
-	public ModelPlayer modelBiped;
+	public ModelPlayer modelPlayer;
 	
 	public ResourceLocation txBiped;
 
@@ -92,8 +92,8 @@ public class ModelShellConstructor extends ModelBase
 			}
 		}
 
-		modelBiped = new ModelPlayer(1F, false);
-		modelBiped.isChild = false;
+		modelPlayer = new ModelPlayer(1F, false);
+		modelPlayer.isChild = false;
 		
 		txBiped = DefaultPlayerSkin.getDefaultSkinLegacy();
 		
@@ -589,13 +589,13 @@ public class ModelShellConstructor extends ModelBase
 					
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	
-					modelBiped.bipedHead.render(f5);
-                    modelBiped.bipedHeadwear.render(f5);
-					modelBiped.bipedBody.render(f5);
-					modelBiped.bipedRightArm.render(f5);
-					modelBiped.bipedLeftArm.render(f5);
-					modelBiped.bipedRightLeg.render(f5);
-					modelBiped.bipedLeftLeg.render(f5);
+					modelPlayer.bipedHead.render(f5);
+                    modelPlayer.bipedHeadwear.render(f5);
+					modelPlayer.bipedBody.render(f5);
+					modelPlayer.bipedRightArm.render(f5);
+					modelPlayer.bipedLeftArm.render(f5);
+					modelPlayer.bipedRightLeg.render(f5);
+					modelPlayer.bipedLeftLeg.render(f5);
 					
 					GL11.glStencilFunc(GL11.GL_ALWAYS, stencilMask, stencilMask);
 					
@@ -619,13 +619,13 @@ public class ModelShellConstructor extends ModelBase
 					
 					if(prog < 1.0F)
 					{
-						modelBiped.bipedHead.render(f5);
-                        modelBiped.bipedHeadwear.render(f5);
-						modelBiped.bipedBody.render(f5);
-						modelBiped.bipedRightArm.render(f5);
-						modelBiped.bipedLeftArm.render(f5);
-						modelBiped.bipedRightLeg.render(f5);
-						modelBiped.bipedLeftLeg.render(f5);
+						modelPlayer.bipedHead.render(f5);
+                        modelPlayer.bipedHeadwear.render(f5);
+						modelPlayer.bipedBody.render(f5);
+						modelPlayer.bipedRightArm.render(f5);
+						modelPlayer.bipedLeftArm.render(f5);
+						modelPlayer.bipedRightLeg.render(f5);
+						modelPlayer.bipedLeftLeg.render(f5);
 					}
 					
 					GL11.glDepthMask(false);
@@ -639,13 +639,13 @@ public class ModelShellConstructor extends ModelBase
 					
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	
-					modelBiped.bipedHead.render(f5);
-                    modelBiped.bipedHeadwear.render(f5);
-					modelBiped.bipedBody.render(f5);
-					modelBiped.bipedRightArm.render(f5);
-					modelBiped.bipedLeftArm.render(f5);
-					modelBiped.bipedRightLeg.render(f5);
-					modelBiped.bipedLeftLeg.render(f5);
+					modelPlayer.bipedHead.render(f5);
+                    modelPlayer.bipedHeadwear.render(f5);
+					modelPlayer.bipedBody.render(f5);
+					modelPlayer.bipedRightArm.render(f5);
+					modelPlayer.bipedLeftArm.render(f5);
+					modelPlayer.bipedRightLeg.render(f5);
+					modelPlayer.bipedLeftLeg.render(f5);
 					
 					GL11.glStencilFunc(GL11.GL_ALWAYS, 0, stencilMask);
 					
@@ -673,13 +673,13 @@ public class ModelShellConstructor extends ModelBase
 					GlStateManager.translate(0.0D, -0.00005D, 0.0D);
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 					
-					modelBiped.bipedHead.render(f5);
-                    modelBiped.bipedHeadwear.render(f5);
-					modelBiped.bipedBody.render(f5);
-					modelBiped.bipedRightArm.render(f5);
-					modelBiped.bipedLeftArm.render(f5);
-					modelBiped.bipedRightLeg.render(f5);
-					modelBiped.bipedLeftLeg.render(f5);
+					modelPlayer.bipedHead.render(f5);
+                    modelPlayer.bipedHeadwear.render(f5);
+					modelPlayer.bipedBody.render(f5);
+					modelPlayer.bipedRightArm.render(f5);
+					modelPlayer.bipedLeftArm.render(f5);
+					modelPlayer.bipedRightLeg.render(f5);
+					modelPlayer.bipedLeftLeg.render(f5);
 	
 					GL11.glStencilMask(0);
 					GL11.glDisable(GL11.GL_STENCIL_TEST);
@@ -688,13 +688,13 @@ public class ModelShellConstructor extends ModelBase
 				{
 					if(prog < 1.0F)
 					{
-						modelBiped.bipedHead.render(f5);
-                        modelBiped.bipedHeadwear.render(f5);
-						modelBiped.bipedBody.render(f5);
-						modelBiped.bipedRightArm.render(f5);
-						modelBiped.bipedLeftArm.render(f5);
-						modelBiped.bipedRightLeg.render(f5);
-						modelBiped.bipedLeftLeg.render(f5);
+						modelPlayer.bipedHead.render(f5);
+                        modelPlayer.bipedHeadwear.render(f5);
+						modelPlayer.bipedBody.render(f5);
+						modelPlayer.bipedRightArm.render(f5);
+						modelPlayer.bipedLeftArm.render(f5);
+						modelPlayer.bipedRightLeg.render(f5);
+						modelPlayer.bipedLeftLeg.render(f5);
 					}
 	
 					GlStateManager.enableTexture2D();
@@ -704,13 +704,15 @@ public class ModelShellConstructor extends ModelBase
 					GlStateManager.translate(0.0D, -0.00005D, 0.0D);
 					GlStateManager.color(1.0F, 1.0F, 1.0F, (prog - 0.95F) / 0.05F);
 					
-					modelBiped.bipedHead.render(f5);
-                    modelBiped.bipedHeadwear.render(f5);
-					modelBiped.bipedBody.render(f5);
-					modelBiped.bipedRightArm.render(f5);
-					modelBiped.bipedLeftArm.render(f5);
-					modelBiped.bipedRightLeg.render(f5);
-					modelBiped.bipedLeftLeg.render(f5);
+					modelPlayer.bipedHead.render(f5);
+                    modelPlayer.bipedHeadwear.render(f5);
+					modelPlayer.bipedBody.render(f5);
+					GlStateManager.translate(0F, 0F, 0.001F);
+					modelPlayer.bipedRightArm.render(f5);
+					modelPlayer.bipedLeftArm.render(f5);
+					modelPlayer.bipedRightLeg.render(f5);
+					GlStateManager.translate(0F, 0F, 0.001F);
+					modelPlayer.bipedLeftLeg.render(f5);
 				}
 				
 				MinecraftForgeClient.releaseStencilBit(stencilBit);
