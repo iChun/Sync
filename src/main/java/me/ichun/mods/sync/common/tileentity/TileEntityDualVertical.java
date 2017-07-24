@@ -28,13 +28,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import java.util.UUID;
 
 //@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
@@ -338,7 +335,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         tag.setInteger("face", face.getHorizontalIndex());
         tag.setBoolean("vacating", vacating);
         tag.setBoolean("isHomeUnit", isHomeUnit);
-        tag.setString("playerUUID", canSavePlayer > 0 || playerName.equals("") ? "" : EntityPlayer.getUUID(EntityHelper.getGameProfile(playerName)).toString());
+        tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
         tag.setString("name", name);
         tag.setTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
         tag.setInteger("rfIntake", rfIntake);
@@ -353,13 +350,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         face = EnumFacing.getHorizontal(tag.getInteger("face"));
         vacating = tag.getBoolean("vacating");
         isHomeUnit = tag.getBoolean("isHomeUnit");
-        if (tag.hasKey("playerName")) { //legacy tag, replaced by UUID
-            playerName = tag.getString("playerName");
-            tag.removeTag("playerName");
-        } else { //UUID tag should be present
-            String uuid = tag.getString("playerUUID");
-            playerName = uuid.equals("") ? "" : UsernameCache.getLastKnownUsername(UUID.fromString(uuid));
-        }
+        playerName = tag.getString("playerName");
         name = tag.getString("name");
         playerNBT = tag.getCompoundTag("playerNBT");
         rfIntake = tag.getInteger("rfIntake");
