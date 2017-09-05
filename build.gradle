@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 // Requires iChunUtil to run. Just put iChunUtil-deobf.jar in the /libs/ folder or it won't compile.
-version = "1.10.2-6.0.0"
+version = "1.10.2-6.0.1"
 group= "sync" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Sync"
 
