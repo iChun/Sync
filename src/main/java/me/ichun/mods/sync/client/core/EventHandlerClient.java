@@ -729,13 +729,12 @@ public class EventHandlerClient
 
                     Tessellator tessellator = Tessellator.getInstance();
                     VertexBuffer buffer = tessellator.getBuffer();
-                    buffer.color(240, 240, 240, 255);
+                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-                    buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-                    buffer.pos(pX, pY + size, 0.0D).tex( 0.0D, 0.999D);
-                    buffer.pos(pX + size, pY + size, 0.0D).tex( 1.0D, 0.999D);
-                    buffer.pos(pX + size, pY, 0.0D).tex( 1.0D, 0.0D);
-                    buffer.pos(pX, pY, 0.0D).tex( 0.0D, 0.0D);
+                    buffer.pos(pX, pY + size, 0.0D).tex( 0.0D, 0.999D).color(240, 240, 240, 255).endVertex();
+                    buffer.pos(pX + size, pY + size, 0.0D).tex( 1.0D, 0.999D).color(240, 240, 240, 255).endVertex();
+                    buffer.pos(pX + size, pY, 0.0D).tex( 1.0D, 0.0D).color(240, 240, 240, 255).endVertex();
+                    buffer.pos(pX, pY, 0.0D).tex( 0.0D, 0.0D).color(240, 240, 240, 255).endVertex();
                     tessellator.draw();
                 }
             }

@@ -171,6 +171,9 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         //Clear active potion effects before syncing
                         player.clearActivePotions();
 
+                        //Make sure the player looses all item, prevents duplication of e.g soulbound item
+                        player.inventory.clear();
+
                         if (!getPlayerNBT().hasKey("Inventory")) {
                             //Copy data needed from player
                             NBTTagCompound tag = new NBTTagCompound();
@@ -188,7 +191,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                             dummy.dimension = player.dimension;
                             dummy.setEntityId(player.getEntityId());
 
-                            this.world.getGameRules().setOrCreateGameRule("keepInventory", keepInv ? "true" : "false");
+                            this.world.getGameRules().setOrCreateGameRule("keepInventory", Boolean.toString(keepInv));
 
                             //Set data
                             dummy.writeToNBT(tag);

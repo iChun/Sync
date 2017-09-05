@@ -189,13 +189,12 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					byte b0 = 0;
 					GlStateManager.disableTexture2D();
 					VertexBuffer buffer = tessellator.getBuffer();
-					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 					int j = fontrenderer.getStringWidth(ss.getName()) / 2;
-					buffer.color(0.0F, 0.0F, 0.0F, 0.25F);
-					buffer.pos((double)(-j - 1), (double)(-1 + b0), 0.0D);
-					buffer.pos((double)(-j - 1), (double)(8 + b0), 0.0D);
-					buffer.pos((double)(j + 1), (double)(8 + b0), 0.0D);
-					buffer.pos((double)(j + 1), (double)(-1 + b0), 0.0D);
+					buffer.pos((double)(-j - 1), (double)(-1 + b0), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+					buffer.pos((double)(-j - 1), (double)(8 + b0), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+					buffer.pos((double)(j + 1), (double)(8 + b0), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
+					buffer.pos((double)(j + 1), (double)(-1 + b0), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();
 					tessellator.draw();
 					GlStateManager.enableTexture2D();
 					GlStateManager.enableDepth();

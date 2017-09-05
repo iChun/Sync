@@ -18,6 +18,6 @@ public class CreativeTabSync extends CreativeTabs
 	@Override
     public Item getTabIconItem()
 	{
-		return Sync.itemPlaceholder;
+		return Sync.itemSyncCore;
 	}
 }

@@ -2,6 +2,7 @@ package me.ichun.mods.sync.common.packet;
 
 import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
@@ -138,10 +139,10 @@ public class PacketSyncRequest extends AbstractPacket
                         ss.setPlayerNBT(tag);
 
                         IBlockState state = worldOri.getBlockState(ss.getPos());
-                        IBlockState state1 = worldOri.getBlockState(ss.getPos().add(0, 1, 0));
+                        IBlockState state1 = worldOri.getBlockState(ss.getPos().offset(EnumFacing.UP));
 
                         worldOri.notifyBlockUpdate(ss.getPos(), state, state, 3);
-                        worldOri.notifyBlockUpdate(ss.getPos().add(0, 1, 0), state1, state1, 3);
+                        worldOri.notifyBlockUpdate(ss.getPos().offset(EnumFacing.UP), state1, state1, 3);
                     }
 
                     Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);

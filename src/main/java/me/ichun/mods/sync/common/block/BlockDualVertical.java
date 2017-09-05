@@ -314,7 +314,7 @@ public class BlockDualVertical extends BlockContainer {
                             //Mark this as in use
                             shellStorage.setPlayerName(player.getName());
                             shellStorage.occupied = true;
-                            notifyThisAndAbove(state, EnumType.STORAGE, pos, world, dualVertical.top);
+                            world.notifyBlockUpdate(pos, state, state, 3);
                         }
                     }
                 }
