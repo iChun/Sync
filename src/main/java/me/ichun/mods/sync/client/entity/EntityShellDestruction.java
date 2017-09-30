@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.client.entity;
 
+import me.ichun.mods.sync.client.model.ModelPixel;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -7,9 +8,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHandSide;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import me.ichun.mods.sync.client.model.ModelPixel;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
 public class EntityShellDestruction extends EntityLivingBase 
@@ -75,15 +75,15 @@ public class EntityShellDestruction extends EntityLivingBase
 		return new ArrayList<>();
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn)
 	{
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public void setItemStackToSlot(EntityEquipmentSlot slotIn, @Nullable ItemStack stack)
+	public void setItemStackToSlot(EntityEquipmentSlot slotIn, @Nonnull ItemStack stack)
 	{
 	}
 

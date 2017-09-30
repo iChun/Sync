@@ -14,7 +14,7 @@ public class RenderItemShellConstructor extends TileEntitySpecialRenderer<Render
     private static final ModelShellConstructor modelConstructor = new ModelShellConstructor();
 
     @Override
-    public void renderTileEntityAt(ItemShellConstructorRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage)
+    public void render(ItemShellConstructorRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
 
         GlStateManager.scale(0.33F, 0.33F, 0.33F);

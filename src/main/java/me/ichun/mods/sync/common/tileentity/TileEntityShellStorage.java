@@ -55,7 +55,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 				{
 					playerInstance.readFromNBT(playerNBT);
 				}
-				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 			}
 		}
 		if(top && pair != null)
@@ -88,7 +88,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 
 					IBlockState state = world.getBlockState(pos);
 					world.notifyBlockUpdate(pos, state, state, 3);
-					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 				}
 			}
 			else
@@ -98,7 +98,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 
 				IBlockState state = world.getBlockState(pos);
 				world.notifyBlockUpdate(pos, state, state, 3);
-				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 			}
 		}
 		if(syncing && occupationTime > 0)
@@ -112,7 +112,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 					{
 						IBlockState state = world.getBlockState(pos);
 						world.notifyBlockUpdate(pos, state, state, 3);
-						world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+						world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 						ShellHandler.removeShell(playerName, this);
 					}
 					vacating = false;
@@ -124,7 +124,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 				else if(!world.isRemote && occupied && isPowered() && !playerName.equalsIgnoreCase("") && !top && !ShellHandler.isShellAlreadyRegistered(this))
 				{
 					ShellHandler.addShell(playerName, this, true);
-					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+					world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 				}
 			}
 		}
@@ -134,12 +134,12 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
 			{
 				ShellHandler.removeShell(playerName, this);
 				hasPower = false;
-				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 			}
 			else if(playerNBT.hasKey("Inventory") && isPowered() && !playerName.equalsIgnoreCase("") && (!ShellHandler.isShellAlreadyRegistered(this))) {
 				ShellHandler.addShell(playerName, this, true);
 				hasPower = true;
-				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock());
+				world.notifyNeighborsOfStateChange(pos, world.getBlockState(pos).getBlock(), true);
 			}
 
 			if (powerAmount() >= Sync.config.shellStoragePowerRequirement && !hasPower) {

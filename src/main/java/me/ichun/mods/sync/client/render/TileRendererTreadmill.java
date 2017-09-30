@@ -21,7 +21,7 @@ public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityT
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntityTreadmill tm, double d, double d1, double d2, float partialTicks, int destroyStage)
+	public void render(TileEntityTreadmill tm, double d, double d1, double d2, float partialTicks, int destroyStage, float alpha)
 	{
 		if(tm.back)
 		{

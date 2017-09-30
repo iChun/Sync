@@ -1,10 +1,12 @@
 package me.ichun.mods.sync.common.creativetab;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import me.ichun.mods.sync.common.Sync;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import javax.annotation.Nonnull;
 
 public class CreativeTabSync extends CreativeTabs 
 {
@@ -15,9 +17,10 @@ public class CreativeTabSync extends CreativeTabs
 	}
 
 	@SideOnly(Side.CLIENT)
+	@Nonnull
 	@Override
-    public Item getTabIconItem()
+    public ItemStack getTabIconItem()
 	{
-		return Sync.itemSyncCore;
+		return new ItemStack(Sync.itemSyncCore);
 	}
 }

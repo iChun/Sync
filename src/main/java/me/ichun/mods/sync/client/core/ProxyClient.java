@@ -33,8 +33,6 @@ public class ProxyClient extends ProxyCommon
 		
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDualVertical.class, new TileRendererDualVertical());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTreadmill.class, new TileRendererTreadmill());
-		
-//		MinecraftForgeClient.registerItemRenderer(Sync.itemBlockPlacer, new RenderBlockPlacerItem());
 
 		iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindUseItem);
 		iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindAttack);
@@ -46,17 +44,5 @@ public class ProxyClient extends ProxyCommon
 
 		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled()) //We use stencil, make sure it's enabled
 			Minecraft.getMinecraft().getFramebuffer().enableStencil();
-
-		registerItemWithTESR(Sync.itemShellConstructor, RenderItemShellConstructor.ItemShellConstructorRenderHack.class, new RenderItemShellConstructor());
-		registerItemWithTESR(Sync.itemShellStorage, RenderItemShellStorage.ItemShellStorageRenderHack.class, new RenderItemShellStorage());
-		registerItemWithTESR(Sync.itemTreadmill, RenderItemTreadmill.ItemTreadmillRenderHack.class, new RenderItemTreadmill());
-		ModelLoader.setCustomModelResourceLocation(Sync.itemSyncCore, 0, new ModelResourceLocation("sync:item_sync_core", "inventory"));
-	}
-
-	//TODO remove all this hacks, use a static fromat
-	private static void registerItemWithTESR(Item item, Class<? extends TileEntity> tileEntityClass, TileEntitySpecialRenderer<?> renderer) {
-		ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation("minecraft:shield")); //Need this because of special case...
-		TileEntityRendererDispatcher.instance.mapSpecialRenderers.put(tileEntityClass, renderer);
-		ForgeHooksClient.registerTESRItemStack(item, 0, tileEntityClass);
 	}
 }

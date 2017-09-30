@@ -73,7 +73,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
 			*/
 
 			//Notifies neighbours of block update, used for comparator
-			if (world.getWorldTime() % 40L == 0) world.notifyNeighborsOfStateChange(getPos(), world.getBlockState(getPos()).getBlock());
+			if (world.getWorldTime() % 40L == 0) world.notifyNeighborsOfStateChange(getPos(), world.getBlockState(getPos()).getBlock(), true);
 		}
 		if(!top)
 		{

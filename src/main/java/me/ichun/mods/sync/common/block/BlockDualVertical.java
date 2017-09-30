@@ -32,6 +32,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -49,7 +50,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Random;
 
@@ -106,8 +106,10 @@ public class BlockDualVertical extends BlockContainer {
         return 0;
     }
 
+
+
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof TileEntityDualVertical && !(player instanceof FakePlayer)) {
             TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
@@ -132,10 +134,10 @@ public class BlockDualVertical extends BlockContainer {
                     shellConstructor.setPlayerName(player.getName());
 
                     if (!world.isRemote && !player.isCreative()) {
-                        String name = DamageSource.outOfWorld.damageType;
-                        DamageSource.outOfWorld.damageType = "shellConstruct";
-                        player.attackEntityFrom(DamageSource.outOfWorld, (float)Sync.config.damageGivenOnShellConstruction);
-                        DamageSource.outOfWorld.damageType = name;
+                        String name = DamageSource.OUT_OF_WORLD.damageType;
+                        DamageSource.OUT_OF_WORLD.damageType = "shellConstruct";
+                        player.attackEntityFrom(DamageSource.OUT_OF_WORLD, (float)Sync.config.damageGivenOnShellConstruction);
+                        DamageSource.OUT_OF_WORLD.damageType = name;
                     }
 
                     notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, top);
@@ -156,7 +158,7 @@ public class BlockDualVertical extends BlockContainer {
                 TileEntityShellStorage shellStorage = (TileEntityShellStorage) dualVertical;
                 ItemStack itemStack = player.getHeldItem(hand);
 
-                if (itemStack != null) {
+                if (!itemStack.isEmpty()) {
                     //Set storage name
                     if (itemStack.getItem() instanceof ItemNameTag) {
                         //Don't do anything if name is the same
@@ -164,9 +166,10 @@ public class BlockDualVertical extends BlockContainer {
                             return false;
                         }
                         dualVertical.setName(itemStack.hasDisplayName() ? itemStack.getDisplayName() : "");
+                        itemStack.shrink(1);
 
-                        if (!player.isCreative() && itemStack.stackSize-- <= 0) {
-                            player.setItemStackToSlot(hand == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
+                        if (!player.isCreative() && itemStack.isEmpty()) {
+                            player.setItemStackToSlot(hand == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
                         }
                         notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
 
@@ -209,7 +212,7 @@ public class BlockDualVertical extends BlockContainer {
 
                 if (!list.isEmpty()) {
                     for (EntityLiving obj : list) {
-                        if (obj.getLeashed() && obj.getLeashedToEntity() == player && TileEntityTreadmill.isEntityValidForTreadmill(obj)) {
+                        if (obj.getLeashed() && obj.getLeashHolder() == player && TileEntityTreadmill.isEntityValidForTreadmill(obj)) {
                             if (!world.isRemote) {
                                 treadmill.latchedEnt = obj;
                                 treadmill.latchedHealth = obj.getHealth();
@@ -224,9 +227,9 @@ public class BlockDualVertical extends BlockContainer {
 
                 ItemStack itemStack = player.getHeldItem(hand);
                 //Allow easier creative testing. Only works for pig and wolves cause easier
-                if (!world.isRemote && itemStack != null && itemStack.getItem() instanceof ItemMonsterPlacer) {
-                    String mob = ItemMonsterPlacer.getEntityIdFromItem(itemStack);
-                    if ("Pig".equalsIgnoreCase(mob) || "Wolf".equalsIgnoreCase(mob)) {
+                if (!world.isRemote && !itemStack.isEmpty() && itemStack.getItem() instanceof ItemMonsterPlacer) {
+                    ResourceLocation mob = ItemMonsterPlacer.getNamedIdFrom(itemStack);
+                    if ("Pig".equalsIgnoreCase(mob.resourcePath) || "Wolf".equalsIgnoreCase(mob.resourcePath)) {
                         Entity entity = ItemMonsterPlacer.spawnCreature(world, mob, treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1));
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
@@ -322,8 +325,10 @@ public class BlockDualVertical extends BlockContainer {
         }
     }
 
+
+
     @Override
-    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity)
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_)
     {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof TileEntityDualVertical) {
@@ -340,50 +345,50 @@ public class BlockDualVertical extends BlockContainer {
             if (dualVertical instanceof TileEntityShellConstructor) {
                 TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVertical;
                 if (shellConstructor.doorOpen) {
-                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity);
+                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity, p_185477_7_);
                 }
                 else {
-                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity);
+                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
                 }
             }
             else if (dualVertical instanceof TileEntityShellStorage) {
                 TileEntityShellStorage shellStorage = (TileEntityShellStorage)dualVertical;
                 if ((!shellStorage.occupied || (world.isRemote && this.isLocalPlayer(shellStorage.getPlayerName()))) && !shellStorage.syncing) {
-                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity);
+                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity, p_185477_7_);
                 }
                 else {
-                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity);
+                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
                 }
             }
         }
         else if(tileEntity instanceof TileEntityTreadmill) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.175F, 1.0F);
-            super.addCollisionBoxToList(state, world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
         }
         boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
     }
 
     //This makes the sides solid but not the front
-    private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity) {
+    private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_) {
         if (dualVertical.face != EnumFacing.SOUTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
         }
         if (dualVertical.face != EnumFacing.WEST) {
             boundingBox = new AxisAlignedBB(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
         }
         if (dualVertical.face != EnumFacing.NORTH) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
         }
         if (dualVertical.face != EnumFacing.EAST) {
             boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
         }
         if (isTop) {
             boundingBox = new AxisAlignedBB(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity);
+            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
         }
     }
 
@@ -393,7 +398,7 @@ public class BlockDualVertical extends BlockContainer {
     }
 
     @Override
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block)
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block, BlockPos fromPos)
     {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof TileEntityDualVertical) {
@@ -428,7 +433,7 @@ public class BlockDualVertical extends BlockContainer {
                     TileEntityDualVertical bottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
                     if (!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getName())) {
-                        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendChatMsg(new TextComponentTranslation("sync.breakShellUnit", player.getName(), bottom.getPlayerName()));
+                        FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentTranslation("sync.breakShellUnit", player.getName(), bottom.getPlayerName()));
                     }
 
                     if (!player.isCreative()) {
@@ -475,7 +480,7 @@ public class BlockDualVertical extends BlockContainer {
                         fake.inventory.dropAllItems();
                         fake.captureDrops = false;
 
-                        PlayerDropsEvent event = new PlayerDropsEvent(fake, DamageSource.outOfWorld, fake.capturedDrops, false);
+                        PlayerDropsEvent event = new PlayerDropsEvent(fake, DamageSource.OUT_OF_WORLD, fake.capturedDrops, false);
                         if (!MinecraftForge.EVENT_BUS.post(event)) {
                             for (EntityItem item : fake.capturedDrops) {
                                 fake.dropItemAndGetStack(item);
@@ -496,10 +501,10 @@ public class BlockDualVertical extends BlockContainer {
                         //Need to let dualVertical know sync is cancelled
                         EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
                         if (syncingPlayer != null) {
-                            String name = DamageSource.outOfWorld.damageType;
-                            DamageSource.outOfWorld.damageType = "syncFail";
-                            syncingPlayer.attackEntityFrom(DamageSource.outOfWorld, Float.MAX_VALUE);
-                            DamageSource.outOfWorld.damageType = name;
+                            String name = DamageSource.OUT_OF_WORLD.damageType;
+                            DamageSource.OUT_OF_WORLD.damageType = "syncFail";
+                            syncingPlayer.attackEntityFrom(DamageSource.OUT_OF_WORLD, Float.MAX_VALUE);
+                            DamageSource.OUT_OF_WORLD.damageType = name;
                         }
                     }
                 }

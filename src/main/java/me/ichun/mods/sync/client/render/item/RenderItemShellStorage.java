@@ -14,7 +14,7 @@ public class RenderItemShellStorage extends TileEntitySpecialRenderer<RenderItem
     private static final ModelShellStorage modelStorage = new ModelShellStorage();
 
     @Override
-    public void renderTileEntityAt(ItemShellStorageRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage)
+    public void render(ItemShellStorageRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
 
         GlStateManager.scale(0.33F, 0.33F, 0.33F);
