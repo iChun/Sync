@@ -71,7 +71,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 						latchedHealth = latchedEnt.getHealth();
 					}
 				} else {
-					AxisAlignedBB aabb = new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.4D, 0.4D, 0.4D);
+					AxisAlignedBB aabb = new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).grow(0.4D);
 					List list = world.getEntitiesWithinAABB(Entity.class, aabb);
 
 					for (Object aList : list) {
@@ -126,7 +126,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 			}
 		}
 		if (!world.isRemote && !back) {
-			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().shrink(0.1D) : new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
+			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().shrink(0.1D) : new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).grow(0.15D, 0.005D, 0.15D);
 			List list = world.getEntitiesWithinAABB(Entity.class, aabb);
 
 			if (latchedEnt != null) {
