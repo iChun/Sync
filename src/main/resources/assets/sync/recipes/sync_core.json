@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DLD",
+    "QEQ",
+    "MRM"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:daylight_detector"
+    },
+    "L": {
+      "item": "minecraft:lapis_block"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "E": {
+      "type": "sync:hardcore",
+      "normal": "minecraft:beacon",
+      "alternative": "minecraft:ender_pearl"
+    },
+    "M": {
+      "item": "minecraft:emerald"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "result": {
+    "item": "sync:item_placeholder"
+  }
+}

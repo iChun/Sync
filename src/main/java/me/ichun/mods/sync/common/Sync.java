@@ -108,12 +108,6 @@ public class Sync
     }
 
     @EventHandler
-    public void serverStarted(FMLServerStartedEvent event)
-    {
-        mapHardmodeRecipe();
-    }
-
-    @EventHandler
     public void serverStopped(FMLServerStoppedEvent event)
     {
         ChunkLoadHandler.shellTickets.clear();
@@ -158,22 +152,5 @@ public class Sync
                 }
             }
         }
-    }
-
-    public static void mapHardmodeRecipe()
-    {
-        ((ForgeRegistry) ForgeRegistries.RECIPES).unfreeze();
-        Iterator<IRecipe> ite = CraftingManager.REGISTRY.iterator();
-        while (ite.hasNext())
-        {
-            IRecipe recipe = ite.next();
-            if(recipe instanceof ShapedRecipes && recipe.getRecipeOutput().isItemEqual(new ItemStack(Sync.itemSyncCore)))
-            {
-                ite.remove(); //TODO not working... unsupported operation exception...
-            }
-        }
-
-        GameRegistry.addShapedRecipe(new ResourceLocation(MOD_ID, "recipe_sync_core"), null, new ItemStack(Sync.itemSyncCore), "DLD", "QEQ", "MRM", 'D', Blocks.DAYLIGHT_DETECTOR, 'L', Blocks.LAPIS_BLOCK, 'Q', Items.QUARTZ, 'E', ((Sync.config.hardcoreMode == 1 || Sync.config.hardcoreMode == 2 && DimensionManager.getWorld(0).getWorldInfo().isHardcoreModeEnabled()) ? Blocks.BEACON : Items.ENDER_PEARL), 'M', Items.EMERALD, 'R', Blocks.REDSTONE_BLOCK);
-        ((ForgeRegistry)ForgeRegistries.RECIPES).freeze();
     }
 }

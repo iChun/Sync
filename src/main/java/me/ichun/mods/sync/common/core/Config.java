@@ -67,13 +67,6 @@ public class Config extends ConfigBase
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onReceiveSession()
-    {
-        Minecraft.getMinecraft().addScheduledTask(Sync::mapHardmodeRecipe);
-    }
-
-    @Override
     public String getModId()
     {
         return Sync.MOD_NAME.toLowerCase();
