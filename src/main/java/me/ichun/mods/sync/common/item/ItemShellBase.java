@@ -32,8 +32,9 @@ public class ItemShellBase extends Item {
 
     @Override
     @Nonnull
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+        ItemStack stack = player.getHeldItem(hand);
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
@@ -48,17 +49,17 @@ public class ItemShellBase extends Item {
         {
             return EnumActionResult.FAIL;
         }
-        else if (stack.stackSize == 0)
+        else if (stack.isEmpty())
         {
             return EnumActionResult.FAIL;
         }
         else
         {
             Block block1 = Sync.blockDualVertical;
-            boolean flag = world.getBlockState(pos.down()).isOpaqueCube() && world.canBlockBePlaced(block1, pos, false, facing, null, stack) && world.canBlockBePlaced(block1, pos.up(), false, facing, null, stack);
+            boolean flag = world.getBlockState(pos.down()).isOpaqueCube() && world.mayPlace(block1, pos, false, facing, null) && world.mayPlace(block1, pos.up(), false, facing, null);
             if(!flag) {
                 pos = pos.up();
-                flag = world.getBlockState(pos.down()).isOpaqueCube() && world.canBlockBePlaced(block1, pos, false, facing, null, stack) && world.canBlockBePlaced(block1, pos.up(), false, facing, null, stack);
+                flag = world.getBlockState(pos.down()).isOpaqueCube() && world.mayPlace(block1, pos, false, facing, null) && world.mayPlace(block1, pos.up(), false, facing, null);
             }
             if (flag)
             {
@@ -77,7 +78,7 @@ public class ItemShellBase extends Item {
                         sc1.setup(sc, true, face);
                     }
                     world.playSound(null, new BlockPos(((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.5F), (double)((float)pos.getZ() + 0.5F)), block1.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, (block1.getSoundType().getVolume() + 1.0F) / 2.0F, block1.getSoundType().getPitch() * 0.8F);
-                    --stack.stackSize;
+                    stack.shrink(1);
                 }
             }
             return EnumActionResult.SUCCESS;

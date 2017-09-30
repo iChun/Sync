@@ -126,7 +126,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 			}
 		}
 		if (!world.isRemote && !back) {
-			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().contract(0.1D) : new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
+			AxisAlignedBB aabb = latchedEnt != null ? latchedEnt.getEntityBoundingBox().shrink(0.1D) : new AxisAlignedBB(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1)).expand(0.15D, 0.005D, 0.15D);
 			List list = world.getEntitiesWithinAABB(Entity.class, aabb);
 
 			if (latchedEnt != null) {
@@ -146,7 +146,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 					if (entityTameable.isTamed()) {
 						latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getOpposite().getHorizontalAngle(), 0.0F);
 
-						aabb = latchedEnt.getEntityBoundingBox().contract(0.1D);
+						aabb = latchedEnt.getEntityBoundingBox().shrink(0.1D);
 						list = world.getEntitiesWithinAABB(EntityLivingBase.class, aabb);
 					} else {
 						entityTameable.ticksExisted = 1200; //anti despawn methods
@@ -209,7 +209,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable//, IEne
 				if (latchedEnt != null) {
 					latchedHealth = latchedEnt.getHealth();
 					latchedEnt.setLocationAndAngles(getMidCoord(0), pos.getY() + 0.175D, getMidCoord(1), face.getOpposite().getHorizontalAngle(), 0.0F);
-					latchedEnt.getNavigator().clearPathEntity();
+					latchedEnt.getNavigator().clearPath();
 					if (timeRunning < 12000) {
 						timeRunning++;
 					}

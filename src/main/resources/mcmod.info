@@ -1,6 +1,6 @@
 [
 {
-  "modid" : "Sync",
+  "modid" : "sync",
   "name" : "Sync",
   "version" : "${version}",
   "url" : "http://ichun.us/mods/sync/",
@@ -15,7 +15,7 @@
   "screenshots": [
   ],
   "dependancies": [
-    "Forge"
+    "forge"
   ]
 }
 ]

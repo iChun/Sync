@@ -181,13 +181,13 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                             this.world.getGameRules().setOrCreateGameRule("keepInventory", "false");
 
                             //Setup location for dummy
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(player.dimension)));
+                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension)));
                             dummy.connection = player.connection;
                             dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
                             dummy.fallDistance = 0F;
 
                             //Clone data
-                            dummy.clonePlayer(player, false);
+                            dummy.copyFrom(player, false);
                             dummy.dimension = player.dimension;
                             dummy.setEntityId(player.getEntityId());
 
@@ -400,19 +400,16 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 
         for (int i = 0; i < slots.length; i++) {
             NBTTagCompound compound = nbttaglist.getCompoundTagAt(i);
-            ItemStack stack = ItemStack.loadItemStackFromNBT(compound);
-            //noinspection ConstantConditions stacks can be null
-            if (stack != null) {
-                items[i] = stack;
-            }
+            ItemStack stack = new ItemStack(compound);
+            items[i] = stack;
         }
 
         NBTTagCompound nbttagcompound;
 
         for (ItemStack item : items) {
             nbttagcompound = new NBTTagCompound();
-            nbttagcompound.setBoolean("hasItem", item != null);
-            if (item != null)
+            nbttagcompound.setBoolean("hasItem", !item.isEmpty());
+            if (!item.isEmpty())
                 item.writeToNBT(nbttagcompound);
             list.appendTag(nbttagcompound);
         }
@@ -431,7 +428,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
             EntityEquipmentSlot slot = slots[i];
             if (nbttagcompound.getBoolean("hasItem")) {
-                ItemStack itemstack = ItemStack.loadItemStackFromNBT(nbttagcompound);
+                ItemStack itemstack = new ItemStack(nbttagcompound);
 
                 player.setItemStackToSlot(slot, itemstack);
             }

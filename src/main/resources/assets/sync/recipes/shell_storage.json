@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OCO",
+    "GIG",
+    "OPO"
+  ],
+  "key": {
+    "O": {
+      "item": "minecraft:obsidian"
+    },
+    "C": {
+      "item": "sync:item_placeholder"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "P": {
+      "item": "minecraft:heavy_weighted_pressure_plate"
+    }
+  },
+  "result": {
+    "item": "sync:item_shell_storage"
+  }
+}

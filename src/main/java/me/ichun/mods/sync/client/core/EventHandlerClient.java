@@ -3,6 +3,9 @@ package me.ichun.mods.sync.client.core;
 import me.ichun.mods.ichunutil.client.keybind.KeyEvent;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
 import me.ichun.mods.sync.client.render.TileRendererDualVertical;
+import me.ichun.mods.sync.client.render.item.RenderItemShellConstructor;
+import me.ichun.mods.sync.client.render.item.RenderItemShellStorage;
+import me.ichun.mods.sync.client.render.item.RenderItemTreadmill;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.packet.PacketSyncRequest;
 import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
@@ -17,21 +20,28 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -82,6 +92,21 @@ public class EventHandlerClient
     public ArrayList<ShellState> shells = new ArrayList<>();
 
     public ModelShellConstructor modelShellConstructor = new ModelShellConstructor();
+
+    @SubscribeEvent
+    public void registerModels(ModelRegistryEvent event) {
+        registerItemWithTESR(Sync.itemShellConstructor, RenderItemShellConstructor.ItemShellConstructorRenderHack.class, new RenderItemShellConstructor());
+        registerItemWithTESR(Sync.itemShellStorage, RenderItemShellStorage.ItemShellStorageRenderHack.class, new RenderItemShellStorage());
+        registerItemWithTESR(Sync.itemTreadmill, RenderItemTreadmill.ItemTreadmillRenderHack.class, new RenderItemTreadmill());
+        ModelLoader.setCustomModelResourceLocation(Sync.itemSyncCore, 0, new ModelResourceLocation("sync:sync_core", "inventory"));
+    }
+
+    //TODO remove all this hacks, use a static fromat
+    private static void registerItemWithTESR(Item item, Class<? extends TileEntity> tileEntityClass, TileEntitySpecialRenderer<?> renderer) {
+        ModelLoader.setCustomModelResourceLocation(item, 0, new ModelResourceLocation("minecraft:shield")); //Need this because of special case...
+        TileEntityRendererDispatcher.instance.renderers.put(tileEntityClass, renderer);
+        ForgeHooksClient.registerTESRItemStack(item, 0, tileEntityClass);
+    }
 
     @SubscribeEvent
     public void onKeyEvent(KeyEvent event)
@@ -702,20 +727,20 @@ public class EventHandlerClient
                 if(!state.name.equalsIgnoreCase(""))
                 {
                     string = state.name;
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, (int)(-5 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(prefix + string) / 2) * scaleee), 5, 16777215);
                 }
                 if(Sync.config.showAllShellInfoInGui == 2)
                 {
                     GlStateManager.scale(scaleee, scaleee, scaleee);
 
                     string = Integer.toString(state.pos.getX());
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getX() < 0 ? 2 : 8, -52, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.pos.getX() < 0 ? 2 : 8, -52, 16777215);
                     string = Integer.toString(state.pos.getY());
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getY() < 0 ? 2 : 8, -42, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.pos.getY() < 0 ? 2 : 8, -42, 16777215);
                     string = Integer.toString(state.pos.getZ());
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, state.pos.getZ() < 0 ? 2 : 8, -32, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, state.pos.getZ() < 0 ? 2 : 8, -32, 16777215);
                     string = state.dimName;
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(prefix + string, 8, -22, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(prefix + string, 8, -22, 16777215);
                 }
                 if(state.isHome)
                 {
@@ -728,7 +753,7 @@ public class EventHandlerClient
                     GlStateManager.color(0.95F, 0.95F, 0.95F, 1.0F);
 
                     Tessellator tessellator = Tessellator.getInstance();
-                    VertexBuffer buffer = tessellator.getBuffer();
+                    BufferBuilder buffer = tessellator.getBuffer();
                     buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 
                     buffer.pos(pX, pY + size, 0.0D).tex( 0.0D, 0.999D).color(240, 240, 240, 255).endVertex();
@@ -766,7 +791,7 @@ public class EventHandlerClient
                     float scaleee = 1.5F;
                     GlStateManager.scale(scaleee, scaleee, scaleee);
                     String name = TextFormatting.RED.toString() + (int)Math.floor(state.buildProgress / Sync.config.shellConstructionPowerRequirement * 100) + "%";
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), -14, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(6 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 16777215);
 
                     GlStateManager.popMatrix();
                 }
@@ -776,7 +801,7 @@ public class EventHandlerClient
                     float scaleee = 0.75F;
                     GlStateManager.scale(scaleee, scaleee, scaleee);
                     String name = I18n.format("gui.done");
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(-3 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), -14, 0xffc800);
 
                     GlStateManager.popMatrix();
                 }
@@ -811,25 +836,25 @@ public class EventHandlerClient
                 if(state.name.equalsIgnoreCase(""))
                 {
                     String name = TextFormatting.YELLOW.toString() + state.pos.toString();
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height, 16777215);
                     name = TextFormatting.YELLOW.toString() + state.dimName;
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 10, 16777215);
                 }
                 else
                 {
                     String name = TextFormatting.YELLOW.toString() + state.pos.toString();
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height - 5, 16777215);
                     name = TextFormatting.YELLOW.toString() + state.name;
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 5, 16777215);
                     name = TextFormatting.YELLOW.toString() + state.dimName;
-                    Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
+                    Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * scaleee), height + 15, 16777215);
                 }
                 GlStateManager.popMatrix();
             }
             else
             {
                 String name = I18n.format("gui.cancel");
-                Minecraft.getMinecraft().fontRendererObj.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRendererObj.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
+                Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(name, (int)(0 - (Minecraft.getMinecraft().fontRenderer.getStringWidth(name) / 2) * 1.0F), 10, 16777215);
             }
 
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -886,7 +911,7 @@ public class EventHandlerClient
             Minecraft.getMinecraft().getRenderManager().playerViewY = 180.0F;
             if(!(state.isConstructor && state.buildProgress < Sync.config.shellConstructionPowerRequirement))
             {
-                Minecraft.getMinecraft().getRenderManager().doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+                Minecraft.getMinecraft().getRenderManager().renderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
             }
             else
             {

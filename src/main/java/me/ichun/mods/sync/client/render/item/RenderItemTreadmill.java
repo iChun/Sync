@@ -11,7 +11,7 @@ public class RenderItemTreadmill extends TileEntitySpecialRenderer<RenderItemTre
     private static final ModelTreadmill modelTreadmill = new ModelTreadmill();
 
     @Override
-    public void renderTileEntityAt(RenderItemTreadmill.ItemTreadmillRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage)
+    public void render(RenderItemTreadmill.ItemTreadmillRenderHack entity, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
 
         GlStateManager.scale(0.33F, 0.33F, 0.33F);

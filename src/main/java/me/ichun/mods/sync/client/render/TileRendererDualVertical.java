@@ -2,19 +2,6 @@ package me.ichun.mods.sync.client.render;
 
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.ichunutil.common.core.util.EventCalendar;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
 import me.ichun.mods.sync.client.model.ModelShellStorage;
 import me.ichun.mods.sync.common.Sync;
@@ -22,27 +9,42 @@ import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import org.lwjgl.opengl.GL11;
 
 public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEntityDualVertical>
 {
 
-	public static final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shellConstructor.png");
-	public static final ResourceLocation txShellStorage = new ResourceLocation("sync", "textures/model/shellStorage.png");
+	public static final ResourceLocation txShellConstructor = new ResourceLocation("sync", "textures/model/shell_constructor.png");
+	public static final ResourceLocation txShellStorage = new ResourceLocation("sync", "textures/model/shell_storage.png");
 	
-	public static final ResourceLocation txShellConstructorAlpha = new ResourceLocation("sync", "textures/model/shellConstructorAlpha.png");
-	public static final ResourceLocation txShellStorageAlpha = new ResourceLocation("sync", "textures/model/shellStorageAlpha.png");
+	public static final ResourceLocation txShellConstructorAlpha = new ResourceLocation("sync", "textures/model/shell_constructor_alpha.png");
+	public static final ResourceLocation txShellStorageAlpha = new ResourceLocation("sync", "textures/model/shell_storage_alpha.png");
 	
 	public ModelShellConstructor modelConstructor;
 	public ModelShellStorage modelStorage;
 	
-	public TileRendererDualVertical()
-	{
+	public TileRendererDualVertical() {
 		modelConstructor = new ModelShellConstructor();
 		modelStorage = new ModelShellStorage();
 	}
 
+
+
 	@Override
-	public void renderTileEntityAt(TileEntityDualVertical dv, double d, double d1, double d2, float f, int destroyStage)
+	public void render(TileEntityDualVertical dv, double d, double d1, double d2, float f, int destroyStage, float alpha)
 	{
 		if(dv.top)
 		{
@@ -135,14 +137,14 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					else
 					{
 						ss.playerInstance.prevRotationYaw = ss.playerInstance.rotationYaw = ss.playerInstance.prevRotationYawHead = ss.playerInstance.rotationYawHead = 0.0F;
-						ss.playerInstance.rotationPitch = MathHelper.clamp((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getItemStackFromSlot(EntityEquipmentSlot.CHEST) == null ? 15F : 5F);
+						ss.playerInstance.rotationPitch = MathHelper.clamp((float)Math.pow(prog, 2D) * 3.1F, 0.0F, 1.0F) * (ss.playerInstance.getItemStackFromSlot(EntityEquipmentSlot.CHEST).isEmpty() ? 15F : 5F);
 					}
 					
 					ss.playerInstance.setPosition(0.0D, 500D, 0.0D);
 					
 					ItemStack is = ss.playerInstance.getHeldItem(ss.playerInstance.getActiveHand());
 					
-					ss.playerInstance.setItemStackToSlot(ss.playerInstance.getActiveHand() == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, null);
+					ss.playerInstance.setItemStackToSlot(ss.playerInstance.getActiveHand() == EnumHand.MAIN_HAND ? EntityEquipmentSlot.MAINHAND : EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
 					
 					Sync.eventHandlerClient.forceRender = true;
 					Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(ss.playerInstance).doRender(ss.playerInstance, 0.0D, -0.72D, 0.0D, 1.0F, 0); // posXYZ, rotYaw, renderTick
@@ -188,7 +190,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 					Tessellator tessellator = Tessellator.getInstance();
 					byte b0 = 0;
 					GlStateManager.disableTexture2D();
-					VertexBuffer buffer = tessellator.getBuffer();
+					BufferBuilder buffer = tessellator.getBuffer();
 					buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 					int j = fontrenderer.getStringWidth(ss.getName()) / 2;
 					buffer.pos((double)(-j - 1), (double)(-1 + b0), 0.0D).color(0.0F, 0.0F, 0.0F, 0.25F).endVertex();

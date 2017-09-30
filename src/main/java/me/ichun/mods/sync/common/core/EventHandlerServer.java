@@ -1,15 +1,19 @@
 package me.ichun.mods.sync.common.core;
 
 import me.ichun.mods.sync.common.Sync;
+import me.ichun.mods.sync.common.block.EnumType;
+import me.ichun.mods.sync.common.item.ItemShellBase;
 import me.ichun.mods.sync.common.packet.PacketPlayerDeath;
 import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
@@ -17,6 +21,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -26,6 +31,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
@@ -33,6 +39,20 @@ import java.util.Map;
 
 public class EventHandlerServer
 {
+    @SubscribeEvent
+    public void registerItem(RegistryEvent.Register<Item> event)
+    {
+        IForgeRegistry<Item> registry = event.getRegistry();
+        registry.registerAll(Sync.itemSyncCore, Sync.itemShellConstructor, Sync.itemShellStorage, Sync.itemTreadmill);
+    }
+
+    @SubscribeEvent
+    public void registerBlocks(RegistryEvent.Register<Block> event)
+    {
+        IForgeRegistry<Block> registry = event.getRegistry();
+        registry.register(Sync.blockDualVertical);
+    }
+
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event)
     {
@@ -127,7 +147,7 @@ public class EventHandlerServer
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onEntityAttacked(LivingAttackEvent event) {
         //Prevent damage during sync
-        if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.outOfWorld) {
+        if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.OUT_OF_WORLD) {
             if (ShellHandler.syncInProgress.containsKey(event.getEntityLiving().getName())) {
                 event.setCanceled(true);
             }
@@ -145,7 +165,7 @@ public class EventHandlerServer
                 return;
             }
         }
-        if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.outOfWorld) {
+        if (event.getEntityLiving() instanceof EntityPlayer && event.getSource() != DamageSource.OUT_OF_WORLD) {
             if (ShellHandler.syncInProgress.containsKey(event.getEntityLiving().getName())) {
                 event.setCanceled(true);
             }

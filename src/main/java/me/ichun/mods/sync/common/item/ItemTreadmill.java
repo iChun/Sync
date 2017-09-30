@@ -30,10 +30,11 @@ public class ItemTreadmill extends Item {
 
     @Override
     @Nonnull
-    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
+        ItemStack stack = player.getHeldItem(hand);
 
         if (block == Blocks.SNOW_LAYER && (state.getValue(BlockSnow.LAYERS) & 7) < 1)
         {
@@ -48,7 +49,7 @@ public class ItemTreadmill extends Item {
         {
             return EnumActionResult.FAIL;
         }
-        else if (stack.stackSize == 0)
+        else if (stack.isEmpty())
         {
             return EnumActionResult.FAIL;
         }
@@ -57,7 +58,7 @@ public class ItemTreadmill extends Item {
         EnumFacing face = EnumFacing.fromAngle(player.rotationYaw);
         BlockPos newBlockPos = pos.offset(face);
 
-        boolean flag = !(world.getTileEntity(pos.down()) instanceof TileEntityTreadmill) && world.canBlockBePlaced(block1, pos, false, facing, null, stack) && !(world.getTileEntity(newBlockPos.down()) instanceof TileEntityTreadmill) && world.canBlockBePlaced(block1, newBlockPos, false, facing, null, stack);
+        boolean flag = !(world.getTileEntity(pos.down()) instanceof TileEntityTreadmill) && world.mayPlace(block1, pos, false, facing, null) && !(world.getTileEntity(newBlockPos.down()) instanceof TileEntityTreadmill) && world.mayPlace(block1, newBlockPos, false, facing, null);
         if(flag)
         {
             if(world.setBlockState(pos, block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3) && world.setBlockState(newBlockPos, block1.getDefaultState().withProperty(BlockDualVertical.TYPE, EnumType.TREADMILL), 3))
@@ -74,7 +75,7 @@ public class ItemTreadmill extends Item {
                     sc1.setup(sc, true, face);
                     }
                 world.playSound(player, new BlockPos(((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.5F), (double)((float)pos.getZ() + 0.5F)), block1.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, (block1.getSoundType().getVolume() + 1.0F) / 2.0F, block1.getSoundType().getPitch() * 0.8F);
-                --stack.stackSize;
+                stack.shrink(1);
             }
         }
         return EnumActionResult.SUCCESS;
