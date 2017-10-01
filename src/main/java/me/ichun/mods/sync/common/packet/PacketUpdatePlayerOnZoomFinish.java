@@ -48,15 +48,13 @@ public class PacketUpdatePlayerOnZoomFinish extends AbstractPacket
     }
 
     @Override
-    public AbstractPacket execute(Side side, EntityPlayer player)
+    public void execute(Side side, EntityPlayer player)
     {
         player.setLocationAndAngles(posX, posY, posZ, rotationYaw, rotationPitch);
 
         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().syncPlayerInventory((EntityPlayerMP)player);
 
         ShellHandler.updatePlayerOfShells(player, null, true);
-
-        return null;
     }
 
     @Override

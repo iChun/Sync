@@ -21,10 +21,9 @@ public class PacketClearShellList extends AbstractPacket
     }
 
     @Override
-    public AbstractPacket execute(Side side, EntityPlayer player)
+    public void execute(Side side, EntityPlayer player)
     {
         Sync.eventHandlerClient.shells.clear();
-        return null;
     }
 
     @Override

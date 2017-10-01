@@ -80,7 +80,7 @@ public class PacketSyncRequest extends AbstractPacket
     }
 
     @Override
-    public AbstractPacket execute(Side side, EntityPlayer player)
+    public void execute(Side side, EntityPlayer player)
     {
         //Receive sync request from client;
         boolean valid = false;
@@ -108,7 +108,7 @@ public class PacketSyncRequest extends AbstractPacket
                         if(sc.constructionProgress < Sync.config.shellConstructionPowerRequirement)
                         {
                             ShellHandler.updatePlayerOfShells(player, null, true);
-                            return null;
+                            return;
                         }
                     }
                     if(targetShell instanceof TileEntityShellStorage)
@@ -117,7 +117,7 @@ public class PacketSyncRequest extends AbstractPacket
                         if(!ss.syncing)
                         {
                             ShellHandler.updatePlayerOfShells(player, null, true);
-                            return null;
+                            return;
                         }
                     }
 
@@ -164,7 +164,6 @@ public class PacketSyncRequest extends AbstractPacket
         {
             ShellHandler.updatePlayerOfShells(player, null, true);
         }
-        return null;
     }
 
     @Override
