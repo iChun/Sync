@@ -17,8 +17,8 @@
     },
     "E": {
       "type": "sync:hardcore",
-      "normal": "minecraft:beacon",
-      "alternative": "minecraft:ender_pearl"
+      "met": "minecraft:beacon",
+      "notmet": "minecraft:ender_pearl"
     },
     "M": {
       "item": "minecraft:emerald"
