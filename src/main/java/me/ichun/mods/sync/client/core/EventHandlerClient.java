@@ -68,8 +68,6 @@ public class EventHandlerClient
     public double radialDeltaY;
     public int radialTime;
 
-    public long clock;
-
     public EnumFacing zoomFace;
     public int zoomTimer;
     public int zoomTimeout;
@@ -271,10 +269,8 @@ public class EventHandlerClient
                 lockedStorage = null;
             }
 
-            if(clock != world.getWorldTime() || !world.getGameRules().getBoolean("doDaylightCycle"))
+            if(!mc.isGamePaused())
             {
-                clock = world.getWorldTime();
-
                 for(ShellState state : shells)
                 {
                     state.tick();
