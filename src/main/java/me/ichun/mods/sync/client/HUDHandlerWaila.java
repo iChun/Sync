@@ -4,25 +4,19 @@
  * @author Kihira
  */
 
-/* TODO TODO reenable this and InterModComms once WAILA updates
 package me.ichun.mods.sync.client;
 
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaDataProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
@@ -32,17 +26,8 @@ public class HUDHandlerWaila implements IWailaDataProvider {
 
     @Override
     @Nonnull
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public List<String> getWailaHead(@Nonnull ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        return null;
-    }
-
-    @Override
-    public List<String> getWailaBody(@Nonnull ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
+    public List<String> getWailaBody(@Nonnull ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    {
         if (accessor.getTileEntity() instanceof TileEntityShellConstructor) {
             TileEntityShellConstructor tileEntityShellConstructor = (TileEntityShellConstructor) accessor.getTileEntity();
             if (config.getConfig("sync.showowner")) currenttip.add(I18n.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.getPlayerName().equals("") ? "None" : tileEntityShellConstructor.getPlayerName()));
@@ -64,17 +49,6 @@ public class HUDHandlerWaila implements IWailaDataProvider {
         return currenttip;
     }
 
-    @Override
-    public List<String> getWailaTail(@Nonnull ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-        return null;
-    }
-
-    @Override
-    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, BlockPos pos)
-    {
-        return null;
-    }
-
     public static void callbackRegister(IWailaRegistrar registrar) {
         registrar.registerBodyProvider(new HUDHandlerWaila(), BlockDualVertical.class);
 
@@ -83,6 +57,7 @@ public class HUDHandlerWaila implements IWailaDataProvider {
         registrar.addConfig("Sync", "sync.showentity", I18n.translateToLocal("sync.waila.showentity"));
         registrar.addConfig("Sync", "sync.showactive", I18n.translateToLocal("sync.waila.showactive"));
         registrar.addConfig("Sync", "sync.showpower.output", I18n.translateToLocal("sync.waila.showpower.output"));
+
+        Sync.LOGGER.info("Loading Waila compat");
 	}
 }
-*/

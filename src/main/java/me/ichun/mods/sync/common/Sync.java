@@ -4,39 +4,30 @@ import me.ichun.mods.ichunutil.common.core.config.ConfigHandler;
 import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.ichunutil.common.module.update.UpdateChecker;
+import me.ichun.mods.sync.client.HUDHandlerTheOneProbe;
 import me.ichun.mods.sync.client.core.EventHandlerClient;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;
+import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
+import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.passive.EntityPig;
 import net.minecraft.entity.passive.EntityWolf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 @Mod(modid = Sync.MOD_ID, name = Sync.MOD_NAME,
         version = Sync.VERSION,
@@ -94,10 +85,10 @@ public class Sync
     {
         ForgeChunkManager.setForcedChunkLoadingCallback(this, new ChunkLoadHandler());
 
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityDualVertical");
-        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", "me.ichun.mods.sync.common.tileentity.TileEntityTreadmill");
-//        FMLInterModComms.sendMessage("Waila", "register", "me.ichun.mods.sync.client.HUDHandlerWaila.callbackRegister"); TODO reenable this and class once WAILA updates
-        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "me.ichun.mods.sync.client.HUDHandlerTheOneProbe");
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", TileEntityDualVertical.class.getName());
+        FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", TileEntityTreadmill.class.getName());
+        FMLInterModComms.sendMessage("waila", "register", "me.ichun.mods.sync.client.HUDHandlerWaila.callbackRegister");
+        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", HUDHandlerTheOneProbe.class.getName());
 
         TREADMILL_ENTITY_HASH_MAP.put(EntityWolf.class, 4);
         TREADMILL_ENTITY_HASH_MAP.put(EntityPig.class, 2);
