@@ -23,6 +23,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -387,48 +388,68 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     }
 
     public static NBTTagList generateShowableEquipTags(NBTTagCompound tag)
-    {
+    { //look at InventoryPlayer#writeFromNBT
         NBTTagList list = new NBTTagList();
 
         NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
+        boolean setMainHand = false;
 
-        EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
+        for (int i = 0; i < nbttaglist.tagCount(); ++i)
+        {
+            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+            int j = nbttagcompound.getByte("Slot") & 255;
 
-        ItemStack[] items = new ItemStack[slots.length];
-
-        for (int i = 0; i < slots.length; i++) {
-            NBTTagCompound compound = nbttaglist.getCompoundTagAt(i);
-            ItemStack stack = new ItemStack(compound);
-            items[i] = stack;
-        }
-
-        NBTTagCompound nbttagcompound;
-
-        for (ItemStack item : items) {
-            nbttagcompound = new NBTTagCompound();
-            nbttagcompound.setBoolean("hasItem", !item.isEmpty());
-            if (!item.isEmpty())
-                item.writeToNBT(nbttagcompound);
-            list.appendTag(nbttagcompound);
+            if( j < 9 && !setMainHand) // Hotbar
+            {
+                ItemStack itemstack = new ItemStack(nbttagcompound);
+                if (!itemstack.isEmpty())
+                {
+                    setMainHand = true;
+                    list.appendTag(nbttagcompound);
+                }
+            }
+            else if (j > 100 && j < 104) // ARMOR
+            {
+                if (!setMainHand)
+                    list.appendTag(ItemStack.EMPTY.serializeNBT());
+                list.appendTag(nbttagcompound);
+            }
+            else if (j == 150)
+            {
+                list.appendTag(nbttagcompound);
+            }
         }
 
         return list;
     }
 
     public static void addShowableEquipToPlayer(EntityPlayer player, NBTTagCompound tag)
-    {
+    { //look at InventoryPlayer#readFromNBT
         NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
-
-        EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
-
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
             NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-            EntityEquipmentSlot slot = slots[i];
-            if (nbttagcompound.getBoolean("hasItem")) {
-                ItemStack itemstack = new ItemStack(nbttagcompound);
+            int j = nbttagcompound.getByte("Slot") & 255;
+            ItemStack itemstack = new ItemStack(nbttagcompound);
 
-                player.setItemStackToSlot(slot, itemstack);
+            if (!itemstack.isEmpty())
+            {
+                if (j < 9)
+                {
+                    player.setHeldItem(EnumHand.MAIN_HAND, itemstack);
+                }
+                else if (j == 150)
+                {
+                    player.setHeldItem(EnumHand.OFF_HAND, itemstack);
+                }
+                else if (j >= 100 && j < 104)
+                {
+                    player.inventory.armorInventory.set(j - 100, itemstack);
+                }
+                else
+                {
+                    Sync.LOGGER.error("Invalid slotID for showable equip " + j);
+                }
             }
         }
     }
