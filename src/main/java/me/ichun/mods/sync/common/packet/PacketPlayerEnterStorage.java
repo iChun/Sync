@@ -13,38 +13,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketPlayerEnterStorage extends AbstractPacket
 {
-    public int x;
-    public int y;
-    public int z;
     public BlockPos pos;
 
     public PacketPlayerEnterStorage(){}
 
-    public PacketPlayerEnterStorage(BlockPos pos) {
-        this(pos.getX(), pos.getY(), pos.getZ());
-    }
-
-    public PacketPlayerEnterStorage(int x, int y, int z)
+    public PacketPlayerEnterStorage(BlockPos pos)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.pos = pos;
     }
 
     @Override
     public void writeTo(ByteBuf buffer)
     {
-        buffer.writeInt(x);
-        buffer.writeInt(y);
-        buffer.writeInt(z);
+        buffer.writeLong(pos.toLong());
     }
 
     @Override
     public void readFrom(ByteBuf buffer)
     {
-        x = buffer.readInt();
-        y = buffer.readInt();
-        z = buffer.readInt();
+        pos = BlockPos.fromLong(buffer.readLong());
     }
 
     @Override
@@ -63,7 +50,6 @@ public class PacketPlayerEnterStorage extends AbstractPacket
     public void handleClient()
     {
         Minecraft mc = Minecraft.getMinecraft();
-        BlockPos pos = new BlockPos(x, y, z);
         TileEntity te = mc.world.getTileEntity(pos);
 
         if(te instanceof TileEntityShellStorage)

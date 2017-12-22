@@ -142,7 +142,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         }
 
 
-                        Sync.channel.sendTo(new PacketZoomCamera(getPos().getX(), getPos().getY(), getPos().getZ(), this.world.provider.getDimension(), this.face, true, false), player);
+                        Sync.channel.sendTo(new PacketZoomCamera(pos, this.world.provider.getDimension(), this.face, true, false), player);
                     }
                 }
                 //Beginning of kicking the player out
@@ -366,9 +366,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
             return;
         }
 
-        buffer.writeInt(getPos().getX());
-        buffer.writeInt(getPos().getY());
-        buffer.writeInt(getPos().getZ());
+        buffer.writeLong(pos.toLong());
         buffer.writeInt(world.provider.getDimension());
 
         buffer.writeFloat(getBuildProgress());

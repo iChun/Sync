@@ -24,11 +24,6 @@ public class ShellState
 	public boolean isConstructor;
 	
 	public boolean isHome;
-	
-	public ShellState(int x, int y, int z, int dim)
-	{
-		this(new BlockPos(x, y, z), dim);
-	}
 
 	public ShellState(BlockPos pos, int dim) {
 		this.pos = pos;

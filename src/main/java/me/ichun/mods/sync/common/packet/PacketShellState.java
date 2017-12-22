@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.packet;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -18,9 +19,7 @@ public class PacketShellState extends AbstractPacket
     public boolean remove;
     public TileEntityDualVertical dv;
 
-    public int x;
-    public int y;
-    public int z;
+    public BlockPos pos;
     public int dim;
 
     public float buildProgress;
@@ -54,9 +53,7 @@ public class PacketShellState extends AbstractPacket
         remove = buffer.readBoolean();
 
         //Create shell state
-        x = buffer.readInt();
-        y = buffer.readInt();
-        z = buffer.readInt();
+        pos = BlockPos.fromLong(buffer.readLong());
         dim = buffer.readInt();
 
         buildProgress = buffer.readFloat();
@@ -94,7 +91,7 @@ public class PacketShellState extends AbstractPacket
         //Create shell state
         Minecraft mc = Minecraft.getMinecraft();
 
-        ShellState state = new ShellState(x, y, z, dim);
+        ShellState state = new ShellState(pos, dim);
 
         if(remove)
         {

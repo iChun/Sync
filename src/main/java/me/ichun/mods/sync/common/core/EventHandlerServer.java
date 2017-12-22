@@ -64,7 +64,7 @@ public class EventHandlerServer
             TileEntityDualVertical tpPosition = EventHandlerServer.getClosestRespawnShell(entityPlayerMP);
 
             if (tpPosition != null) {
-                Sync.channel.sendTo(new PacketZoomCamera((int)Math.floor(entityPlayerMP.posX), (int)Math.floor(entityPlayerMP.posY), (int)Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, EnumFacing.UP, false, true), event.player);
+                Sync.channel.sendTo(new PacketZoomCamera(entityPlayerMP.getPosition(), entityPlayerMP.dimension, EnumFacing.UP, false, true), event.player);
 
                 tpPosition.resyncPlayer = 120;
 
@@ -122,12 +122,12 @@ public class EventHandlerServer
 
                 //If we have a valid location to sync into, tell the player to zoom out
                 if (tpPosition != null) {
-                    Sync.channel.sendTo(new PacketZoomCamera((int) Math.floor(event.getEntityLiving().posX), (int) Math.floor(event.getEntityLiving().posY), (int) Math.floor(event.getEntityLiving().posZ), event.getEntityLiving().dimension, EnumFacing.UP, false, true), player);
+                    Sync.channel.sendTo(new PacketZoomCamera(player.getPosition(), player.dimension, EnumFacing.UP, false, true), player);
 
                     tpPosition.resyncPlayer = 120;
 
                     //Create the death animation packet
-                    Sync.channel.sendToAll(new PacketPlayerDeath(event.getEntityLiving().getName(), true));
+                    Sync.channel.sendToAll(new PacketPlayerDeath(player.getName(), true));
 
                     player.setHealth(20);
 

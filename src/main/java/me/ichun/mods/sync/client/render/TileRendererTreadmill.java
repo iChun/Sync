@@ -1,12 +1,13 @@
 package me.ichun.mods.sync.client.render;
 
+import me.ichun.mods.sync.client.model.ModelTreadmill;
+import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
-import me.ichun.mods.sync.client.model.ModelTreadmill;
-import me.ichun.mods.sync.common.tileentity.TileEntityTreadmill;
 
 public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityTreadmill>
 {
@@ -42,7 +43,7 @@ public class TileRendererTreadmill extends TileEntitySpecialRenderer<TileEntityT
 
 		if(tm.latchedEnt != null)
 		{
-			tm.latchedEnt.prevRenderYawOffset = tm.latchedEnt.renderYawOffset = tm.face.getOpposite().getHorizontalAngle();
+			tm.latchedEnt.prevRenderYawOffset = tm.latchedEnt.renderYawOffset = tm.latchedEnt.rotationYawHead = tm.latchedEnt.prevRotationYawHead = tm.face.getOpposite().getHorizontalAngle();
 			tm.latchedEnt.limbSwingAmount = 1.5F + 3.5F * MathHelper.clamp(((float)tm.timeRunning / 12000F), 0.0F, 1.0F);
 		}
 		

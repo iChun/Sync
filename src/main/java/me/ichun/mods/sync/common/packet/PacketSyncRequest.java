@@ -22,59 +22,37 @@ import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 
 public class PacketSyncRequest extends AbstractPacket
 {
-    public int xCoord;
-    public int yCoord;
-    public int zCoord;
+    public BlockPos pos;
     public int dimID;
-    public int shellPosX;
-    public int shellPosY;
-    public int shellPosZ;
+    public BlockPos shellPos;
     public int shellDimID;
 
     public PacketSyncRequest(){}
 
     public PacketSyncRequest(BlockPos pos, int dimID, BlockPos shellPos, int shellDimID) {
-        this(pos.getX(), pos.getY(), pos.getZ(), dimID, shellPos.getX(), shellPos.getY(), shellPos.getZ(), shellDimID);
-    }
-
-    public PacketSyncRequest(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID)
-    {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        this.zCoord = zCoord;
+        this.pos = pos;
         this.dimID = dimID;
-        this.shellPosX = shellPosX;
-        this.shellPosY = shellPosY;
-        this.shellPosZ = shellPosZ;
+        this.shellPos = shellPos;
         this.shellDimID = shellDimID;
     }
-
 
     @Override
     public void writeTo(ByteBuf buffer)
     {
-        buffer.writeInt(xCoord);
-        buffer.writeInt(yCoord);
-        buffer.writeInt(zCoord);
+        buffer.writeLong(pos.toLong());
         buffer.writeInt(dimID);
-        buffer.writeInt(shellPosX);
-        buffer.writeInt(shellPosY);
-        buffer.writeInt(shellPosZ);
+        buffer.writeLong(shellPos.toLong());
         buffer.writeInt(shellDimID);
     }
 
     @Override
     public void readFrom(ByteBuf buffer)
     {
-        xCoord = buffer.readInt();
-        yCoord = buffer.readInt();
-        zCoord = buffer.readInt();
+        pos = BlockPos.fromLong(buffer.readLong());
 
         dimID = buffer.readInt();
 
-        shellPosX = buffer.readInt();
-        shellPosY = buffer.readInt();
-        shellPosZ = buffer.readInt();
+        shellPos = BlockPos.fromLong(buffer.readLong());
 
         shellDimID = buffer.readInt();
     }
@@ -90,8 +68,6 @@ public class PacketSyncRequest extends AbstractPacket
 
         if(worldOri != null && world != null)
         {
-            BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
-            BlockPos shellPos = new BlockPos(shellPosX, shellPosY, shellPosZ);
             TileEntity oriTe = worldOri.getTileEntity(pos);
             TileEntity te = world.getTileEntity(shellPos);
 
@@ -145,7 +121,7 @@ public class PacketSyncRequest extends AbstractPacket
                         worldOri.notifyBlockUpdate(ss.getPos().offset(EnumFacing.UP), state1, state1, 3);
                     }
 
-                    Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);
+                    Sync.channel.sendTo(new PacketZoomCamera(pos, dimID, originShell.face, false, false), player);
 
                     targetShell.resyncPlayer = 120;
                     originShell.canSavePlayer = -1;
