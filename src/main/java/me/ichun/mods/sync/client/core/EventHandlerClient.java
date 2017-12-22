@@ -255,9 +255,9 @@ public class EventHandlerClient
     @SubscribeEvent
     public void worldTick(TickEvent.ClientTickEvent event)
     {
-        if(event.phase == TickEvent.Phase.END && Minecraft.getMinecraft().world != null)
+        Minecraft mc = Minecraft.getMinecraft();
+        if(event.phase == TickEvent.Phase.END && mc.world != null)
         {
-            Minecraft mc = Minecraft.getMinecraft();
             WorldClient world = mc.world;
             if(radialTime > 0)
             {
@@ -955,9 +955,9 @@ public class EventHandlerClient
             GL11.glEnable(GL11.GL_ALPHA_TEST);
 
             GlStateManager.disableRescaleNormal();
-            OpenGlHelper.setActiveTexture(OpenGlHelper.lightmapTexUnit);
+            GlStateManager.setActiveTexture(OpenGlHelper.lightmapTexUnit);
             GlStateManager.disableTexture2D();
-            OpenGlHelper.setActiveTexture(OpenGlHelper.defaultTexUnit);
+            GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
 
             Minecraft.getMinecraft().gameSettings.hideGUI = hideGui;
         }
