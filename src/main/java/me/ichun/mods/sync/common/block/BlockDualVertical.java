@@ -56,7 +56,13 @@ import java.util.Random;
 public class BlockDualVertical extends BlockContainer {
 
     public static int renderPass;
-    private AxisAlignedBB boundingBox = new AxisAlignedBB(0D, 0D, 0D, 1D, 1D, 1D);
+    private static final AxisAlignedBB TREADMILL_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.4D, 1.0D);
+    private static final AxisAlignedBB TOP_AABB = new AxisAlignedBB(0.0F, 1.0F - 0.05F / 2, 0.0F, 1.0F, 1.0F, 1.0F);
+    private static final AxisAlignedBB WALL_NORTH_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 0.05D);
+    private static final AxisAlignedBB WALL_EAST_AABB = new AxisAlignedBB(1D - 0.05D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
+    private static final AxisAlignedBB WALL_SOUTH_AABB = new AxisAlignedBB(0.0D, 0.0D, 1.0D - 0.05D, 1.0D, 1.0D, 1.0D);
+    private static final AxisAlignedBB WALL_WEST_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.05D, 1.0D, 1.0D);
+
     public static final PropertyEnum<EnumType> TYPE = PropertyEnum.create("type", EnumType.class);
 
     public BlockDualVertical() {
@@ -245,26 +251,12 @@ public class BlockDualVertical extends BlockContainer {
         return false;
     }
 
+    @Nonnull
     @Override
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos) {
-//        this.setBlockBounds(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof TileEntityShellStorage) {
-            TileEntityShellStorage shellStorage = (TileEntityShellStorage) tileEntity;
-
-            if ((shellStorage.top && shellStorage.pair != null && shellStorage.pair.occupied || shellStorage.occupied) && shellStorage.getWorld().isRemote && isLocalPlayer(shellStorage.getPlayerName())) {
-                double dist = getDistance(pos);
-
-                if (dist < (shellStorage.top ? 1.1D : 0.6D)) {
-                    boundingBox =  new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
-                }
-            }
-        }
-        else if (tileEntity instanceof TileEntityTreadmill) {
-            boundingBox = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 0.4D, 1.0D);
-        }
-        return boundingBox;
+        if (state.getValue(TYPE) == EnumType.TREADMILL)
+            return TREADMILL_AABB;
+        return Block.FULL_BLOCK_AABB;
     }
 
     @SideOnly(Side.CLIENT)
@@ -325,71 +317,41 @@ public class BlockDualVertical extends BlockContainer {
         }
     }
 
-
-
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_)
     {
-        TileEntity tileEntity = world.getTileEntity(pos);
-        if (tileEntity instanceof TileEntityDualVertical) {
-            TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-            boolean top = false;
-            if (dualVertical.top) {
-                TileEntity tileEntityPair = world.getTileEntity(pos.add(0, -1, 0));
-                if (tileEntityPair instanceof TileEntityDualVertical) {
-                    dualVertical = (TileEntityDualVertical) tileEntityPair;
-                }
-                top = true;
-            }
-
-            if (dualVertical instanceof TileEntityShellConstructor) {
-                TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVertical;
-                if (shellConstructor.doorOpen) {
-                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity, p_185477_7_);
-                }
-                else {
-                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
-                }
-            }
-            else if (dualVertical instanceof TileEntityShellStorage) {
-                TileEntityShellStorage shellStorage = (TileEntityShellStorage)dualVertical;
-                if ((!shellStorage.occupied || (world.isRemote && this.isLocalPlayer(shellStorage.getPlayerName()))) && !shellStorage.syncing) {
-                    this.setDualVerticalCollisionBoxes(dualVertical, 0.05F, top, world, pos, aabb, list, entity, p_185477_7_);
-                }
-                else {
-                    super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
-                }
-            }
-        }
-        else if(tileEntity instanceof TileEntityTreadmill) {
-            boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 0.175F, 1.0F);
+        EnumType type = state.getValue(TYPE);
+        if (type == EnumType.TREADMILL) {
             super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
+            return;
         }
-        boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-    }
+        TileEntity te = world.getTileEntity(pos);
+        boolean shouldAdd = false;
+        if (te instanceof TileEntityShellStorage) {
+            TileEntityShellStorage shellStorage = (TileEntityShellStorage) te;
+            shouldAdd = (!shellStorage.occupied || (world.isRemote && this.isLocalPlayer(shellStorage.getPlayerName()))) && !shellStorage.syncing;
+        }
 
-    //This makes the sides solid but not the front
-    private void setDualVerticalCollisionBoxes(TileEntityDualVertical dualVertical, float thickness, boolean isTop, World world, BlockPos pos, AxisAlignedBB aabb, List<AxisAlignedBB> list, Entity entity, boolean p_185477_7_) {
-        if (dualVertical.face != EnumFacing.SOUTH) {
-            boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, thickness);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
+        if (te instanceof TileEntityShellConstructor) {
+            TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) te;
+            shouldAdd = shellConstructor.doorOpen;
         }
-        if (dualVertical.face != EnumFacing.WEST) {
-            boundingBox = new AxisAlignedBB(1.0F - thickness, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
-        }
-        if (dualVertical.face != EnumFacing.NORTH) {
-            boundingBox = new AxisAlignedBB(0.0F, 0.0F, 1.0F - thickness, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
-        }
-        if (dualVertical.face != EnumFacing.EAST) {
-            boundingBox = new AxisAlignedBB(0.0F, 0.0F, 0.0F, thickness, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
-        }
-        if (isTop) {
-            boundingBox = new AxisAlignedBB(0.0F, 1.0F - thickness / 2, 0.0F, 1.0F, 1.0F, 1.0F);
-            super.addCollisionBoxToList(world.getBlockState(pos), world, pos, aabb, list, entity, p_185477_7_);
-        }
+
+        if (shouldAdd) {
+            TileEntityDualVertical<?> dualVertical = (TileEntityDualVertical<?>) te;
+            EnumFacing toCheck = dualVertical.face.getOpposite();
+            if (toCheck != EnumFacing.WEST)
+                addCollisionBoxToList(pos, aabb, list, WALL_WEST_AABB);
+            if (toCheck != EnumFacing.NORTH)
+                addCollisionBoxToList(pos, aabb, list, WALL_NORTH_AABB);
+            if (toCheck != EnumFacing.EAST)
+                addCollisionBoxToList(pos, aabb, list, WALL_EAST_AABB);
+            if (toCheck != EnumFacing.SOUTH)
+                addCollisionBoxToList(pos, aabb, list, WALL_SOUTH_AABB);
+            if (dualVertical.top)
+                addCollisionBoxToList(pos, aabb, list, TOP_AABB);
+        } else
+            super.addCollisionBoxToList(state, world, pos, aabb, list, entity, p_185477_7_);
     }
 
     @SideOnly(Side.CLIENT)
