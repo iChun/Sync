@@ -27,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class TileEntityTreadmill extends TileEntity implements ITickable//, IEnergyStorage
+public class TileEntityTreadmill extends TileEntity implements ITickable
 {
 	public TileEntityTreadmill pair;
 	

@@ -88,7 +88,7 @@ public class Sync
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", TileEntityDualVertical.class.getName());
         FMLInterModComms.sendMessage("AppliedEnergistics", "movabletile", TileEntityTreadmill.class.getName());
         FMLInterModComms.sendMessage("waila", "register", "me.ichun.mods.sync.client.HUDHandlerWaila.callbackRegister");
-        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", HUDHandlerTheOneProbe.class.getName());
+        FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "me.ichun.mods.sync.client.HUDHandlerTheOneProbe");
 
         TREADMILL_ENTITY_HASH_MAP.put(EntityWolf.class, 4);
         TREADMILL_ENTITY_HASH_MAP.put(EntityPig.class, 2);

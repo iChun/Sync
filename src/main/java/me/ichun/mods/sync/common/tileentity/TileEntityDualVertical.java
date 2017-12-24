@@ -34,7 +34,6 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-//@Optional.Interface(iface = "cofh.api.energy.IEnergyHandler", modid = "CoFHCore")
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
 {
 
