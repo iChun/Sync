@@ -19,6 +19,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,8 +27,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Objects;
 
-public class TileEntityTreadmill extends TileEntity implements ITickable
+public class TileEntityTreadmill extends TileEntity implements ITickable, IEnergyStorage
 {
 	public TileEntityTreadmill pair;
 	
@@ -362,75 +364,78 @@ public class TileEntityTreadmill extends TileEntity implements ITickable
 
 	//----------ENERGY METHODS----------
 
-	    private void sendRFEnergyToNearbyDevices() {
-			float power = powerOutput() / (float) Sync.config.ratioRF; //2PW = 1RF
-			int handlerCount = 0;
-			IEnergyStorage[] handlers = new IEnergyStorage[EnumFacing.VALUES.length];
-			for (EnumFacing dir : EnumFacing.VALUES) {
-				if (dir == EnumFacing.UP) {
-					continue;
-				}
-				TileEntity te = world.getTileEntity(pos.offset(dir));
-				if (te != null && !(te instanceof TileEntityDualVertical) && te.hasCapability(CapabilityEnergy.ENERGY, dir)) {
-					IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, dir.getOpposite());
-					handlerCount++;
-					//Test if they can recieve power via simulate
-					if (energy.receiveEnergy((int) power, true) > 0) {
-						handlers[dir.getOpposite().ordinal()] = energy;
-					}
-				}
+	private void sendRFEnergyToNearbyDevices() {
+		float power = powerOutput() / (float) Sync.config.ratioRF; //2PW = 1RF
+		int handlerCount = 0;
+		IEnergyStorage[] handlers = new IEnergyStorage[EnumFacing.VALUES.length];
+		for (EnumFacing dir : EnumFacing.VALUES)
+		{
+			if (dir == EnumFacing.UP)
+			{
+				continue;
 			}
-			for (IEnergyStorage handler : handlers) {
-				if (handler != null) {
-					//Sends power equally to all nearby IEnergyHandlers that can receive it
-					int energy = Math.max(Math.round(power / (float) handlerCount), 1);
-					handler.receiveEnergy(energy, false);
+			TileEntity te = world.getTileEntity(pos.offset(dir));
+			EnumFacing oppositeDir = dir.getOpposite();
+			if (te != null && !(te instanceof TileEntityDualVertical) && te.hasCapability(CapabilityEnergy.ENERGY, oppositeDir)) {
+				IEnergyStorage energy = te.getCapability(CapabilityEnergy.ENERGY, oppositeDir);
+				handlerCount++;
+				//Test if they can receive power via simulate
+				if (Objects.requireNonNull(energy).receiveEnergy((int) power, true) > 0) {
+					handlers[oppositeDir.ordinal()] = energy;
 				}
 			}
 		}
+		for (IEnergyStorage handler : handlers) {
+			if (handler != null) {
+				//Sends power equally to all nearby IEnergyHandlers that can receive it
+				int energy = Math.max(Math.round(power / (float) handlerCount), 1);
+				handler.receiveEnergy(energy, false);
+			}
+		}
+	}
 
-//	@Override
-//	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-//		if (capability == CapabilityEnergy.ENERGY && !back)
-//			return true;
-//		return super.hasCapability(capability, facing);
-//	}
-//
-//	@Override
-//	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-//		if (capability == CapabilityEnergy.ENERGY)
-//			//noinspection unchecked
-//			return (T) this;
-//		return super.getCapability(capability, facing);
-//	}
-//
-//	@Override
-//	public int receiveEnergy(int maxReceive, boolean simulate) {
-//		return 0;
-//	}
-//
-//	@Override
-//	public int extractEnergy(int maxExtract, boolean doExtract) {
-//		return (int) (powerOutput() / (float)Sync.config.ratioRF);
-//	}
-//
-//	@Override
-//	public int getEnergyStored() {
-//		return 0;
-//	}
-//
-//	@Override
-//	public int getMaxEnergyStored() {
-//		return 0;
-//	}
-//
-//	@Override
-//	public boolean canExtract() {
-//		return true;
-//	}
-//
-//	@Override
-//	public boolean canReceive() {
-//		return false;
-//	}
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY && !back)
+			return true;
+		return super.hasCapability(capability, facing);
+	}
+
+	@Override
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+		if (capability == CapabilityEnergy.ENERGY)
+			//noinspection unchecked
+			return (T) this;
+		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public int receiveEnergy(int maxReceive, boolean simulate) {
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(int maxExtract, boolean doExtract) {
+		return 0;
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return 0;
+	}
+
+	@Override
+	public boolean canExtract() {
+		return true;
+	}
+
+	@Override
+	public boolean canReceive() {
+		return false;
+	}
 }
