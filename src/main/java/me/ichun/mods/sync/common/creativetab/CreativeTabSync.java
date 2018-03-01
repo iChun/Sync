@@ -11,16 +11,16 @@ import javax.annotation.Nonnull;
 public class CreativeTabSync extends CreativeTabs 
 {
 
-	public CreativeTabSync()
-	{
-		super("sync");
-	}
+    public CreativeTabSync()
+    {
+        super("sync");
+    }
 
-	@SideOnly(Side.CLIENT)
-	@Nonnull
-	@Override
+    @SideOnly(Side.CLIENT)
+    @Nonnull
+    @Override
     public ItemStack getTabIconItem()
-	{
-		return new ItemStack(Sync.itemSyncCore);
-	}
+    {
+        return new ItemStack(Sync.itemSyncCore);
+    }
 }

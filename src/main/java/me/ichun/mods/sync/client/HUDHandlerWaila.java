@@ -36,16 +36,16 @@ public class HUDHandlerWaila implements IWailaDataProvider {
         else if (accessor.getTileEntity() instanceof TileEntityShellStorage) {
             TileEntityShellStorage tileEntityShellStorage = (TileEntityShellStorage) accessor.getTileEntity();
             if (config.getConfig("sync.showowner")) currenttip.add(I18n.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellStorage.getPlayerName().equals("") ? "None" : tileEntityShellStorage.getPlayerName()));
-			if (config.getConfig("sync.showactive")) currenttip.add(I18n.translateToLocal("sync.waila.active") + ": " + (tileEntityShellStorage.isPowered() ? I18n.translateToLocal("gui.yes") : I18n.translateToLocal("gui.no")));
+            if (config.getConfig("sync.showactive")) currenttip.add(I18n.translateToLocal("sync.waila.active") + ": " + (tileEntityShellStorage.isPowered() ? I18n.translateToLocal("gui.yes") : I18n.translateToLocal("gui.no")));
         }
         else if (accessor.getTileEntity() instanceof TileEntityTreadmill) {
             TileEntityTreadmill tileEntityTreadmill = (TileEntityTreadmill) accessor.getTileEntity();
             if (config.getConfig("sync.showentity")) currenttip.add(I18n.translateToLocal("sync.waila.entity") + ": " + (tileEntityTreadmill.latchedEnt != null ? tileEntityTreadmill.latchedEnt.getName() : "None"));
-			if (config.getConfig("sync.showpower.output")) {
-				DecimalFormat decimalFormat = new DecimalFormat("##.##");
-				currenttip.add(I18n.translateToLocal("sync.waila.powerout") + ": " + decimalFormat.format(tileEntityTreadmill.powerOutput()) + "PW");
-			}
-		}
+            if (config.getConfig("sync.showpower.output")) {
+                DecimalFormat decimalFormat = new DecimalFormat("##.##");
+                currenttip.add(I18n.translateToLocal("sync.waila.powerout") + ": " + decimalFormat.format(tileEntityTreadmill.powerOutput()) + "PW");
+            }
+        }
         return currenttip;
     }
 
@@ -59,5 +59,5 @@ public class HUDHandlerWaila implements IWailaDataProvider {
         registrar.addConfig("Sync", "sync.showpower.output", I18n.translateToLocal("sync.waila.showpower.output"));
 
         Sync.LOGGER.info("Loading Waila compat");
-	}
+    }
 }

@@ -127,14 +127,14 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                             //Refetch player TODO is this needed?
                             player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.getPlayerName());
 
-							if (dim == 1) {
-								if (player.isEntityAlive()) {
-									this.world.spawnEntity(player);
-									player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getOpposite().getHorizontalAngle(), 0F);
-									this.world.updateEntityWithOptionalForce(player, false);
-									player.fallDistance = 0F;
-								}
-							}
+                            if (dim == 1) {
+                                if (player.isEntityAlive()) {
+                                    this.world.spawnEntity(player);
+                                    player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, this.face.getOpposite().getHorizontalAngle(), 0F);
+                                    this.world.updateEntityWithOptionalForce(player, false);
+                                    player.fallDistance = 0F;
+                                }
+                            }
                         }
                         else {
                             player.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
