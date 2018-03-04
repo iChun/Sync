@@ -12,95 +12,95 @@ import net.minecraft.world.World;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 
-public class EntityShellDestruction extends EntityLivingBase 
+public class EntityShellDestruction extends EntityLivingBase
 {
-	public ResourceLocation txLocation;
-	
-	public float yaw;
-	public float renderYaw;
-	public float pitch;
-	public float limbSwingg;
-	public float limbSwinggAmount;
-	
-	public int progress;
-	
-	public ModelPixel model;
-	
-	public EntityShellDestruction(World par1World) 
-	{
-		super(par1World);
-		progress = 0;
-		txLocation = null;
-		model = new ModelPixel();
-	}
+    public ResourceLocation txLocation;
 
-	public EntityShellDestruction(World par1World, float yw, float ry, float p, float ls, float lsa, ResourceLocation tx) 
-	{
-		super(par1World);
-		progress = 0;
-		txLocation = tx;
-		yaw = yw;
-		renderYaw = ry;
-		pitch = p;
-		limbSwingg = ls;
-		limbSwinggAmount = lsa;
-		model = new ModelPixel();
-	}
-	
-	@Override
-	public void onUpdate()
-	{
-		progress++;
-		if(progress > 110)
-		{
-			setDead();
+    public float yaw;
+    public float renderYaw;
+    public float pitch;
+    public float limbSwingg;
+    public float limbSwinggAmount;
+
+    public int progress;
+
+    public ModelPixel model;
+
+    public EntityShellDestruction(World par1World)
+    {
+        super(par1World);
+        progress = 0;
+        txLocation = null;
+        model = new ModelPixel();
+    }
+
+    public EntityShellDestruction(World par1World, float yw, float ry, float p, float ls, float lsa, ResourceLocation tx)
+    {
+        super(par1World);
+        progress = 0;
+        txLocation = tx;
+        yaw = yw;
+        renderYaw = ry;
+        pitch = p;
+        limbSwingg = ls;
+        limbSwinggAmount = lsa;
+        model = new ModelPixel();
+    }
+
+    @Override
+    public void onUpdate()
+    {
+        progress++;
+        if(progress > 110)
+        {
+            setDead();
         }
-	}
+    }
 
-	@Override
-	public EnumHandSide getPrimaryHand()
-	{
-		return EnumHandSide.RIGHT;
-	}
+    @Override
+    public EnumHandSide getPrimaryHand()
+    {
+        return EnumHandSide.RIGHT;
+    }
 
-	@Override
+    @Override
     public boolean isEntityAlive()
     {
         return !this.isDead;
     }
 
-	@Override
-	public Iterable<ItemStack> getArmorInventoryList()
-	{
-		return new ArrayList<>();
-	}
+    @Override
+    public Iterable<ItemStack> getArmorInventoryList()
+    {
+        return new ArrayList<>();
+    }
 
-	@Nonnull
-	@Override
-	public ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn)
-	{
-		return ItemStack.EMPTY;
-	}
+    @Nonnull
+    @Override
+    public ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn)
+    {
+        return ItemStack.EMPTY;
+    }
 
-	@Override
-	public void setItemStackToSlot(EntityEquipmentSlot slotIn, @Nonnull ItemStack stack)
-	{
-	}
+    @Override
+    public void setItemStackToSlot(EntityEquipmentSlot slotIn, @Nonnull ItemStack stack)
+    {
+    }
 
-	@Override
+    @Override
     public void setHealth(float par1)
     {
     }
-	
-	@Override
+
+    @Override
     public boolean writeToNBTOptional(NBTTagCompound par1NBTTagCompound)
     {
-    	return false;
+        return false;
     }
 
-	@Override
-	public void readEntityFromNBT(NBTTagCompound nbttagcompound) {}
+    @Override
+    public void readEntityFromNBT(NBTTagCompound nbttagcompound) {}
 
-	@Override
-	public void writeEntityToNBT(NBTTagCompound nbttagcompound) {}
+    @Override
+    public void writeEntityToNBT(NBTTagCompound nbttagcompound) {}
 }

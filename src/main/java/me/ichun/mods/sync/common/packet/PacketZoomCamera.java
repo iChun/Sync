@@ -10,9 +10,7 @@ import me.ichun.mods.sync.common.Sync;
 
 public class PacketZoomCamera extends AbstractPacket
 {
-    public int posX;
-    public int posY;
-    public int posZ;
+    public BlockPos pos;
     public int dimID;
     public int zoomFace;
     public boolean zoom;
@@ -20,11 +18,9 @@ public class PacketZoomCamera extends AbstractPacket
 
     public PacketZoomCamera(){}
 
-    public PacketZoomCamera(int posX, int posY, int posZ, int dimID, EnumFacing zoomFace, boolean zoom, boolean zoomDeath)
+    public PacketZoomCamera(BlockPos pos, int dimID, EnumFacing zoomFace, boolean zoom, boolean zoomDeath)
     {
-        this.posX = posX;
-        this.posY = posY;
-        this.posZ = posZ;
+        this.pos = pos;
         this.dimID = dimID;
         this.zoomFace = zoomFace.getIndex();
         this.zoom = zoom;
@@ -35,9 +31,7 @@ public class PacketZoomCamera extends AbstractPacket
     @Override
     public void writeTo(ByteBuf buffer)
     {
-        buffer.writeInt((int) Math.floor(posX));
-        buffer.writeInt((int) Math.floor(posY));
-        buffer.writeInt((int) Math.floor(posZ));
+        buffer.writeLong(pos.toLong());
         buffer.writeInt(dimID);
         buffer.writeInt(zoomFace);
         buffer.writeBoolean(zoom);
@@ -48,7 +42,7 @@ public class PacketZoomCamera extends AbstractPacket
     public void readFrom(ByteBuf buffer)
     {
         //zoom state
-        Sync.eventHandlerClient.zoomPos = new BlockPos(buffer.readInt(), buffer.readInt(), buffer.readInt());
+        Sync.eventHandlerClient.zoomPos = BlockPos.fromLong(buffer.readLong());
 
         Sync.eventHandlerClient.zoomDimension = buffer.readInt();
 

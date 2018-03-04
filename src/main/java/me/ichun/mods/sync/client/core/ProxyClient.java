@@ -26,23 +26,23 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
 public class ProxyClient extends ProxyCommon
 {
-	@Override
-	public void preInitMod()
-	{
-		super.preInitMod();
-		
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDualVertical.class, new TileRendererDualVertical());
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTreadmill.class, new TileRendererTreadmill());
+    @Override
+    public void preInitMod()
+    {
+        super.preInitMod();
 
-		iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindUseItem);
-		iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindAttack);
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityDualVertical.class, new TileRendererDualVertical());
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityTreadmill.class, new TileRendererTreadmill());
+
+        iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindUseItem);
+        iChunUtil.proxy.registerMinecraftKeyBind(Minecraft.getMinecraft().gameSettings.keyBindAttack);
 
         Sync.eventHandlerClient = new EventHandlerClient();
         MinecraftForge.EVENT_BUS.register(Sync.eventHandlerClient);
 
-		RenderingRegistry.registerEntityRenderingHandler(EntityShellDestruction.class, new RenderShellDestruction.RenderFactory());
+        RenderingRegistry.registerEntityRenderingHandler(EntityShellDestruction.class, new RenderShellDestruction.RenderFactory());
 
-		if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled()) //We use stencil, make sure it's enabled
-			Minecraft.getMinecraft().getFramebuffer().enableStencil();
-	}
+        if (!Minecraft.getMinecraft().getFramebuffer().isStencilEnabled()) //We use stencil, make sure it's enabled
+            Minecraft.getMinecraft().getFramebuffer().enableStencil();
+    }
 }

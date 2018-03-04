@@ -1,8 +1,6 @@
 package me.ichun.mods.sync.common.core;
 
 import me.ichun.mods.sync.common.Sync;
-import me.ichun.mods.sync.common.block.EnumType;
-import me.ichun.mods.sync.common.item.ItemShellBase;
 import me.ichun.mods.sync.common.packet.PacketPlayerDeath;
 import me.ichun.mods.sync.common.packet.PacketZoomCamera;
 import me.ichun.mods.sync.common.shell.ShellHandler;
@@ -15,12 +13,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -35,6 +35,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class EventHandlerServer
@@ -64,7 +65,7 @@ public class EventHandlerServer
             TileEntityDualVertical tpPosition = EventHandlerServer.getClosestRespawnShell(entityPlayerMP);
 
             if (tpPosition != null) {
-                Sync.channel.sendTo(new PacketZoomCamera((int)Math.floor(entityPlayerMP.posX), (int)Math.floor(entityPlayerMP.posY), (int)Math.floor(entityPlayerMP.posZ), entityPlayerMP.dimension, EnumFacing.UP, false, true), event.player);
+                Sync.channel.sendTo(new PacketZoomCamera(entityPlayerMP.getPosition(), entityPlayerMP.dimension, EnumFacing.UP, false, true), event.player);
 
                 tpPosition.resyncPlayer = 120;
 
@@ -122,12 +123,13 @@ public class EventHandlerServer
 
                 //If we have a valid location to sync into, tell the player to zoom out
                 if (tpPosition != null) {
-                    Sync.channel.sendTo(new PacketZoomCamera((int) Math.floor(event.getEntityLiving().posX), (int) Math.floor(event.getEntityLiving().posY), (int) Math.floor(event.getEntityLiving().posZ), event.getEntityLiving().dimension, EnumFacing.UP, false, true), player);
+                    Sync.channel.sendTo(new PacketZoomCamera(player.getPosition(), player.dimension, EnumFacing.UP, false, true), player);
 
                     tpPosition.resyncPlayer = 120;
+                    tpPosition.wasDead = true;
 
                     //Create the death animation packet
-                    Sync.channel.sendToAll(new PacketPlayerDeath(event.getEntityLiving().getName(), true));
+                    Sync.channel.sendToAll(new PacketPlayerDeath(player.getName(), true));
 
                     player.setHealth(20);
 

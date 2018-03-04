@@ -1,80 +1,64 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import me.ichun.mods.sync.api.SyncStartEvent;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.List;
 
 public class PacketSyncRequest extends AbstractPacket
 {
-    public int xCoord;
-    public int yCoord;
-    public int zCoord;
+    private static final List<String> CAP_NBT_BLACKLIST = ImmutableList.of("baubles:container");
+
+    public BlockPos pos;
     public int dimID;
-    public int shellPosX;
-    public int shellPosY;
-    public int shellPosZ;
+    public BlockPos shellPos;
     public int shellDimID;
 
     public PacketSyncRequest(){}
 
-    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos shellPos, int shellDimID) {
-        this(pos.getX(), pos.getY(), pos.getZ(), dimID, shellPos.getX(), shellPos.getY(), shellPos.getZ(), shellDimID);
-    }
-
-    public PacketSyncRequest(int xCoord, int yCoord, int zCoord, int dimID, int shellPosX, int shellPosY, int shellPosZ, int shellDimID)
-    {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        this.zCoord = zCoord;
+    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos targetShellPos, int targetShellDimID) {
+        this.pos = pos;
         this.dimID = dimID;
-        this.shellPosX = shellPosX;
-        this.shellPosY = shellPosY;
-        this.shellPosZ = shellPosZ;
-        this.shellDimID = shellDimID;
+        this.shellPos = targetShellPos;
+        this.shellDimID = targetShellDimID;
     }
-
 
     @Override
     public void writeTo(ByteBuf buffer)
     {
-        buffer.writeInt(xCoord);
-        buffer.writeInt(yCoord);
-        buffer.writeInt(zCoord);
+        buffer.writeLong(pos.toLong());
         buffer.writeInt(dimID);
-        buffer.writeInt(shellPosX);
-        buffer.writeInt(shellPosY);
-        buffer.writeInt(shellPosZ);
+        buffer.writeLong(shellPos.toLong());
         buffer.writeInt(shellDimID);
     }
 
     @Override
     public void readFrom(ByteBuf buffer)
     {
-        xCoord = buffer.readInt();
-        yCoord = buffer.readInt();
-        zCoord = buffer.readInt();
+        pos = BlockPos.fromLong(buffer.readLong());
 
         dimID = buffer.readInt();
 
-        shellPosX = buffer.readInt();
-        shellPosY = buffer.readInt();
-        shellPosZ = buffer.readInt();
+        shellPos = BlockPos.fromLong(buffer.readLong());
 
         shellDimID = buffer.readInt();
     }
@@ -90,8 +74,6 @@ public class PacketSyncRequest extends AbstractPacket
 
         if(worldOri != null && world != null)
         {
-            BlockPos pos = new BlockPos(xCoord, yCoord, zCoord);
-            BlockPos shellPos = new BlockPos(shellPosX, shellPosY, shellPosZ);
             TileEntity oriTe = worldOri.getTileEntity(pos);
             TileEntity te = world.getTileEntity(shellPos);
 
@@ -133,6 +115,17 @@ public class PacketSyncRequest extends AbstractPacket
 
                         NBTTagCompound tag = new NBTTagCompound();
                         player.writeToNBT(tag);
+                        if (tag.hasKey("ForgeCaps", Constants.NBT.TAG_COMPOUND)) //deduplicate capability based items
+                        {
+                            NBTTagCompound forgeCaps = tag.getCompoundTag("ForgeCaps");
+                            for (String blacklistedKey : CAP_NBT_BLACKLIST) //We can only do this for mods who are known for this behavior...
+                            {
+                                if (forgeCaps.hasKey(blacklistedKey))
+                                {
+                                    forgeCaps.removeTag(blacklistedKey);
+                                }
+                            }
+                        }
 
                         tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).interactionManager.getGameType().getID());
 
@@ -145,7 +138,7 @@ public class PacketSyncRequest extends AbstractPacket
                         worldOri.notifyBlockUpdate(ss.getPos().offset(EnumFacing.UP), state1, state1, 3);
                     }
 
-                    Sync.channel.sendTo(new PacketZoomCamera(xCoord, yCoord, zCoord, dimID, originShell.face, false, false), player);
+                    Sync.channel.sendTo(new PacketZoomCamera(pos, dimID, originShell.face, false, false), player);
 
                     targetShell.resyncPlayer = 120;
                     originShell.canSavePlayer = -1;

@@ -48,7 +48,9 @@ public class HUDHandlerTheOneProbe implements Function<ITheOneProbe, Void>, IPro
             if (tileEntity instanceof TileEntityShellConstructor) {
                 TileEntityShellConstructor te = (TileEntityShellConstructor) tileEntity;
                 info.text(I18n.translateToLocal("sync.waila.owner") + ": " + (te.getPlayerName().equals("") ? "None" : te.getPlayerName()));
-                info.progress((int) Math.ceil(te.getBuildProgress() / Sync.config.shellConstructionPowerRequirement * 100), 100, STYLE_BUILD_PROGRESS);
+                float progress = te.getBuildProgress() / Sync.config.shellConstructionPowerRequirement;
+                if (progress < 1 || probeMode == ProbeMode.EXTENDED || probeMode == ProbeMode.DEBUG)
+                    info.progress((int) Math.ceil(progress * 100), 100, STYLE_BUILD_PROGRESS);
             }
             else if (tileEntity instanceof TileEntityShellStorage) {
                 TileEntityShellStorage te = (TileEntityShellStorage) tileEntity;
