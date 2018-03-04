@@ -40,7 +40,7 @@ public class Sync
 {
     public static final String MOD_NAME = "Sync";
     public static final String MOD_ID = "sync";
-    public static final String VERSION = iChunUtil.VERSION_MAJOR +".0.0";
+    public static final String VERSION = iChunUtil.VERSION_MAJOR +".0.2";
 
     @Instance(MOD_ID)
     public static Sync instance;
