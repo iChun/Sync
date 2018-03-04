@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.tileentity;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.common.Sync;
@@ -12,31 +13,39 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
 {
-
     public T pair;
     public boolean top;
     public EnumFacing face;
@@ -57,6 +66,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 
     protected int powReceived;
     protected int rfIntake;
+    public boolean wasDead;
 
     public TileEntityDualVertical() {
         pair = null;
@@ -74,6 +84,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         playerNBT = new NBTTagCompound();
 
         resync = false;
+        wasDead = false;
 
         powReceived = 0;
         rfIntake = 0;
@@ -171,32 +182,45 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         //Clear active potion effects before syncing
                         player.clearActivePotions();
 
-                        //Make sure the player looses all item, prevents duplication of e.g soulbound item
-                        player.inventory.clear();
+                        if (wasDead)
+                        {
+                            //copy new items that are given on death, like the key to a tombstone
+                            EntityPlayerMP deadDummy = setupDummy(player);
+//                            ForgeEventFactory.onPlayerClone(deadDummy, player, true); //Fire clone event as this is expected by some mods after death
+                            mergeStoredInv(deadDummy.inventory);
+                        }
+                        wasDead = false;
 
-                        if (!getPlayerNBT().hasKey("Inventory")) {
-                            //Copy data needed from player
-                            NBTTagCompound tag = new NBTTagCompound();
-                            boolean keepInv = this.world.getGameRules().getBoolean("keepInventory");
-                            this.world.getGameRules().setOrCreateGameRule("keepInventory", "false");
+                        //Copy data needed from player
+                        NBTTagCompound tag = new NBTTagCompound();
+                        EntityPlayerMP dummy = setupDummy(player);
 
-                            //Setup location for dummy
-                            EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension)));
-                            dummy.connection = player.connection;
-                            dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
-                            dummy.fallDistance = 0F;
+                        //Set data
+                        dummy.writeToNBT(tag);
+                        if (resyncOrigin != null) //deduplicate items
+                        {
+                            //noinspection ConstantConditions
+                            InventoryPlayer dummyInv = new InventoryPlayer(null);
+                            NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
+                            dummyInv.readFromNBT(nbttaglist); //read in the new inventory
+                            //Strip items from the old inv that have been transferred to the new inventory
+                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
+                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
+                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
+                            //Write the changes to the old inventory
+                            resyncOrigin.getPlayerNBT().setTag("Inventory", player.inventory.writeToNBT(new NBTTagList()));
+                            resyncOrigin.markDirty();
+                            if (getPlayerNBT().hasKey("Inventory")) //try inserting persistent items by merging
+                            {
+                                //noinspection ConstantConditions
+                                mergeStoredInv(dummyInv);
+                            }
+                        }
 
-                            //Clone data
-                            dummy.copyFrom(player, false);
-                            dummy.dimension = player.dimension;
-                            dummy.setEntityId(player.getEntityId());
-
-                            this.world.getGameRules().setOrCreateGameRule("keepInventory", Boolean.toString(keepInv));
-
-                            //Set data
-                            dummy.writeToNBT(tag);
+                        if (!getPlayerNBT().hasKey("Inventory"))
+                        {
                             tag.setInteger("sync_playerGameMode", player.interactionManager.getGameType().getID());
-                            this.setPlayerNBT(tag);
+                            this.setPlayerNBT(tag); //Write the new data
                         }
 
                         //Sync Forge persistent data as it's supposed to carry over on death
@@ -358,6 +382,82 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         resync = true;
     }
 
+    private EntityPlayerMP setupDummy(EntityPlayerMP player)
+    {
+        //Setup location for dummy
+        boolean keepInv = this.world.getGameRules().getBoolean("keepInventory");
+        this.world.getGameRules().setOrCreateGameRule("keepInventory", "false");
+
+        //Setup location for dummy
+        EntityPlayerMP dummy = new EntityPlayerMP(FMLCommonHandler.instance().getMinecraftServerInstance(), FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension), EntityHelper.getGameProfile(player.getName()), new PlayerInteractionManager(FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(player.dimension)));
+        dummy.connection = player.connection;
+        dummy.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, face.getOpposite().getHorizontalAngle(), 0F);
+        dummy.fallDistance = 0F;
+
+        //Clone data
+        dummy.copyFrom(player, false);
+        dummy.dimension = player.dimension;
+        dummy.setEntityId(player.getEntityId());
+
+        this.world.getGameRules().setOrCreateGameRule("keepInventory", Boolean.toString(keepInv));
+        return dummy;
+    }
+
+    private static void deleteItemsFrom(NonNullList<ItemStack> inv, List<ItemStack> toDelete)
+    {
+        for (ItemStack stack : toDelete)
+        {
+            if (stack.isEmpty())
+            {
+                continue;
+            }
+            int index = inv.indexOf(stack);
+            if (index != -1)
+            {
+                inv.set(index, ItemStack.EMPTY);
+            }
+        }
+    }
+
+    private void mergeStoredInv(InventoryPlayer toMerge)
+    {
+        InventoryPlayer nbtSavedInv = new InventoryPlayer(null);
+        nbtSavedInv.readFromNBT(getPlayerNBT().getTagList("Inventory", 10));
+        mergeInvOrDrop(nbtSavedInv.mainInventory, toMerge.mainInventory);
+        mergeInvOrDrop(nbtSavedInv.armorInventory, toMerge.armorInventory);
+        mergeInvOrDrop(nbtSavedInv.offHandInventory, toMerge.offHandInventory);
+        getPlayerNBT().setTag("Inventory", nbtSavedInv.writeToNBT(new NBTTagList()));
+    }
+
+    private void mergeInvOrDrop(NonNullList<ItemStack> mergeInto, NonNullList<ItemStack> from)
+    {
+        for (ItemStack toInsert : from)
+        {
+            if (toInsert.isEmpty())
+            {
+                continue;
+            }
+            boolean inserted = false;
+            for (int i = 0; i < mergeInto.size(); i++)
+            {
+                ItemStack origStack = mergeInto.get(i);
+                if (origStack.isEmpty())
+                {
+                    mergeInto.set(i, toInsert);
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted)
+            {
+                BlockPos dropPos = pos.offset(face).up();
+                EntityItem entityItem = new EntityItem(world, dropPos.getX(), dropPos.getY(), dropPos.getZ(), toInsert);
+                entityItem.setPickupDelay(60);
+                world.spawnEntity(entityItem);
+            }
+        }
+    }
+
     public void writeShellStateData(ByteBuf buffer)
     {
         if(top && pair != null)
@@ -464,6 +564,13 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     public Block getBlockType()
     {
         return Sync.blockDualVertical;
+    }
+
+    @Override
+    public double getMaxRenderDistanceSquared()
+    {
+        //As this is seen from the zoom and it's 2 blocks tall, we might increase the render dist by a factor of 1.5, and even further when zooming
+        return (Sync.eventHandlerClient != null && Sync.eventHandlerClient.zoomTimer > 0) ? 16384D : 9216D;
     }
 
     public void reset() {

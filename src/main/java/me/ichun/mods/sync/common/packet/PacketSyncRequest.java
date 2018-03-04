@@ -1,27 +1,33 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import me.ichun.mods.sync.api.SyncStartEvent;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.List;
 
 public class PacketSyncRequest extends AbstractPacket
 {
+    private static final List<String> CAP_NBT_BLACKLIST = ImmutableList.of("baubles:container");
+
     public BlockPos pos;
     public int dimID;
     public BlockPos shellPos;
@@ -29,11 +35,11 @@ public class PacketSyncRequest extends AbstractPacket
 
     public PacketSyncRequest(){}
 
-    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos shellPos, int shellDimID) {
+    public PacketSyncRequest(BlockPos pos, int dimID, BlockPos targetShellPos, int targetShellDimID) {
         this.pos = pos;
         this.dimID = dimID;
-        this.shellPos = shellPos;
-        this.shellDimID = shellDimID;
+        this.shellPos = targetShellPos;
+        this.shellDimID = targetShellDimID;
     }
 
     @Override
@@ -109,6 +115,17 @@ public class PacketSyncRequest extends AbstractPacket
 
                         NBTTagCompound tag = new NBTTagCompound();
                         player.writeToNBT(tag);
+                        if (tag.hasKey("ForgeCaps", Constants.NBT.TAG_COMPOUND)) //deduplicate capability based items
+                        {
+                            NBTTagCompound forgeCaps = tag.getCompoundTag("ForgeCaps");
+                            for (String blacklistedKey : CAP_NBT_BLACKLIST) //We can only do this for mods who are known for this behavior...
+                            {
+                                if (forgeCaps.hasKey(blacklistedKey))
+                                {
+                                    forgeCaps.removeTag(blacklistedKey);
+                                }
+                            }
+                        }
 
                         tag.setInteger("sync_playerGameMode", ((EntityPlayerMP)player).interactionManager.getGameType().getID());
 
