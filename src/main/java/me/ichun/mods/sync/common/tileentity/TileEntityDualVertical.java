@@ -182,11 +182,9 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         //Clear active potion effects before syncing
                         player.clearActivePotions();
 
-                        if (wasDead)
-                        {
+                        if (wasDead) {
                             //copy new items that are given on death, like the key to a tombstone
                             EntityPlayerMP deadDummy = setupDummy(player);
-//                            ForgeEventFactory.onPlayerClone(deadDummy, player, true); //Fire clone event as this is expected by some mods after death
                             mergeStoredInv(deadDummy.inventory);
                         }
                         wasDead = false;
@@ -199,22 +197,22 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         dummy.writeToNBT(tag);
                         if (resyncOrigin != null) //deduplicate items
                         {
-                            //noinspection ConstantConditions
-                            InventoryPlayer dummyInv = new InventoryPlayer(null);
-                            NBTTagList nbttaglist = tag.getTagList("Inventory", 10);
-                            dummyInv.readFromNBT(nbttaglist); //read in the new inventory
                             //Strip items from the old inv that have been transferred to the new inventory
-                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
-                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
-                            deleteItemsFrom(player.inventory.mainInventory, dummyInv.mainInventory);
+                            deleteItemsFrom(player.inventory.mainInventory, dummy.inventory.mainInventory);
+                            deleteItemsFrom(player.inventory.offHandInventory, dummy.inventory.offHandInventory);
+                            deleteItemsFrom(player.inventory.armorInventory, dummy.inventory.armorInventory);
                             //Write the changes to the old inventory
                             resyncOrigin.getPlayerNBT().setTag("Inventory", player.inventory.writeToNBT(new NBTTagList()));
                             resyncOrigin.markDirty();
                             if (getPlayerNBT().hasKey("Inventory")) //try inserting persistent items by merging
                             {
                                 //noinspection ConstantConditions
-                                mergeStoredInv(dummyInv);
+                                mergeStoredInv(dummy.inventory);
                             }
+                        }
+                        else
+                        {
+                            Sync.LOGGER.warn("Missing resync origin, cannot deduplicate items! Skipping persistent item injection");
                         }
 
                         if (!getPlayerNBT().hasKey("Inventory"))
@@ -411,7 +409,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
             {
                 continue;
             }
-            int index = inv.indexOf(stack);
+            int index = inv.indexOf(stack); //This only catches the same itemstack instances. This way it will ignore items if both shells have them
             if (index != -1)
             {
                 inv.set(index, ItemStack.EMPTY);

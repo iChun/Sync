@@ -235,7 +235,7 @@ public class BlockDualVertical extends BlockContainer {
                 //Allow easier creative testing. Only works for pig and wolves cause easier
                 if (!world.isRemote && !itemStack.isEmpty() && itemStack.getItem() instanceof ItemMonsterPlacer) {
                     ResourceLocation mob = ItemMonsterPlacer.getNamedIdFrom(itemStack);
-                    if ("Pig".equalsIgnoreCase(mob.resourcePath) || "Wolf".equalsIgnoreCase(mob.resourcePath)) {
+                    if ("Pig".equalsIgnoreCase(mob.getResourcePath()) || "Wolf".equalsIgnoreCase(mob.getResourcePath())) {
                         Entity entity = ItemMonsterPlacer.spawnCreature(world, mob, treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1));
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
