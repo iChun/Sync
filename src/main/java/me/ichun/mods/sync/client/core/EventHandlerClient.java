@@ -10,6 +10,7 @@ import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.packet.PacketSyncRequest;
 import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import me.ichun.mods.sync.common.shell.ShellState;
+import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
@@ -234,6 +235,7 @@ public class EventHandlerClient
     @SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
+        TileEntityDualVertical.invalidateCaches();
         Sync.config.resetSession();
         Sync.eventHandlerClient.radialShow = false;
         Sync.eventHandlerClient.zoom = false;
@@ -922,8 +924,7 @@ public class EventHandlerClient
                 Minecraft.getMinecraft().renderEngine.bindTexture(TileRendererDualVertical.txShellConstructor);
 
                 modelShellConstructor.rand.setSeed(Minecraft.getMinecraft().player.getName().hashCode());
-                modelShellConstructor.txBiped = Minecraft.getMinecraft().player.getLocationSkin();
-                modelShellConstructor.renderConstructionProgress(Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true);
+                modelShellConstructor.renderConstructionProgress(Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(state.buildProgress + state.powerReceived * renderTick, 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F, 0.0625F, false, true, Minecraft.getMinecraft().player.getLocationSkin());
 
                 GlStateManager.popMatrix();
             }

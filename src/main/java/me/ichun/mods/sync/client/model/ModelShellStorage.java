@@ -55,10 +55,6 @@ public class ModelShellStorage extends ModelBase
     public ModelRenderer indicatorLeft;
     public ModelRenderer indicator2;
 
-    public ModelBiped modelBiped;
-
-    public ResourceLocation txBiped;
-
     public boolean powered;
     public boolean isHomeUnit;
 
@@ -66,11 +62,6 @@ public class ModelShellStorage extends ModelBase
     {
         textureWidth = 256;
         textureHeight = 256;
-
-        modelBiped = new ModelBiped();
-        modelBiped.isChild = false;
-
-        txBiped = DefaultPlayerSkin.getDefaultSkinLegacy();
 
         base = new ModelRenderer(this, 64, 62);
         base.addBox(-16F, 0F, -16F, 32, 1, 32);
@@ -332,29 +323,6 @@ public class ModelShellStorage extends ModelBase
         indicator2.setTextureSize(256, 256);
         indicator2.mirror = true;
         setRotation(indicator2, -0.4833219F, 0F, 0F);
-    }
-
-    public void renderPlayer(float prog, float f5)
-    {
-        GlStateManager.pushMatrix();
-
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.scale(2.0F * 0.9375F, 2.0F * 0.9375F, 2.0F * 0.9375F);
-        GlStateManager.translate(0.0D, -0.72D, 0.0D);
-
-        Minecraft.getMinecraft().renderEngine.bindTexture(txBiped);
-
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
-        modelBiped.bipedHead.rotateAngleX = (float)Math.toRadians(15F);
-        modelBiped.bipedHead.render(f5);
-        modelBiped.bipedBody.render(f5);
-        modelBiped.bipedRightArm.render(f5);
-        modelBiped.bipedLeftArm.render(f5);
-        modelBiped.bipedRightLeg.render(f5);
-        modelBiped.bipedLeftLeg.render(f5);
-
-        GlStateManager.popMatrix();
     }
 
     public void renderInternals(float prog, float f5)

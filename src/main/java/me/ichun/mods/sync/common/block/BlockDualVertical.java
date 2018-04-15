@@ -501,7 +501,7 @@ public class BlockDualVertical extends BlockContainer {
     @Override
     @Nonnull
     public ItemStack getPickBlock(@Nonnull IBlockState state, RayTraceResult target, @Nonnull World world, @Nonnull BlockPos pos, EntityPlayer player) {
-        return new ItemStack(EnumType.getItemForType(world.getBlockState(pos).getValue(BlockDualVertical.TYPE)), 1);
+        return new ItemStack(EnumType.getItemForType(world.getBlockState(pos).getValue(BlockDualVertical.TYPE)));
     }
 
     @Override

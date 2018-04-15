@@ -56,8 +56,6 @@ public class ModelShellConstructor extends ModelBase
 
     public ModelPlayer modelPlayer;
 
-    public ResourceLocation txBiped;
-
     public ModelShellConstructor()
     {
         rand = new Random();
@@ -94,8 +92,6 @@ public class ModelShellConstructor extends ModelBase
 
         modelPlayer = new ModelPlayer(1F, false);
         modelPlayer.isChild = false;
-
-        txBiped = DefaultPlayerSkin.getDefaultSkinLegacy();
 
         textureWidth = 256;
         textureHeight = 256;
@@ -333,7 +329,7 @@ public class ModelShellConstructor extends ModelBase
         doorLeft.render(f5);
     }
 
-    public void renderConstructionProgress(float prog, float f5, boolean renderMachineParts, boolean renderPlayer)
+    public void renderConstructionProgress(float prog, float f5, boolean renderMachineParts, boolean renderPlayer, ResourceLocation txBiped)
     {
         float printProg = -54F;
 
@@ -707,11 +703,11 @@ public class ModelShellConstructor extends ModelBase
                     modelPlayer.bipedHead.render(f5);
                     modelPlayer.bipedHeadwear.render(f5);
                     modelPlayer.bipedBody.render(f5);
-                    GlStateManager.translate(0F, 0F, 0.001F);
+                    GlStateManager.translate(0F, 0F, 0.0001F);
                     modelPlayer.bipedRightArm.render(f5);
                     modelPlayer.bipedLeftArm.render(f5);
                     modelPlayer.bipedRightLeg.render(f5);
-                    GlStateManager.translate(0F, 0F, 0.001F);
+                    GlStateManager.translate(0F, 0F, 0.0001F);
                     modelPlayer.bipedLeftLeg.render(f5);
                 }
 

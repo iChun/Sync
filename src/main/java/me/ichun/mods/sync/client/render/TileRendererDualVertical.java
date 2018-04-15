@@ -41,8 +41,6 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
         modelStorage = new ModelShellStorage();
     }
 
-
-
     @Override
     public void render(TileEntityDualVertical dv, double d, double d1, double d2, float f, int destroyStage, float alpha)
     {
@@ -60,16 +58,17 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        ResourceLocation rl = dv.locationSkin;
-
-        if(rl == null)
-        {
-            rl = DefaultPlayerSkin.getDefaultSkinLegacy();
-        }
-
         if(dv instanceof TileEntityShellConstructor)
         {
             TileEntityShellConstructor sc = (TileEntityShellConstructor)dv;
+
+            ResourceLocation rl = sc.locationSkin;
+
+            if(rl == null)
+            {
+                rl = DefaultPlayerSkin.getDefaultSkinLegacy();
+            }
+
             float doorProg = MathHelper.clamp(TileEntityDualVertical.animationTime - sc.doorTime + (sc.doorOpen && sc.doorTime < TileEntityShellStorage.animationTime ? -f : !sc.doorOpen && sc.doorTime > 0 ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 
             if(BlockDualVertical.renderPass == 0)
@@ -80,8 +79,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 
 
                 modelConstructor.rand.setSeed(sc.getPlayerName().hashCode());
-                modelConstructor.txBiped = rl;
-                modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.getPlayerName().equalsIgnoreCase("")); //0.95F;
+                modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.getPlayerName().equalsIgnoreCase(""), rl); //0.95F;
 
                 GlStateManager.disableCull();
                 Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
@@ -111,7 +109,6 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 
             if(BlockDualVertical.renderPass == 0)
             {
-                modelStorage.txBiped = rl;
                 if(ss.playerInstance != null && ss.syncing)
                 {
 //					if (iChunUtil.hasMorphMod()) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell; this API method does not exist yet.
