@@ -1,11 +1,8 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import io.netty.buffer.ByteBuf;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
+import me.ichun.mods.sync.client.core.SyncSkinManager;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.block.BlockDualVertical;
 import me.ichun.mods.sync.common.packet.PacketNBT;
@@ -14,10 +11,6 @@ import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.shell.TeleporterShell;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,16 +35,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
 {
-    //Cache skins throughout TEs to avoid hitting the rate limit for skin session servers
-    //Hold values for 5 minutes, so they are loaded fast if many TEs with the same player are loaded
-    //Skin loading priority: Cache(fastest), NetworkPlayer(only available when player is only and in same dim as shell, fast), SessionService(slow)
-    private static final Cache<String, ResourceLocation> skinCache = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES).build();
-
     public T pair;
     public boolean top;
     public EnumFacing face;
@@ -96,11 +82,6 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         rfIntake = 0;
     }
 
-    public static void invalidateCaches()
-    {
-        skinCache.invalidateAll();
-    }
-
     @Override
     public void update() {
         if (this.resync) {
@@ -115,32 +96,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
             if (this.world.isRemote) {
                 boolean hasPlayer = StringUtils.isNotBlank(this.playerName);
                 if (hasPlayer) {
-                    ResourceLocation resLoc = skinCache.getIfPresent(this.playerName);
-                    if (resLoc == null) { //Not in cache
-                        GameProfile profile = EntityHelper.getGameProfile(this.playerName);
-                        NetHandlerPlayClient networkHandler = Minecraft.getMinecraft().getConnection();
-                        NetworkPlayerInfo playerInfo = networkHandler == null ? null : networkHandler.getPlayerInfo(this.playerName);
-                        boolean fetchOnline = playerInfo == null;
-                        if (playerInfo != null) { //load from network player
-                            ResourceLocation loc = playerInfo.getLocationSkin();
-                            if (loc == DefaultPlayerSkin.getDefaultSkin(playerInfo.getGameProfile().getId())) {
-                                fetchOnline = true;
-                            } else {
-                                this.locationSkin = loc;
-                                skinCache.put(this.playerName, this.locationSkin);
-                            }
-                        }
-                        if (fetchOnline){ //Fetch online
-                            Minecraft.getMinecraft().getSkinManager().loadProfileTextures(profile, (type, location, profileTexture) -> {
-                                if (type == MinecraftProfileTexture.Type.SKIN) {
-                                    locationSkin = location;
-                                    skinCache.put(this.playerName, location);
-                                }
-                            }, true);
-                        }
-                    } else {
-                        this.locationSkin = resLoc;
-                    }
+                    SyncSkinManager.get(this.playerName, resourceLocation -> this.locationSkin = resourceLocation);
                 }
             }
         }

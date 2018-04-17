@@ -235,7 +235,7 @@ public class EventHandlerClient
     @SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event)
     {
-        TileEntityDualVertical.invalidateCaches();
+        SyncSkinManager.invalidateCaches();
         Sync.config.resetSession();
         Sync.eventHandlerClient.radialShow = false;
         Sync.eventHandlerClient.zoom = false;
