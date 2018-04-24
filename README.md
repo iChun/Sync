@@ -5,24 +5,36 @@ Crafting recipes:
 
 Sync Core:-
 (change ender pearl with beacon for HardcoreMode)
-[Daylight Sensor] [Lapis Block] [Daylight Sensor]
-[ Nether Quartz ] [Ender Pearl] [ Nether Quartz ]
-[    Emerald    ] [RedstoneBlk] [    Emerald    ]
+
+| | | |
+|:-:|:-:|:-:|
+| [Daylight Sensor] | [Lapis Block] | [Daylight Sensor] |
+| [ Nether Quartz ] | [Ender Pearl] | [ Nether Quartz ] |
+| [    Emerald    ] | [RedstoneBlk] | [    Emerald    ] |
 
 Shell Constructor:-
-[ Obsidian ] [Sync Core ] [ Obsidian ]
-[Glass Pane] [Glass Pane] [Glass Pane]
-[ Obsidian ] [ Redstone ] [ Obsidian ]
+
+| | | |
+|:-:|:-:|:-:|
+| [ Obsidian ] | [Sync Core ] | [ Obsidian ] |
+| [Glass Pane] | [Glass Pane] | [Glass Pane] |
+| [ Obsidian ] | [ Redstone ] | [ Obsidian ] |
 
 Shell Storage:-
-[ Obsidian ] [    Sync Core      ] [ Obsidian ]
-[Glass Pane] [    Iron Block     ] [Glass Pane]
-[ Obsidian ] [Iron Pressure Plate] [ Obsidian ]
+
+| | | | 
+|:-:|:-:|:-:|
+| [ Obsidian ] | [    Sync Core      ] | [ Obsidian ] |
+| [Glass Pane] | [    Iron Block     ] | [Glass Pane] |
+| [ Obsidian ] | [Iron Pressure Plate] | [ Obsidian ] |
 
 Treadmill:-
-[            ] [            ] [Daylight Sensor]
-[Black Carpet] [Black Carpet] [    Iron Bar   ]
-[  Obsidian  ] [  Obsidian  ] [    Redstone   ]
+
+| | | |
+|:-:|:-:|:-:|
+|   |   | [Daylight Sensor] |
+| [Black Carpet] | [Black Carpet] | [    Iron Bar   ] |
+| [  Obsidian  ] | [  Obsidian  ] | [    Redstone   ] |
 
 ====================
 
