@@ -106,7 +106,7 @@ public class PacketSyncRequest extends AbstractPacket
                     if(originShell instanceof TileEntityShellStorage)
                     {
                         TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
-                        ss.setPlayerName(player.getName());
+                        ss.setPlayerName(player.getName(), player.getUniqueID());
                         ss.occupied = true;
                         ss.occupationTime = TileEntityDualVertical.animationTime;
                         ss.syncing = true;
@@ -155,6 +155,7 @@ public class PacketSyncRequest extends AbstractPacket
         }
         if(!valid)
         {
+            Sync.LOGGER.warn("Request was invalid!");
             ShellHandler.updatePlayerOfShells(player, null, true);
         }
     }

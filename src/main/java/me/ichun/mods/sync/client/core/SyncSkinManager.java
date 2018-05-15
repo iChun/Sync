@@ -12,9 +12,11 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -22,11 +24,11 @@ import java.util.function.Consumer;
 public class SyncSkinManager {
     //Cache skins throughout TEs to avoid hitting the rate limit for skin session servers
     //Hold values for a longer time, so they are loaded fast if many TEs with the same player are loaded, or when loading other chunks with the same player
-    //Skin loading priority: Cache(fastest), NetworkPlayer(only available when player is only and in same dim as shell, fast), SessionService(slow)
+    //Skin loading priority: Cache(fastest), NetworkPlayer(only available when player is only and in same dim as shell, fast), SessionService(slow) and only available if UUID has been set
     private static final Cache<String, ResourceLocation> skinCache = CacheBuilder.newBuilder().expireAfterAccess(15, TimeUnit.MINUTES).build();
     private static final Multimap<String, Consumer<ResourceLocation>> callbackMap = MultimapBuilder.hashKeys().arrayListValues().build();
 
-    public static void get(String playerName, Consumer<ResourceLocation> callback) {
+    public static void get(String playerName, UUID playerUUID, Consumer<ResourceLocation> callback) {
         ResourceLocation loc = skinCache.getIfPresent(playerName);
         if (loc != null) {
             callback.accept(loc);
@@ -42,7 +44,8 @@ public class SyncSkinManager {
                 return;
             }
         }
-        GameProfile profile = EntityHelper.getGameProfile(playerName);
+        if (playerUUID == null) return; //Not much we can do here :(
+        GameProfile profile = EntityHelper.getGameProfile(playerUUID, playerName);
         synchronized (callbackMap) {
             if (!callbackMap.containsKey(playerName)) {
                 //Make one call per user - again rate limit protection
@@ -62,5 +65,7 @@ public class SyncSkinManager {
     public static void invalidateCaches()
     {
         skinCache.invalidateAll();
+        skinCache.cleanUp();
+        callbackMap.clear();
     }
 }

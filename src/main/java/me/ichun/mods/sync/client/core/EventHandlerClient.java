@@ -10,18 +10,13 @@ import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.packet.PacketSyncRequest;
 import me.ichun.mods.sync.common.packet.PacketUpdatePlayerOnZoomFinish;
 import me.ichun.mods.sync.common.shell.ShellState;
-import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -49,11 +44,7 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class EventHandlerClient
 {
@@ -117,6 +108,7 @@ public class EventHandlerClient
             {
                 if(event.keyBind.keyIndex == mc.gameSettings.keyBindAttack.getKeyCode())
                 {
+                    if (!this.radialShow) return;
                     double mag = Math.sqrt(Sync.eventHandlerClient.radialDeltaX * Sync.eventHandlerClient.radialDeltaX + Sync.eventHandlerClient.radialDeltaY * Sync.eventHandlerClient.radialDeltaY);
                     double magAcceptance = 0.8D;
 

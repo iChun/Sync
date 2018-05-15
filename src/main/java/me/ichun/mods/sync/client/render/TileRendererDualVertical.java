@@ -1,5 +1,7 @@
 package me.ichun.mods.sync.client.render;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.ichunutil.common.core.util.EventCalendar;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
@@ -24,6 +26,10 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
+
 public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEntityDualVertical>
 {
 
@@ -42,21 +48,40 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
     }
 
     @Override
-    public void render(TileEntityDualVertical dv, double d, double d1, double d2, float f, int destroyStage, float alpha)
+    public void render(TileEntityDualVertical dv, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
         if(dv.top)
         {
-            return;
+            if (destroyStage >= 0)
+            {
+                dv = dv.pair;
+                y--;
+            }
+            else
+            {
+                return;
+            }
         }
         GlStateManager.pushMatrix();
 
-        GlStateManager.translate(d + 0.5D, d1 + 0.75, d2 + 0.5D);
+        GlStateManager.translate(x + 0.5D, y + 0.75, z + 0.5D);
         GlStateManager.scale(-0.5F, -0.5F, 0.5F);
 
         GlStateManager.rotate(dv.face.getHorizontalAngle(), 0.0F, 1.0F, 0.0F);
 
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+
+        boolean renderDestroyStage = destroyStage >= 0;
+        if (renderDestroyStage)
+        {
+            this.bindTexture(DESTROY_STAGES[destroyStage]);
+            GlStateManager.matrixMode(GL11.GL_TEXTURE);
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(8.0F, 8.0F, 1.0F);
+            GlStateManager.translate(0.0625F, 0.0625F, 0.0625F);
+            GlStateManager.matrixMode(GL11.GL_MODELVIEW);
+        }
 
         if(dv instanceof TileEntityShellConstructor)
         {
@@ -69,24 +94,26 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
                 rl = DefaultPlayerSkin.getDefaultSkinLegacy();
             }
 
-            float doorProg = MathHelper.clamp(TileEntityDualVertical.animationTime - sc.doorTime + (sc.doorOpen && sc.doorTime < TileEntityShellStorage.animationTime ? -f : !sc.doorOpen && sc.doorTime > 0 ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
+            float doorProg = MathHelper.clamp(TileEntityDualVertical.animationTime - sc.doorTime + (sc.doorOpen && sc.doorTime < TileEntityShellStorage.animationTime ? -partialTicks : !sc.doorOpen && sc.doorTime > 0 ? partialTicks : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 
             if(BlockDualVertical.renderPass == 0)
             {
-                Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
+                if (!renderDestroyStage)
+                    Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
 
-                float prog = Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(sc.constructionProgress + (sc.isPowered() ? f * sc.powerAmount() : 0), 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F;
+                float prog = Sync.config.shellConstructionPowerRequirement > 0 ? MathHelper.clamp(sc.constructionProgress + (sc.isPowered() ? partialTicks * sc.powerAmount() : 0), 0.0F, Sync.config.shellConstructionPowerRequirement) / (float)Sync.config.shellConstructionPowerRequirement : 1.0F;
 
 
                 modelConstructor.rand.setSeed(sc.getPlayerName().hashCode());
-                modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !sc.getPlayerName().equalsIgnoreCase(""), rl); //0.95F;
+                modelConstructor.renderConstructionProgress(prog, 0.0625F, true, !renderDestroyStage && !sc.getPlayerName().equalsIgnoreCase(""), rl); //0.95F;
 
                 GlStateManager.disableCull();
-                Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
+                if (!renderDestroyStage)
+                    Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructor);
                 modelConstructor.render(doorProg, 0.0625F, false);
                 GlStateManager.enableCull();
             }
-            else
+            else if (!renderDestroyStage)
             {
                 Minecraft.getMinecraft().renderEngine.bindTexture(txShellConstructorAlpha);
                 modelConstructor.render(doorProg, 0.0625F, true);
@@ -96,7 +123,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
         {
             TileEntityShellStorage ss = (TileEntityShellStorage)dv;
 
-            float prog = MathHelper.clamp(TileEntityDualVertical.animationTime - ss.occupationTime + (ss.syncing ? f : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
+            float prog = MathHelper.clamp(TileEntityDualVertical.animationTime - ss.occupationTime + (ss.syncing ? partialTicks : 0.0F), 0.0F, TileEntityDualVertical.animationTime) / (float)TileEntityDualVertical.animationTime;
 
             if(!ss.syncing && !ss.vacating)
             {
@@ -109,7 +136,7 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
 
             if(BlockDualVertical.renderPass == 0)
             {
-                if(ss.playerInstance != null && ss.syncing)
+                if(ss.playerInstance != null && ss.syncing && !renderDestroyStage)
                 {
 //					if (iChunUtil.hasMorphMod()) morph.api.Api.allowNextPlayerRender(); //Allow next render as we render a "player" for the shell; this API method does not exist yet.
                     GlStateManager.pushMatrix();
@@ -155,18 +182,20 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
                 GlStateManager.enableBlend();
                 GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-                Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+                if (!renderDestroyStage)
+                    Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
 
                 modelStorage.powered = ss.isPowered();
                 modelStorage.isHomeUnit = ss.isHomeUnit;
                 modelStorage.renderInternals(prog, 0.0625F);
 
                 GlStateManager.disableCull();
-                Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
+                if (!renderDestroyStage)
+                    Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorage);
                 modelStorage.render(prog, 0.0625F, false);
                 GlStateManager.enableCull();
             }
-            else
+            else if (!renderDestroyStage)
             {
                 Minecraft.getMinecraft().renderEngine.bindTexture(txShellStorageAlpha);
                 modelStorage.render(prog, 0.0625F, true);
@@ -204,6 +233,13 @@ public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEnti
                     GlStateManager.popMatrix();
                 }
             }
+        }
+
+        if (destroyStage >= 0)
+        {
+            GlStateManager.matrixMode(GL11.GL_TEXTURE);
+            GlStateManager.popMatrix();
+            GlStateManager.matrixMode(GL11.GL_MODELVIEW);
         }
 
         GlStateManager.disableBlend();

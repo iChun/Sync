@@ -137,7 +137,7 @@ public class BlockDualVertical extends BlockContainer {
                         player.sendMessage(new TextComponentTranslation("sync.isMorphed"));
                         return true;
                     }
-                    shellConstructor.setPlayerName(player.getName());
+                    shellConstructor.setPlayerName(player.getName(), player.getUniqueID());
 
                     if (!world.isRemote && !player.isCreative()) {
                         String name = DamageSource.OUT_OF_WORLD.damageType;
@@ -307,7 +307,7 @@ public class BlockDualVertical extends BlockContainer {
                             }
 
                             //Mark this as in use
-                            shellStorage.setPlayerName(player.getName());
+                            shellStorage.setPlayerName(player.getName(), player.getUniqueID());
                             shellStorage.occupied = true;
                             world.notifyBlockUpdate(pos, state, state, 3);
                         }
@@ -432,10 +432,10 @@ public class BlockDualVertical extends BlockContainer {
 
                 if (!world.isRemote) {
                     //TODO Should we treat this as an actual player death in terms of drops?
-                    if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVertical).syncing && dualVertical.getPlayerNBT().hasKey("Inventory")) {
-                        FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelper.getGameProfile(dualVertical.getPlayerName()));
-                        fake.readFromNBT(dualVertical.getPlayerNBT());
-                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVertical.face.getOpposite().getHorizontalAngle(), 0F);
+                    if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVerticalBottom).syncing && dualVerticalBottom.getPlayerNBT().hasKey("Inventory")) {
+                        FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelper.getGameProfile(dualVerticalBottom.getPlayerName()));
+                        fake.readFromNBT(dualVerticalBottom.getPlayerNBT());
+                        fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVerticalBottom.face.getOpposite().getHorizontalAngle(), 0F);
 
                         fake.captureDrops = true;
                         fake.capturedDrops.clear();
@@ -448,12 +448,12 @@ public class BlockDualVertical extends BlockContainer {
                                 fake.dropItemAndGetStack(item);
                             }
                         }
-                        Sync.channel.sendToAllAround(new PacketShellDeath(pos, dualVerticalBottom.face), new NetworkRegistry.TargetPoint(dualVertical.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64D));
+                        Sync.channel.sendToAllAround(new PacketShellDeath(dualVerticalBottom.getPos(), dualVerticalBottom.face), new NetworkRegistry.TargetPoint(dualVerticalBottom.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64D));
                     }
                     else if (dualVerticalBottom instanceof TileEntityShellConstructor) {
                         TileEntityShellConstructor shellConstructor = (TileEntityShellConstructor) dualVerticalBottom;
                         if (!shellConstructor.getPlayerName().equalsIgnoreCase("") && shellConstructor.constructionProgress >= Sync.config.shellConstructionPowerRequirement) {
-                            Sync.channel.sendToAllAround(new PacketShellDeath(dualVerticalBottom.getPos(), dualVerticalBottom.face), new NetworkRegistry.TargetPoint(dualVertical.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64D));
+                            Sync.channel.sendToAllAround(new PacketShellDeath(dualVerticalBottom.getPos(), dualVerticalBottom.face), new NetworkRegistry.TargetPoint(dualVerticalBottom.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 64D));
                         }
                     }
                     ShellHandler.removeShell(dualVerticalBottom.getPlayerName(), dualVerticalBottom);
@@ -461,7 +461,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (dualVerticalBottom.resyncPlayer > 25 && dualVerticalBottom.resyncPlayer < 120) {
                         ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
                         //Need to let dualVertical know sync is cancelled
-                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
+                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVerticalBottom.getPlayerName());
                         if (syncingPlayer != null) {
                             String name = DamageSource.OUT_OF_WORLD.damageType;
                             DamageSource.OUT_OF_WORLD.damageType = "syncFail";
@@ -562,6 +562,12 @@ public class BlockDualVertical extends BlockContainer {
             default:
                 throw new RuntimeException("Don't know how to convert " + meta + " to state");
         }
+    }
+
+    @Override
+    public boolean hasCustomBreakingProgress(IBlockState state)
+    {
+        return state.getValue(TYPE) != EnumType.TREADMILL;
     }
 
     private static void notifyThisAndAbove(IBlockState oldState, EnumType newType, BlockPos thisPos, World world, boolean isTop) {

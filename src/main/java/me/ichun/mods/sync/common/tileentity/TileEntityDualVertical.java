@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.tileentity;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.client.core.SyncSkinManager;
@@ -11,6 +12,7 @@ import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.shell.TeleporterShell;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,13 +30,17 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
 {
@@ -45,6 +51,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     public boolean isHomeUnit;
 
     protected String playerName;
+    protected UUID playerUUID;
     protected String name;
     public T resyncOrigin;
     protected NBTTagCompound playerNBT;
@@ -67,6 +74,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         isHomeUnit = false;
         face = EnumFacing.SOUTH;
         playerName = "";
+        playerUUID = null;
         name = "";
 
         resyncPlayer = 0;
@@ -96,12 +104,20 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
             if (this.world.isRemote) {
                 boolean hasPlayer = StringUtils.isNotBlank(this.playerName);
                 if (hasPlayer) {
-                    SyncSkinManager.get(this.playerName, resourceLocation -> this.locationSkin = resourceLocation);
+                    SyncSkinManager.get(this.playerName, this.playerUUID, resourceLocation -> this.locationSkin = resourceLocation);
+                }
+            }
+            if (this.playerUUID == null)
+            {
+                EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
+                if (player != null)
+                {
+                    this.playerUUID = player.getUniqueID();
                 }
             }
         }
         if (this.top && this.pair != null) {
-            this.setPlayerName(this.pair.getPlayerName());
+            this.setPlayerName(this.pair.getPlayerName(), this.pair.playerUUID);
             this.setName(this.pair.getName());
             this.vacating = this.pair.vacating;
         }
@@ -176,44 +192,64 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         //Clear active potion effects before syncing
                         player.clearActivePotions();
 
-                        if (wasDead) {
-                            //copy new items that are given on death, like the key to a tombstone
-                            EntityPlayerMP deadDummy = setupDummy(player);
-                            mergeStoredInv(deadDummy.inventory);
-                        }
-                        wasDead = false;
-
-                        //Copy data needed from player
-                        NBTTagCompound tag = new NBTTagCompound();
-                        EntityPlayerMP dummy = setupDummy(player);
-
-                        //Set data
-                        dummy.writeToNBT(tag);
-                        if (resyncOrigin != null) //deduplicate items
+                        if (Sync.config.transferPersistentItems == 0)
                         {
-                            //Strip items from the old inv that have been transferred to the new inventory
-                            deleteItemsFrom(player.inventory.mainInventory, dummy.inventory.mainInventory);
-                            deleteItemsFrom(player.inventory.offHandInventory, dummy.inventory.offHandInventory);
-                            deleteItemsFrom(player.inventory.armorInventory, dummy.inventory.armorInventory);
-                            //Write the changes to the old inventory
-                            resyncOrigin.getPlayerNBT().setTag("Inventory", player.inventory.writeToNBT(new NBTTagList()));
-                            resyncOrigin.markDirty();
-                            if (getPlayerNBT().hasKey("Inventory")) //try inserting persistent items by merging
+                            System.out.println("NEW");
+                            if (wasDead)
                             {
-                                //noinspection ConstantConditions
-                                mergeStoredInv(dummy.inventory);
+                                //copy new items that are given on death, like the key to a tombstone
+                                EntityPlayerMP deadDummy = setupDummy(player);
+                                mergeStoredInv(deadDummy.inventory);
+                            }
+
+                            //Copy data needed from player
+                            NBTTagCompound tag = new NBTTagCompound();
+                            EntityPlayerMP dummy = setupDummy(player); //TODO implement drop
+
+                            //Set data
+                            dummy.writeToNBT(tag);
+                            if (resyncOrigin != null) //deduplicate items
+                            {
+                                //Strip items from the old inv that have been transferred to the new inventory
+                                deleteItemsFrom(player.inventory.mainInventory, dummy.inventory.mainInventory);
+                                deleteItemsFrom(player.inventory.armorInventory, dummy.inventory.armorInventory);
+                                deleteItemsFrom(player.inventory.offHandInventory, dummy.inventory.offHandInventory);
+                                //Write the changes to the old inventory
+                                resyncOrigin.getPlayerNBT().setTag("Inventory", player.inventory.writeToNBT(new NBTTagList()));
+                                resyncOrigin.markDirty();
+                                if (getPlayerNBT().hasKey("Inventory")) //try inserting persistent items by merging
+                                {
+                                    //noinspection ConstantConditions
+                                    mergeStoredInv(dummy.inventory);
+                                }
+                            }
+                            else
+                            {
+                                dummy.inventory.clear();
+                            }
+
+                            if (!getPlayerNBT().hasKey("Inventory"))
+                            {
+                                tag.setInteger("sync_playerGameMode", player.interactionManager.getGameType().getID());
+                                this.setPlayerNBT(tag); //Write the new data
                             }
                         }
-                        else
+                        else if (!getPlayerNBT().hasKey("Inventory"))
                         {
-                            Sync.LOGGER.warn("Missing resync origin, cannot deduplicate items! Skipping persistent item injection");
+                            //Copy data needed from player
+                            NBTTagCompound tag = new NBTTagCompound();
+
+                            //Setup location for dummy
+                            EntityPlayerMP dummy = setupDummy(player);
+                            dummy.inventory.clear();
+
+                            //Set data
+                            dummy.writeToNBT(tag);
+                            tag.setInteger("sync_playerGameMode", player.interactionManager.getGameType().getID());
+                            this.setPlayerNBT(tag);
                         }
 
-                        if (!getPlayerNBT().hasKey("Inventory"))
-                        {
-                            tag.setInteger("sync_playerGameMode", player.interactionManager.getGameType().getID());
-                            this.setPlayerNBT(tag); //Write the new data
-                        }
+                        wasDead = false;
 
                         //Sync Forge persistent data as it's supposed to carry over on death
                         NBTTagCompound persistentData = player.getEntityData();
@@ -352,6 +388,10 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         tag.setBoolean("vacating", vacating);
         tag.setBoolean("isHomeUnit", isHomeUnit);
         tag.setString("playerName", canSavePlayer > 0 ? "" : playerName);
+        if (playerUUID != null)
+        {
+            tag.setUniqueId("playerUUID", playerUUID);
+        }
         tag.setString("name", name);
         tag.setTag("playerNBT", canSavePlayer > 0 ? new NBTTagCompound() : playerNBT);
         tag.setInteger("rfIntake", rfIntake);
@@ -367,6 +407,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         vacating = tag.getBoolean("vacating");
         isHomeUnit = tag.getBoolean("isHomeUnit");
         playerName = tag.getString("playerName");
+        playerUUID = tag.hasKey("playerUUID" + "Most", Constants.NBT.TAG_LONG) && tag.hasKey("playerUUID" + "Least", Constants.NBT.TAG_LONG) ? tag.getUniqueId("playerUUID") : null;
         name = tag.getString("name");
         playerNBT = tag.getCompoundTag("playerNBT");
         rfIntake = tag.getInteger("rfIntake");
@@ -566,15 +607,19 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     }
 
     public void reset() {
-        this.setPlayerName("");
+        this.setPlayerName("", null);
         this.setPlayerNBT(new NBTTagCompound());
         this.resyncOrigin = null;
     }
 
     //Setters and getters
-    public void setPlayerName(String playerName) {
+    public void setPlayerName(String playerName, UUID uuid) {
         if (playerName == null) playerName = "";
-        this.playerName = playerName;
+        if (!playerName.equals(this.playerName))
+        {
+            this.playerName = playerName;
+            this.playerUUID = uuid;
+        }
     }
 
     public void setPlayerNBT(NBTTagCompound tagCompound) {
@@ -588,7 +633,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     }
 
     public String getPlayerName() {
-        if (this.playerName == null) this.setPlayerName("");
+        if (this.playerName == null) this.setPlayerName("", null);
         return this.playerName;
     }
 

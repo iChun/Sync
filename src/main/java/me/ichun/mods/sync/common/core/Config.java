@@ -57,6 +57,10 @@ public class Config extends ConfigBase
     @IntMinMax(min = 0)
     public int ratioRF = 2;
 
+    @ConfigProp(category = "gameplay")
+    @IntBool
+    public int transferPersistentItems = 0; //TODO implement, do i18n
+
     @ConfigProp(category = "clientOnly", side = Side.CLIENT)
     @IntMinMax(min = 0, max = 2)
     public int showAllShellInfoInGui = 1;

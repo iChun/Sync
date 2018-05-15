@@ -57,6 +57,10 @@ public class PacketShellDeath extends AbstractPacket
     {
         Minecraft mc = Minecraft.getMinecraft();
         TileEntity te = mc.world.getTileEntity(this.pos);
+        if (te == null)
+        {
+            te = mc.world.getTileEntity(this.pos.up()); //This block is already removed, try up
+        }
         if(te instanceof TileEntityDualVertical)
         {
             EntityShellDestruction sd = new EntityShellDestruction(mc.world, face.getOpposite().getHorizontalAngle(), face.getOpposite().getHorizontalAngle(), 0.0F, 0.0F, 0.0F, ((TileEntityDualVertical)te).locationSkin);
