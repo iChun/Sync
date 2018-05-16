@@ -113,7 +113,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                     SyncSkinManager.get(this.playerName, this.playerUUID, resourceLocation -> this.locationSkin = resourceLocation);
                 }
             }
-            if (!world.isRemote && this.playerUUID == null && world.getTotalWorldTime() % 100 == 0) {
+            if (!world.isRemote && this.playerUUID == null) {
                 EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
                 if (player != null && !player.getUniqueID().equals(EntityPlayer.getOfflineUUID(playerName))) {
                     this.playerUUID = player.getUniqueID();
