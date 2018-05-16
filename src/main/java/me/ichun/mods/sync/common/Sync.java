@@ -4,7 +4,6 @@ import me.ichun.mods.ichunutil.common.core.config.ConfigHandler;
 import me.ichun.mods.ichunutil.common.core.network.PacketChannel;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.ichunutil.common.module.update.UpdateChecker;
-import me.ichun.mods.sync.client.HUDHandlerTheOneProbe;
 import me.ichun.mods.sync.client.core.EventHandlerClient;
 import me.ichun.mods.sync.common.core.*;
 import me.ichun.mods.sync.common.shell.ShellHandler;

@@ -2,6 +2,7 @@ package me.ichun.mods.sync.common.tileentity;
 
 import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
+import joptsimple.internal.Strings;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.client.core.SyncSkinManager;
 import me.ichun.mods.sync.common.Sync;
@@ -13,6 +14,7 @@ import me.ichun.mods.sync.common.shell.TeleporterShell;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,6 +26,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerInteractionManager;
+import net.minecraft.server.management.PlayerList;
+import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -38,8 +42,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> extends TileEntity implements ITickable
@@ -107,12 +113,12 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                     SyncSkinManager.get(this.playerName, this.playerUUID, resourceLocation -> this.locationSkin = resourceLocation);
                 }
             }
-            if (this.playerUUID == null)
-            {
+            if (!world.isRemote && this.playerUUID == null && world.getTotalWorldTime() % 100 == 0) {
                 EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
-                if (player != null)
-                {
+                if (player != null && !player.getUniqueID().equals(EntityPlayer.getOfflineUUID(playerName))) {
                     this.playerUUID = player.getUniqueID();
+                    IBlockState here = world.getBlockState(pos);
+                    world.notifyBlockUpdate(pos, here, here, 1 | 2 | 16);
                 }
             }
         }
@@ -132,7 +138,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                         shellStorage.occupied = true;
                     }
 
-                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.getPlayerName());
+                    EntityPlayerMP player = getPlayerIfAvailable();
                     if (player != null) {
                         if (!player.isEntityAlive()) {
                             player.setHealth(20);
@@ -146,7 +152,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                             FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().transferPlayerToDimension(player, this.world.provider.getDimension(), new TeleporterShell((WorldServer) this.world, this.world.provider.getDimension(), this.getPos(), face.getOpposite().getHorizontalAngle(), 0F));
 
                             //Refetch player TODO is this needed?
-                            player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(this.getPlayerName());
+                            player = getPlayerIfAvailable();
 
                             if (dim == 1) {
                                 if (player.isEntityAlive()) {
@@ -186,15 +192,14 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                 }
                 //This is where we begin to sync the data aka point of no return
                 if (this.resyncPlayer == 30) {
-                    EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
+                    EntityPlayerMP player = getPlayerIfAvailable();
 
                     if (player != null && player.isEntityAlive()) {
                         //Clear active potion effects before syncing
                         player.clearActivePotions();
 
-                        if (Sync.config.transferPersistentItems == 0)
+                        if (Sync.config.transferPersistentItems == 1)
                         {
-                            System.out.println("NEW");
                             if (wasDead)
                             {
                                 //copy new items that are given on death, like the key to a tombstone
@@ -204,7 +209,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
 
                             //Copy data needed from player
                             NBTTagCompound tag = new NBTTagCompound();
-                            EntityPlayerMP dummy = setupDummy(player); //TODO implement drop
+                            EntityPlayerMP dummy = setupDummy(player);
 
                             //Set data
                             dummy.writeToNBT(tag);
@@ -234,7 +239,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                                 this.setPlayerNBT(tag); //Write the new data
                             }
                         }
-                        else if (!getPlayerNBT().hasKey("Inventory"))
+                        else if (!getPlayerNBT().hasKey("Inventory")) //just go this way if configured
                         {
                             //Copy data needed from player
                             NBTTagCompound tag = new NBTTagCompound();
@@ -408,6 +413,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         isHomeUnit = tag.getBoolean("isHomeUnit");
         playerName = tag.getString("playerName");
         playerUUID = tag.hasKey("playerUUID" + "Most", Constants.NBT.TAG_LONG) && tag.hasKey("playerUUID" + "Least", Constants.NBT.TAG_LONG) ? tag.getUniqueId("playerUUID") : null;
+        System.err.println("Read playerUUID:" + (playerUUID == null ? "null" : playerUUID) + " for name " + playerName);
         name = tag.getString("name");
         playerNBT = tag.getCompoundTag("playerNBT");
         rfIntake = tag.getInteger("rfIntake");
@@ -607,18 +613,64 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     }
 
     public void reset() {
-        this.setPlayerName("", null);
+        this.setPlayerName(null);
         this.setPlayerNBT(new NBTTagCompound());
         this.resyncOrigin = null;
     }
 
-    //Setters and getters
+
+    public boolean matchesPlayer(EntityPlayer player) {
+        UUID playerUUID = player.getUniqueID();
+        String rightName = player.getName();
+        if (this.playerUUID != null && !EntityPlayer.getOfflineUUID(this.playerName).equals(playerUUID) && playerUUID.equals(this.playerUUID)) {
+            if (!player.world.isRemote && !rightName.equals(this.playerName)) { //Players can change their name, let's take care of this
+                String oldPlayerName = this.playerName;
+                Sync.LOGGER.info("Updating player name for UUID " + playerUUID + ": " + oldPlayerName + " -> " + rightName);
+                Set<TileEntityDualVertical> dualVerticals = ShellHandler.playerShells.removeAll(oldPlayerName);
+                for (TileEntityDualVertical dualVertical : dualVerticals) {
+                    if (dualVertical.playerName.equals(oldPlayerName)) {
+                        dualVertical.playerUUID = this.playerUUID;
+                        dualVertical.playerName = rightName;
+                        IBlockState state = world.getBlockState(dualVertical.pos);
+                        world.notifyBlockUpdate(dualVertical.pos, state, state, 1 | 2 | 16);
+                    }
+                }
+                ShellHandler.playerShells.putAll(rightName, dualVerticals);
+                if (!rightName.equals(this.playerName)) {
+                    IBlockState state = world.getBlockState(pos);
+                    this.world.notifyBlockUpdate(pos, state, state, 1 | 2 | 16);
+                    this.playerName = rightName;
+                }
+                ShellHandler.updatePlayerOfShells(player, null, true);
+            }
+            return true;
+        }
+        return this.playerName.equals(rightName);
+    }
+
+    @Nullable
+    public EntityPlayerMP getPlayerIfAvailable() {
+        PlayerList playerList = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList();
+        return playerUUID == null ? playerList.getPlayerByUsername(this.getPlayerName()) : playerList.getPlayerByUUID(playerUUID);
+    }
+
     public void setPlayerName(String playerName, UUID uuid) {
         if (playerName == null) playerName = "";
-        if (!playerName.equals(this.playerName))
-        {
-            this.playerName = playerName;
-            this.playerUUID = uuid;
+        this.playerName = playerName;
+        this.playerUUID = uuid;
+    }
+
+    //Setters and getters
+    public void setPlayerName(EntityPlayer player) {
+        if (player == null) {
+            setPlayerName("", null);
+            return;
+        }
+
+        String playerName = player.getName();
+        if (!playerName.equals(this.playerName)) {
+            UUID playerUUID = player.getUniqueID();
+            setPlayerName(playerName, playerUUID == EntityPlayer.getOfflineUUID(playerName) ? null : playerUUID);
         }
     }
 
@@ -633,8 +685,13 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     }
 
     public String getPlayerName() {
-        if (this.playerName == null) this.setPlayerName("", null);
+        if (this.playerName == null) this.setPlayerName(null);
         return this.playerName;
+    }
+
+    @Nullable
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
 
     public NBTTagCompound getPlayerNBT() {

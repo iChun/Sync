@@ -16,6 +16,8 @@ import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.UUID;
+
 public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShellStorage> implements IEnergyStorage
 {
     public boolean occupied;
@@ -49,7 +51,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
         {
             if(world.isRemote && !playerName.equalsIgnoreCase("") && !prevPlayerName.equals(playerName) && syncing)
             {
-                playerInstance = createPlayer(world, playerName);
+                playerInstance = createPlayer(world, playerUUID, playerName);
                 prevPlayerName = playerName;
                 if(playerNBT.hasKey("Inventory"))
                 {
@@ -159,9 +161,9 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
     }
 
     @SideOnly(Side.CLIENT)
-    public static EntityPlayer createPlayer(World world, String playerName)
+    public static EntityPlayer createPlayer(World world, UUID uuid, String playerName)
     {
-        return new EntityOtherPlayerMP(world, EntityHelper.getGameProfile(playerName));
+        return new EntityOtherPlayerMP(world, uuid == null ? EntityHelper.getGameProfile(playerName) : EntityHelper.getGameProfile(uuid, playerName));
     }
 
     public boolean isPowered() {

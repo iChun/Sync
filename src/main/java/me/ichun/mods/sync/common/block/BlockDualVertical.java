@@ -1,5 +1,6 @@
 package me.ichun.mods.sync.common.block;
 
+import com.mojang.authlib.GameProfile;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.ichunutil.common.iChunUtil;
 import me.ichun.mods.morph.api.MorphApi;
@@ -52,6 +53,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class BlockDualVertical extends BlockContainer {
 
@@ -137,7 +139,7 @@ public class BlockDualVertical extends BlockContainer {
                         player.sendMessage(new TextComponentTranslation("sync.isMorphed"));
                         return true;
                     }
-                    shellConstructor.setPlayerName(player.getName(), player.getUniqueID());
+                    shellConstructor.setPlayerName(player);
 
                     if (!world.isRemote && !player.isCreative()) {
                         String name = DamageSource.OUT_OF_WORLD.damageType;
@@ -149,7 +151,7 @@ public class BlockDualVertical extends BlockContainer {
                     notifyThisAndAbove(state, EnumType.CONSTRUCTOR, pos, world, top);
                     return true;
                 }
-                else if (shellConstructor.getPlayerName().equalsIgnoreCase(player.getName()) && player.isCreative()) {
+                else if (shellConstructor.matchesPlayer(player) && player.isCreative()) {
                     if (!world.isRemote) {
                         shellConstructor.constructionProgress = Sync.config.shellConstructionPowerRequirement;
                         ShellHandler.updatePlayerOfShells(player, null, true);
@@ -180,7 +182,7 @@ public class BlockDualVertical extends BlockContainer {
                         notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
 
                         if (!world.isRemote) {
-                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
+                            EntityPlayerMP entityPlayerMP = dualVertical.getPlayerIfAvailable();
                             if (entityPlayerMP != null) {
                                 ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
                             }
@@ -195,7 +197,7 @@ public class BlockDualVertical extends BlockContainer {
                         notifyThisAndAbove(state, EnumType.STORAGE, pos, world, top);
 
                         if (!world.isRemote) {
-                            EntityPlayerMP entityPlayerMP = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVertical.getPlayerName());
+                            EntityPlayerMP entityPlayerMP = dualVertical.getPlayerIfAvailable();
                             if (entityPlayerMP != null) {
                                 ShellHandler.updatePlayerOfShells(entityPlayerMP, null, true);
                             }
@@ -307,7 +309,7 @@ public class BlockDualVertical extends BlockContainer {
                             }
 
                             //Mark this as in use
-                            shellStorage.setPlayerName(player.getName(), player.getUniqueID());
+                            shellStorage.setPlayerName(player);
                             shellStorage.occupied = true;
                             world.notifyBlockUpdate(pos, state, state, 3);
                         }
@@ -394,7 +396,7 @@ public class BlockDualVertical extends BlockContainer {
                     }
                     TileEntityDualVertical bottom = dualVerticalPair.top ? dualVertical : dualVerticalPair;
 
-                    if (!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.getPlayerName().equalsIgnoreCase(player.getName())) {
+                    if (!bottom.getPlayerName().equalsIgnoreCase("") && !bottom.matchesPlayer(player)) {
                         FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentTranslation("sync.breakShellUnit", player.getName(), bottom.getPlayerName()));
                     }
 
@@ -433,7 +435,9 @@ public class BlockDualVertical extends BlockContainer {
                 if (!world.isRemote) {
                     //TODO Should we treat this as an actual player death in terms of drops?
                     if (dualVerticalBottom instanceof TileEntityShellStorage && dualVerticalBottom.resyncPlayer == -10 && ((TileEntityShellStorage) dualVerticalBottom).syncing && dualVerticalBottom.getPlayerNBT().hasKey("Inventory")) {
-                        FakePlayer fake = new FakePlayer((WorldServer)world, EntityHelper.getGameProfile(dualVerticalBottom.getPlayerName()));
+                        UUID playerUUID = dualVerticalBottom.getPlayerUUID();
+                        GameProfile profile = playerUUID == null ? EntityHelper.getGameProfile(dualVerticalBottom.getPlayerName()) : EntityHelper.getGameProfile(playerUUID, dualVerticalBottom.getPlayerName());
+                        FakePlayer fake = new FakePlayer((WorldServer)world, profile);
                         fake.readFromNBT(dualVerticalBottom.getPlayerNBT());
                         fake.setLocationAndAngles(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, dualVerticalBottom.face.getOpposite().getHorizontalAngle(), 0F);
 
@@ -461,7 +465,7 @@ public class BlockDualVertical extends BlockContainer {
                     if (dualVerticalBottom.resyncPlayer > 25 && dualVerticalBottom.resyncPlayer < 120) {
                         ShellHandler.syncInProgress.remove(dualVerticalBottom.getPlayerName());
                         //Need to let dualVertical know sync is cancelled
-                        EntityPlayerMP syncingPlayer = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(dualVerticalBottom.getPlayerName());
+                        EntityPlayerMP syncingPlayer = dualVerticalBottom.getPlayerIfAvailable();
                         if (syncingPlayer != null) {
                             String name = DamageSource.OUT_OF_WORLD.damageType;
                             DamageSource.OUT_OF_WORLD.damageType = "syncFail";

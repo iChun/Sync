@@ -82,7 +82,7 @@ public class PacketSyncRequest extends AbstractPacket
                 TileEntityDualVertical originShell = (TileEntityDualVertical)oriTe;
                 TileEntityDualVertical targetShell = (TileEntityDualVertical)te;
 
-                if(originShell.getPlayerName().equalsIgnoreCase(player.getName()) && targetShell.getPlayerName().equalsIgnoreCase(player.getName()))
+                if (originShell.matchesPlayer(player) && targetShell.matchesPlayer(player))
                 {
                     if(targetShell instanceof TileEntityShellConstructor)
                     {
@@ -106,7 +106,7 @@ public class PacketSyncRequest extends AbstractPacket
                     if(originShell instanceof TileEntityShellStorage)
                     {
                         TileEntityShellStorage ss = (TileEntityShellStorage)originShell;
-                        ss.setPlayerName(player.getName(), player.getUniqueID());
+                        ss.setPlayerName(player);
                         ss.occupied = true;
                         ss.occupationTime = TileEntityDualVertical.animationTime;
                         ss.syncing = true;

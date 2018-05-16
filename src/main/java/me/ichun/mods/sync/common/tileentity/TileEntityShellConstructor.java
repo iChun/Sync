@@ -52,7 +52,7 @@ public class TileEntityShellConstructor extends TileEntityDualVertical<TileEntit
                 prevPower = power;
                 if(!top && !world.isRemote)
                 {
-                    EntityPlayer player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(playerName);
+                    EntityPlayer player = getPlayerIfAvailable();
                     if(player != null)
                     {
                         ShellHandler.updatePlayerOfShells(player, null, true);

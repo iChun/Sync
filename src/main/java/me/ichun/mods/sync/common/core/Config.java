@@ -59,7 +59,7 @@ public class Config extends ConfigBase
 
     @ConfigProp(category = "gameplay")
     @IntBool
-    public int transferPersistentItems = 0; //TODO implement, do i18n
+    public int transferPersistentItems = 1;
 
     @ConfigProp(category = "clientOnly", side = Side.CLIENT)
     @IntMinMax(min = 0, max = 2)
