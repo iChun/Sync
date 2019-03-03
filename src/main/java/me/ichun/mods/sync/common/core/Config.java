@@ -5,9 +5,7 @@ import me.ichun.mods.ichunutil.common.core.config.annotations.ConfigProp;
 import me.ichun.mods.ichunutil.common.core.config.annotations.IntBool;
 import me.ichun.mods.ichunutil.common.core.config.annotations.IntMinMax;
 import me.ichun.mods.sync.common.Sync;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.io.File;
 

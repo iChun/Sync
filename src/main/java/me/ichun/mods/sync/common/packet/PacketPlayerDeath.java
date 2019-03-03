@@ -1,15 +1,15 @@
 package me.ichun.mods.sync.common.packet;
 
-import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
+import me.ichun.mods.sync.client.entity.EntityShellDestruction;
+import me.ichun.mods.sync.common.Sync;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.entity.player.EntityPlayer;
-import me.ichun.mods.sync.client.entity.EntityShellDestruction;
-import me.ichun.mods.sync.common.Sync;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PacketPlayerDeath extends AbstractPacket
 {

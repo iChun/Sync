@@ -1,12 +1,12 @@
 package me.ichun.mods.sync.common.packet;
 
+import io.netty.buffer.ByteBuf;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
+import me.ichun.mods.sync.common.Sync;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import me.ichun.mods.sync.common.Sync;
 
 public class PacketZoomCamera extends AbstractPacket
 {
@@ -46,7 +46,7 @@ public class PacketZoomCamera extends AbstractPacket
 
         Sync.eventHandlerClient.zoomDimension = buffer.readInt();
 
-        Sync.eventHandlerClient.zoomFace = EnumFacing.getFront(buffer.readInt());
+        Sync.eventHandlerClient.zoomFace = EnumFacing.byIndex(buffer.readInt());
         Sync.eventHandlerClient.zoom = buffer.readBoolean();
 
         Sync.eventHandlerClient.zoomTimer = 60;

@@ -1,13 +1,9 @@
 package me.ichun.mods.sync.client.model;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBase;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.util.math.MathHelper; import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.math.MathHelper;
 
 public class ModelShellStorage extends ModelBase
 {

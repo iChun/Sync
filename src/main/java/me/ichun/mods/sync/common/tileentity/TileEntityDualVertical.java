@@ -1,8 +1,6 @@
 package me.ichun.mods.sync.common.tileentity;
 
-import com.google.common.collect.ImmutableList;
 import io.netty.buffer.ByteBuf;
-import joptsimple.internal.Strings;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.sync.client.core.SyncSkinManager;
 import me.ichun.mods.sync.common.Sync;
@@ -13,8 +11,6 @@ import me.ichun.mods.sync.common.shell.ShellHandler;
 import me.ichun.mods.sync.common.shell.TeleporterShell;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,7 +23,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.server.management.PlayerList;
-import net.minecraft.server.management.PreYggdrasilConverter;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -36,7 +31,6 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -44,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -408,7 +401,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     {
         super.readFromNBT(tag);
         top = tag.getBoolean("top");
-        face = EnumFacing.getHorizontal(tag.getInteger("face"));
+        face = EnumFacing.byHorizontalIndex(tag.getInteger("face"));
         vacating = tag.getBoolean("vacating");
         isHomeUnit = tag.getBoolean("isHomeUnit");
         playerName = tag.getString("playerName");

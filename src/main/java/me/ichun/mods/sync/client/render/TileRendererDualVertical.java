@@ -1,7 +1,5 @@
 package me.ichun.mods.sync.client.render;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import me.ichun.mods.ichunutil.common.core.util.EntityHelper;
 import me.ichun.mods.ichunutil.common.core.util.EventCalendar;
 import me.ichun.mods.sync.client.model.ModelShellConstructor;
@@ -25,10 +23,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.opengl.GL11;
-
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
 
 public class TileRendererDualVertical extends TileEntitySpecialRenderer<TileEntityDualVertical>
 {

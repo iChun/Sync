@@ -170,7 +170,7 @@ public class TileEntityShellStorage extends TileEntityDualVertical<TileEntityShe
         if (top && pair != null) {
             return pair.isPowered();
         }
-        return (world.isBlockIndirectlyGettingPowered(pos) != 0 || world.isBlockIndirectlyGettingPowered(pos.up()) != 0) && hasPower;
+        return (world.getRedstonePowerFromNeighbors(pos) != 0 || world.getRedstonePowerFromNeighbors(pos.up()) != 0) && hasPower;
     }
 
     @Override
