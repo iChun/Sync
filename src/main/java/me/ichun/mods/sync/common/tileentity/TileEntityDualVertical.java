@@ -406,7 +406,6 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         isHomeUnit = tag.getBoolean("isHomeUnit");
         playerName = tag.getString("playerName");
         playerUUID = tag.hasKey("playerUUID" + "Most", Constants.NBT.TAG_LONG) && tag.hasKey("playerUUID" + "Least", Constants.NBT.TAG_LONG) ? tag.getUniqueId("playerUUID") : null;
-        System.err.println("Read playerUUID:" + (playerUUID == null ? "null" : playerUUID) + " for name " + playerName);
         name = tag.getString("name");
         playerNBT = tag.getCompoundTag("playerNBT");
         rfIntake = tag.getInteger("rfIntake");
