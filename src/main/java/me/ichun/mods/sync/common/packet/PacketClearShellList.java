@@ -1,10 +1,10 @@
 package me.ichun.mods.sync.common.packet;
 
-import net.minecraftforge.fml.relauncher.Side;
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
 import me.ichun.mods.sync.common.Sync;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketClearShellList extends AbstractPacket
 {

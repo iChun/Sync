@@ -21,12 +21,12 @@ public class ProxyCommon
     {
         Sync.creativeTabSync = new CreativeTabSync();
 
-        Sync.blockDualVertical = (new BlockDualVertical()).setRegistryName("sync", "block_multi").setLightLevel(0.5F).setHardness(2.0F).setUnlocalizedName("sync.block.multi");
+        Sync.blockDualVertical = (new BlockDualVertical()).setRegistryName("sync", "block_multi").setLightLevel(0.5F).setHardness(2.0F).setTranslationKey("sync.block.multi");
 
-        Sync.itemShellConstructor = new ItemShellBase(EnumType.CONSTRUCTOR).setRegistryName("sync", "item_shell_constructor").setUnlocalizedName("Sync_ShellConstructor").setCreativeTab(Sync.creativeTabSync);
-        Sync.itemShellStorage = new ItemShellBase(EnumType.STORAGE).setRegistryName("sync", "item_shell_storage").setUnlocalizedName("Sync_ShellStorage").setCreativeTab(Sync.creativeTabSync);
-        Sync.itemTreadmill = new ItemTreadmill().setRegistryName("sync", "item_treadmill").setUnlocalizedName("Sync_Treadmill").setCreativeTab(Sync.creativeTabSync);
-        Sync.itemSyncCore = (new ItemGeneric()).setRegistryName("sync", "item_placeholder").setUnlocalizedName("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
+        Sync.itemShellConstructor = new ItemShellBase(EnumType.CONSTRUCTOR).setRegistryName("sync", "item_shell_constructor").setTranslationKey("Sync_ShellConstructor").setCreativeTab(Sync.creativeTabSync);
+        Sync.itemShellStorage = new ItemShellBase(EnumType.STORAGE).setRegistryName("sync", "item_shell_storage").setTranslationKey("Sync_ShellStorage").setCreativeTab(Sync.creativeTabSync);
+        Sync.itemTreadmill = new ItemTreadmill().setRegistryName("sync", "item_treadmill").setTranslationKey("Sync_Treadmill").setCreativeTab(Sync.creativeTabSync);
+        Sync.itemSyncCore = (new ItemGeneric()).setRegistryName("sync", "item_placeholder").setTranslationKey("Sync_SyncCore").setCreativeTab(Sync.creativeTabSync);
 
         GameRegistry.registerTileEntity(TileEntityShellConstructor.class, "Sync_TEShellConstructor");
         GameRegistry.registerTileEntity(TileEntityShellStorage.class, "Sync_TEShellStorage");

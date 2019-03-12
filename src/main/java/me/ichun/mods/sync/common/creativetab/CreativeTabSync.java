@@ -19,7 +19,7 @@ public class CreativeTabSync extends CreativeTabs
     @SideOnly(Side.CLIENT)
     @Nonnull
     @Override
-    public ItemStack getTabIconItem()
+    public ItemStack createIcon()
     {
         return new ItemStack(Sync.itemSyncCore);
     }

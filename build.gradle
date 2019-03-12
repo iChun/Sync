@@ -11,7 +11,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 // Requires iChunUtil to run. Just put iChunUtil-deobf.jar in the /libs/ folder or it won't compile.
-version = "1.12.2-7.0.2"
+version = "1.12.2-7.1.0"
 group= "sync" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Sync"
 
@@ -21,10 +21,9 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.1.2603"
+    version = "1.12.2-14.23.5.2815"
     runDir = "run"
-
-    mappings = "snapshot_20180123"
+    mappings = "stable_39"
 }
 processResources
 {
@@ -49,5 +48,20 @@ task deobfJar(type: Jar) {
     classifier = 'deobf'
 }
 
+// sign jar
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+
+    keyStore = project.properties.keyStore
+    alias = project.properties.keyStoreAlias
+    storePass = project.properties.keyStorePass
+    keyPass = project.properties.keyStoreKeyPass
+}
+
 // make sure all of these happen when we run build
-build.dependsOn sourceJar, deobfJar
+build.dependsOn sourceJar, deobfJar, signJar

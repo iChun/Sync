@@ -30,16 +30,18 @@ import java.util.HashMap;
 
 @Mod(modid = Sync.MOD_ID, name = Sync.MOD_NAME,
         version = Sync.VERSION,
+        certificateFingerprint = iChunUtil.CERT_FINGERPRINT,
         guiFactory = iChunUtil.GUI_CONFIG_FACTORY,
-        dependencies = "required-after:ichunutil@[" + iChunUtil.VERSION_MAJOR + ".0.2," + (iChunUtil.VERSION_MAJOR + 1) + ".0.0);after:waila",
-        acceptableRemoteVersions = "[" + iChunUtil.VERSION_MAJOR +".0.0," + iChunUtil.VERSION_MAJOR + ".1.0)",
+        dependencies = "required-after:ichunutil@[" + iChunUtil.VERSION_MAJOR + ".2.0," + (iChunUtil.VERSION_MAJOR + 1) + ".0.0);after:waila",
+        acceptableRemoteVersions = "[" + iChunUtil.VERSION_MAJOR +".1.0," + iChunUtil.VERSION_MAJOR + ".2.0)",
         acceptedMinecraftVersions = iChunUtil.MC_VERSION_RANGE
 )
 public class Sync
 {
+    public static final String VERSION = iChunUtil.VERSION_MAJOR +".1.0";
+
     public static final String MOD_NAME = "Sync";
     public static final String MOD_ID = "sync";
-    public static final String VERSION = iChunUtil.VERSION_MAJOR +".0.2";
 
     @Instance(MOD_ID)
     public static Sync instance;

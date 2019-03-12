@@ -1,11 +1,7 @@
 package me.ichun.mods.sync.client;
 
 import com.google.common.base.Function;
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.IProbeInfoProvider;
-import mcjty.theoneprobe.api.ITheOneProbe;
-import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.*;
 import mcjty.theoneprobe.apiimpl.styles.ProgressStyle;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;

@@ -337,7 +337,7 @@ public class TileEntityTreadmill extends TileEntity implements ITickable, IEnerg
     {
         super.readFromNBT(tag);
         back = tag.getBoolean("back");
-        face = EnumFacing.getFront(tag.getInteger("face"));
+        face = EnumFacing.byIndex(tag.getInteger("face"));
         latchedEntId = tag.getInteger("latchedID");
         timeRunning = tag.getInteger("timeRunning");
 

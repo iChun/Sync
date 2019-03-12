@@ -237,7 +237,7 @@ public class BlockDualVertical extends BlockContainer {
                 //Allow easier creative testing. Only works for pig and wolves cause easier
                 if (!world.isRemote && !itemStack.isEmpty() && itemStack.getItem() instanceof ItemMonsterPlacer) {
                     ResourceLocation mob = ItemMonsterPlacer.getNamedIdFrom(itemStack);
-                    if ("Pig".equalsIgnoreCase(mob.getResourcePath()) || "Wolf".equalsIgnoreCase(mob.getResourcePath())) {
+                    if ("Pig".equalsIgnoreCase(mob.getPath()) || "Wolf".equalsIgnoreCase(mob.getPath())) {
                         Entity entity = ItemMonsterPlacer.spawnCreature(world, mob, treadmill.getMidCoord(0), pos.getY() + 0.175D, treadmill.getMidCoord(1));
                         if (TileEntityTreadmill.isEntityValidForTreadmill(entity)) {
                             treadmill.latchedEnt = (EntityLiving)entity;
@@ -273,7 +273,7 @@ public class BlockDualVertical extends BlockContainer {
     }
 
     @Override
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
+    public void onEntityCollision(World world, BlockPos pos, IBlockState state, Entity entity) {
         //Ignore non players and fake players
         if (!(entity instanceof EntityPlayer) || (entity instanceof FakePlayer)) {
             return;
@@ -285,7 +285,7 @@ public class BlockDualVertical extends BlockContainer {
             if (dualVertical.top) {
                 TileEntity tileEntityPair = world.getTileEntity(pos.down());
                 if (tileEntityPair instanceof TileEntityDualVertical) {
-                    this.onEntityCollidedWithBlock(world, pos.down(), state, entity);
+                    this.onEntityCollision(world, pos.down(), state, entity);
                 }
             }
             else {

@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -37,7 +36,7 @@ public class PacketShellDeath extends AbstractPacket
     public void readFrom(ByteBuf buffer)
     {
         pos = BlockPos.fromLong(buffer.readLong());
-        face = EnumFacing.getFront(buffer.readInt());
+        face = EnumFacing.byIndex(buffer.readInt());
     }
 
     @Override

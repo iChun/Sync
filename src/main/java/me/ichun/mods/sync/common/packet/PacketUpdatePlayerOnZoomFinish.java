@@ -1,12 +1,12 @@
 package me.ichun.mods.sync.common.packet;
 
-import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 import io.netty.buffer.ByteBuf;
+import me.ichun.mods.ichunutil.common.core.network.AbstractPacket;
+import me.ichun.mods.sync.common.shell.ShellHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import me.ichun.mods.sync.common.shell.ShellHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketUpdatePlayerOnZoomFinish extends AbstractPacket
 {
