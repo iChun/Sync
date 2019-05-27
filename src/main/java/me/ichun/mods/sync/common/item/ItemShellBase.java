@@ -6,6 +6,7 @@ import me.ichun.mods.sync.common.block.EnumType;
 import me.ichun.mods.sync.common.tileentity.TileEntityDualVertical;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -77,7 +78,8 @@ public class ItemShellBase extends Item {
                         sc.setup(sc1, false, face);
                         sc1.setup(sc, true, face);
                     }
-                    world.playSound(null, new BlockPos(((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.5F), (double)((float)pos.getZ() + 0.5F)), block1.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, (block1.getSoundType().getVolume() + 1.0F) / 2.0F, block1.getSoundType().getPitch() * 0.8F);
+                    SoundType type = block1.getSoundType(state, world, pos, player);
+                    world.playSound(null, pos, type.getPlaceSound(), SoundCategory.BLOCKS, (type.getVolume() + 1.0F) / 2.0F, type.getPitch() * 0.8F);
                     stack.shrink(1);
                 }
             }

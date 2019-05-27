@@ -2,7 +2,6 @@ package me.ichun.mods.sync.client;
 
 import com.google.common.base.Function;
 import mcjty.theoneprobe.api.*;
-import mcjty.theoneprobe.apiimpl.styles.ProgressStyle;
 import me.ichun.mods.sync.common.Sync;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellConstructor;
 import me.ichun.mods.sync.common.tileentity.TileEntityShellStorage;
@@ -17,7 +16,6 @@ import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 
 public class HUDHandlerTheOneProbe implements Function<ITheOneProbe, Void>, IProbeInfoProvider {
-    private static final ProgressStyle STYLE_BUILD_PROGRESS = new ProgressStyle().showText(true).prefix(I18n.translateToLocal("sync.waila.progress") + ": ").suffix("%");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("##.##");
 
     @Nullable
@@ -46,7 +44,7 @@ public class HUDHandlerTheOneProbe implements Function<ITheOneProbe, Void>, IPro
                 info.text(I18n.translateToLocal("sync.waila.owner") + ": " + (te.getPlayerName().equals("") ? "None" : te.getPlayerName()));
                 float progress = te.getBuildProgress() / Sync.config.shellConstructionPowerRequirement;
                 if (progress < 1 || probeMode == ProbeMode.EXTENDED || probeMode == ProbeMode.DEBUG)
-                    info.progress((int) Math.ceil(progress * 100), 100, STYLE_BUILD_PROGRESS);
+                    info.progress((int) Math.ceil(progress * 100), 100, info.defaultProgressStyle().showText(true).prefix(I18n.translateToLocal("sync.waila.progress") + ": ").suffix("%"));
             }
             else if (tileEntity instanceof TileEntityShellStorage) {
                 TileEntityShellStorage te = (TileEntityShellStorage) tileEntity;

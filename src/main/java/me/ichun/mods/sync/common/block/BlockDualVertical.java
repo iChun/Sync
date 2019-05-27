@@ -367,7 +367,7 @@ public class BlockDualVertical extends BlockContainer {
         TileEntity tileEntity = world.getTileEntity(pos);
         if (tileEntity instanceof TileEntityDualVertical) {
             TileEntityDualVertical dualVertical = (TileEntityDualVertical) tileEntity;
-            if (!dualVertical.top && !world.getBlockState(pos.add(0, -1, 0)).getBlock().isOpaqueCube(world.getBlockState(pos.add(0, -1, 0)))) {
+            if (!dualVertical.top && !world.getBlockState(pos.add(0, -1, 0)).isOpaqueCube()) {
                 world.setBlockToAir(pos);
             }
         }
@@ -517,7 +517,7 @@ public class BlockDualVertical extends BlockContainer {
     public int getComparatorInputOverride(IBlockState blockState, World world, BlockPos pos) {
         if (world.getTileEntity(pos) instanceof TileEntityDualVertical) {
             TileEntityDualVertical tileEntityDualVertical = (TileEntityDualVertical) world.getTileEntity(pos);
-            return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (Sync.config.shellConstructionPowerRequirement / 15));
+            return (int) Math.floor(tileEntityDualVertical.getBuildProgress() / (Sync.config.shellConstructionPowerRequirement / 15F));
         }
         else return 0;
     }

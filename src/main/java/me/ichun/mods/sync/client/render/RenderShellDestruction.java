@@ -55,7 +55,7 @@ public class RenderShellDestruction extends Render<EntityShellDestruction>
                 try
                 {
                     ThreadDownloadImageData imgDat = (ThreadDownloadImageData)obj;
-                    BufferedImage img = ObfuscationReflectionHelper.getPrivateValue(ThreadDownloadImageData.class, imgDat, "field_110560_d", "bufferedImage");
+                    BufferedImage img = ObfuscationReflectionHelper.getPrivateValue(ThreadDownloadImageData.class, imgDat, "field_110560_d");
                     if(img != null)
                     {
                         int[] imgId = new int[4];

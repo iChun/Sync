@@ -44,11 +44,11 @@ public class SyncSkinManager {
             }
         }
         if (playerUUID == null) return; //Not much we can do here :(
-        GameProfile profile = EntityHelper.getGameProfile(playerUUID, playerName);
         synchronized (callbackMap) {
             Set<Consumer<ResourceLocation>> consumers = callbackMap.getIfPresent(playerName);
             if (consumers == null) {
                 //Make one call per user - again rate limit protection
+                GameProfile profile = EntityHelper.getGameProfile(playerUUID, playerName); //This also queries auth server for details
                 Minecraft.getMinecraft().getSkinManager().loadProfileTextures(profile, (type, location, profileTexture) -> {
                     if (type == MinecraftProfileTexture.Type.SKIN) {
                         synchronized (callbackMap) {

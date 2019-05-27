@@ -31,7 +31,7 @@ public class HUDHandlerWaila implements IWailaDataProvider {
         if (accessor.getTileEntity() instanceof TileEntityShellConstructor) {
             TileEntityShellConstructor tileEntityShellConstructor = (TileEntityShellConstructor) accessor.getTileEntity();
             if (config.getConfig("sync.showowner")) currenttip.add(I18n.translateToLocal("sync.waila.owner") + ": " + (tileEntityShellConstructor.getPlayerName().equals("") ? "None" : tileEntityShellConstructor.getPlayerName()));
-            if (config.getConfig("sync.showprogress")) currenttip.add(I18n.translateToLocal("sync.waila.progress") + ": " + String.valueOf((int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / Sync.config.shellConstructionPowerRequirement * 100)) + "%");
+            if (config.getConfig("sync.showprogress")) currenttip.add(I18n.translateToLocal("sync.waila.progress") + ": " + (int) Math.ceil(tileEntityShellConstructor.getBuildProgress() / Sync.config.shellConstructionPowerRequirement * 100) + "%");
         }
         else if (accessor.getTileEntity() instanceof TileEntityShellStorage) {
             TileEntityShellStorage tileEntityShellStorage = (TileEntityShellStorage) accessor.getTileEntity();

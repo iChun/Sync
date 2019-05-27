@@ -263,7 +263,7 @@ public class EventHandlerClient
                 lockedStorage = null;
             }
 
-            if(!mc.isGamePaused())
+            if(!mc.isGamePaused() && mc.player != null)
             {
                 for(ShellState state : shells)
                 {

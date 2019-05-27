@@ -217,7 +217,6 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
                                 resyncOrigin.markDirty();
                                 if (getPlayerNBT().hasKey("Inventory")) //try inserting persistent items by merging
                                 {
-                                    //noinspection ConstantConditions
                                     mergeStoredInv(dummy.inventory);
                                 }
                             }
@@ -614,7 +613,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
     public boolean matchesPlayer(EntityPlayer player) {
         UUID playerUUID = player.getUniqueID();
         String rightName = player.getName();
-        if (this.playerUUID != null && !EntityPlayer.getOfflineUUID(this.playerName).equals(playerUUID) && playerUUID.equals(this.playerUUID)) {
+        if (!EntityPlayer.getOfflineUUID(this.playerName).equals(playerUUID) && playerUUID.equals(this.playerUUID)) {
             if (!player.world.isRemote && !rightName.equals(this.playerName)) { //Players can change their name, let's take care of this
                 String oldPlayerName = this.playerName;
                 Sync.LOGGER.info("Updating player name for UUID " + playerUUID + ": " + oldPlayerName + " -> " + rightName);
@@ -662,7 +661,7 @@ public abstract class TileEntityDualVertical<T extends TileEntityDualVertical> e
         String playerName = player.getName();
         if (!playerName.equals(this.playerName)) {
             UUID playerUUID = player.getUniqueID();
-            setPlayerName(playerName, playerUUID == EntityPlayer.getOfflineUUID(playerName) ? null : playerUUID);
+            setPlayerName(playerName, playerUUID.equals(EntityPlayer.getOfflineUUID(playerName)) ? null : playerUUID);
         }
     }
 
