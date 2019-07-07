@@ -1,0 +1,55 @@
+itemGroup.sync=ɔuʎS
+sync.breakShellUnit=%2$s ɟo ꞁꞁǝɥs ɐ pǝʎoɹʇsǝp %1$s
+item.Sync_ShellConstructor.name=ɹoʇɔnɹʇsuoƆ ꞁꞁǝɥS
+item.Sync_ShellStorage.name=ǝᵷɐɹoʇS ꞁꞁǝɥS
+item.Sync_Treadmill.name=ꞁꞁᴉɯpɐǝɹ⟘
+item.Sync_SyncCore.name=ǝɹoƆ ɔuʎS
+death.attack.syncFail=ꞁꞁǝɥs pɐǝp ɐ oʇuᴉ pǝɔuʎs %1$s
+death.attack.shellConstruct=ꞁꞁǝɥs ʍǝu ɐ ǝʇɐǝɹɔ oʇ ᵷuᴉʎɹʇ pǝᴉp %1$s
+sync.isMorphed=˙pǝɥdɹoɯ ǝɹɐ no⅄ ¡ǝsn ʇouuɐƆ
+sync.waila.owner=ɹǝuʍO ꞁꞁǝɥS
+sync.waila.progress=ssǝɹᵷoɹԀ pꞁᴉnᗺ
+sync.waila.entity=ǝɯɐN ʎʇᴉʇuƎ
+sync.waila.active=ǝʌᴉʇɔⱯ
+sync.waila.powerout=ᵷuᴉʇɐɹǝuǝ⅁
+sync.waila.showowner=ɹǝuʍO ꞁꞁǝɥS ʍoɥS
+sync.waila.showprogress=ssǝɹᵷoɹԀ pꞁᴉnᗺ ʍoɥS
+sync.waila.showentity=ǝɯɐN ʎʇᴉʇuƎ ʍoɥS
+sync.waila.showactive=ǝʌᴉʇɔⱯ ʍoɥS
+sync.waila.showpower.output=ʇndʇnO ɹǝʍoԀ ʍoɥS
+chat.command.clear.success=ssǝɹᵷoɹd ɔuʎs %2$s pǝɹɐǝꞁɔ sɐɥ %1$s
+chat.command.clear.usage=¡„oqɯᴉꞁ„ uᴉ ʞɔnʇs sᴉ ɹǝʎɐꞁd ǝɥʇ ɟᴉ ǝsn ʎꞁuO ˙ssǝɹᵷoɹd ɔuʎs sɹǝʎɐꞁd ɐ sɹɐǝꞁƆ | <ɹǝʎɐꞁd> ɹɐǝꞁɔ ɔuʎS/
+chat.command.sync.usage=<ɹɐǝꞁɔ> ɔuʎS/
+
+sync.config.cat.gameplay.name=ʎɐꞁdǝɯɐ⅁
+sync.config.cat.clientOnly.name=ʎꞁuO ʇuǝᴉꞁƆ
+
+sync.config.cat.gameplay.comment=˙poɯ ǝɥʇ ᵷuᴉsn ǝꞁᴉɥʍ ʎɐꞁdǝɯɐᵷ ǝɥʇ ʇɔǝɟɟɐ suoᴉʇdo ǝsǝɥ⟘
+sync.config.cat.clientOnly.comment=˙ʎꞁuo-ʇuǝᴉꞁɔ ǝɹɐ sᵷuᴉʇʇǝs ǝsǝɥ⟘
+
+sync.config.prop.shellConstructionPowerRequirement.name=ʇuǝɯǝɹᴉnbǝᴚ ɹǝʍoԀ uoᴉʇɔnɹʇsuoƆ ꞁꞁǝɥS
+sync.config.prop.shellStoragePowerRequirement.name=ʇuǝɯǝɹᴉnbǝᴚ ɹǝʍoԀ ǝᵷɐɹoʇS ꞁꞁǝɥS
+sync.config.prop.allowCrossDimensional.name=ꞁɐuoᴉsuǝɯᴉᗡ ssoɹƆ ʍoꞁꞁⱯ
+sync.config.prop.reduceHealthOnDeathSync.name=ɔuʎS ɥʇɐǝᗡ uO ɥʇꞁɐǝH ǝɔnpǝᴚ
+sync.config.prop.damageGivenOnShellConstruction.name=uoᴉʇɔnɹʇsuoƆ ꞁꞁǝɥS uO uǝʌᴉ⅁ ǝᵷɐɯɐᗡ
+sync.config.prop.overrideDeathIfThereAreAvailableShells.name=sꞁꞁǝɥS ǝꞁqɐꞁᴉɐʌⱯ ǝɹⱯ ǝɹǝɥ⟘ ɟI ɥʇɐǝᗡ ǝpᴉɹɹǝʌO
+sync.config.prop.prioritizeHomeShellOnDeath.name=¿ɥʇɐǝᗡ uO ꞁꞁǝɥS ǝɯoH ǝzᴉʇᴉɹoᴉɹԀ
+sync.config.prop.crossDimensionalSyncingOnDeath.name=ɥʇɐǝᗡ uo ᵷuᴉɔuʎS ꞁɐuoᴉsuǝɯᴉᗡ ssoɹƆ
+sync.config.prop.allowChunkLoading.name=ᵷuᴉpɐoꞀ ʞunɥƆ ʍoꞁꞁⱯ
+sync.config.prop.hardcoreMode.name=ǝpoW ǝɹoɔpɹɐH
+sync.config.prop.ratioRF.name=oᴉʇɐᴚ ⅁Ԁ:Ⅎᴚ
+sync.config.prop.showAllShellInfoInGui.name=ᴉn⅁ uI oɟuI ꞁꞁǝɥS ꞁꞁⱯ ʍoɥS
+
+
+sync.config.prop.shellConstructionPowerRequirement.comment=uoᴉʇɔnɹʇsuoƆ ꞁꞁǝɥS ɹoɟ ʇuǝɯǝɹᴉnbǝɹ ɹǝʍoԀ
+sync.config.prop.shellStoragePowerRequirement.comment=ʇuǝɯǝɹᴉnbǝɹ oN = 0\n˙ǝʌᴉʇɔɐ ǝᵷɐɹoʇs ꞁꞁǝɥs dǝǝʞ oʇ sʇʇɐʍɐᵷᵷᴉd uᴉ ʞɔᴉʇ ɹǝd ʇuǝɯǝɹᴉnbǝɹ ɹǝʍoԀ
+sync.config.prop.allowCrossDimensional.comment=puƎ ǝɥʇ uᴉ uǝʌǝ 'sǝ⅄ = ᘔ\npuƎ ǝɥ⟘ uᴉ ʇou ʇnq 'sǝ⅄ = ⥝\noN = 0\n˙ʞsᴉɹ uʍo ɹnoʎ ʇɐ ꞁǝʌɐɹʇ puƎ ǝɥ⟘ ǝꞁqɐuƎ\n˙pɐoꞁ ʇou ʎɐɯ sʞunɥɔ ǝsnɐɔǝq ᵷuᴉɔuʎs ᴚƎ⟘ℲⱯ ᵷoꞁǝɹ ɐ ǝɹᴉnbǝɹ noʎ ǝɹǝɥʍ 'puƎ ǝɥ⟘ ɟo ʇno puɐ uᴉ ᵷuᴉoᵷ ɥʇᴉʍ sǝnssᴉ ǝɹɐ ǝɹǝɥ⟘ :⅁NINᴚⱯM\n¿ᵷuᴉɔuʎs ꞁꞁǝɥs ꞁɐuoᴉsuǝɯᴉp-ssoɹɔ ʍoꞁꞁⱯ
+sync.config.prop.reduceHealthOnDeathSync.comment=(ʇɹɐǝɥ ⥝ = ᘔ)\n¿(ǝʌᴉʇᴉppⱯ) ɔuʎS ɥʇɐǝᗡ uO ɥʇꞁɐǝH ǝɔnpǝᴚ
+sync.config.prop.damageGivenOnShellConstruction.comment=˙pǝʇɔnɹʇsuoɔ sᴉ ꞁꞁǝɥs ʍǝu ɐ uǝɥʍ ɹǝʎɐꞁd ǝɥʇ oʇ uǝʌᴉᵷ ǝᵷɐɯɐp sʇɹɐǝɥ ɟꞁɐɥ ɟo ɹǝqɯnN
+sync.config.prop.overrideDeathIfThereAreAvailableShells.comment=sʇᴉun uoᴉʇɔnɹʇsuoɔ puɐ ǝᵷɐɹoʇs oʇ 'sǝ⅄ = ᘔ\nsʇᴉun ǝᵷɐɹoʇs oʇ ʎꞁuo ʇnq 'sǝ⅄ = ⥝\noN = 0\n˙ꞁꞁǝɥs ʇsǝɹɐǝu ǝɥʇ oʇ ɔuʎsǝɹ ꞁꞁᴉʍ ɹǝʎɐꞁd ǝɥ⟘\n¿sꞁꞁǝɥs ɹǝɥʇo sɐɥ ɹǝʎɐꞁd ǝɥʇ ɟᴉ ɹǝʎɐꞁd ɐ ɟo ɥʇɐǝp ǝɥʇ ᵷuᴉpᴉɹɹǝʌo ʍoꞁꞁⱯ
+sync.config.prop.prioritizeHomeShellOnDeath.comment=¿sɔuʎsǝɹ puɐ sǝᴉp ɹǝʎɐꞁd ɐ uǝɥʍ sꞁꞁǝɥS „ǝɯoH„ ǝzᴉʇᴉɹoᴉɹԀ
+sync.config.prop.crossDimensionalSyncingOnDeath.comment=¿sɔuʎsǝɹ puɐ sǝᴉp ɹǝʎɐꞁd ɐ uǝɥʍ ᵷuᴉɔuʎs ꞁɐuoᴉsuǝɯᴉp ssoɹɔ ʍoꞁꞁⱯ
+sync.config.prop.allowChunkLoading.comment=˙ʞsᴉɹ uʍo ʇɐ ǝꞁqɐsᴉᗡ\n˙ʎꞁꞁɐʇɐɟ pꞁɹoʍ ɹnoʎ ɥsɐɹɔ pꞁnoƆ\n˙pǝʇɹoddnsun 'pǝʇsǝʇu∩ ˙sꞁꞁǝɥs pɐoꞁʞunɥɔ oʇ ǝpɐɯ sᴉ poɯ 'ʇsǝnbǝɹ ʎq pǝppⱯ
+sync.config.prop.hardcoreMode.comment=˙ǝpoɯ ǝɹoɔpɹɐH ꞁɐnʇɔɐ uo ʎꞁuo ʇnq 'sǝ⅄ = ᘔ\nsǝ⅄ = ⥝\noN = 0\n¿sǝdᴉɔǝɹ ǝpoɯ ǝɹoɔpɹɐɥ ǝꞁqɐuƎ
+sync.config.prop.ratioRF.comment=⅁Ԁ ᘔ sǝʇɐǝɹɔ Ⅎᴚ ⥝ sᴉ ʇꞁnɐɟǝᗡ\n⅁Ԁ<ᵷᴉɟuoɔ> = Ⅎᴚ⥝\n˙oᴉʇɐɹ ʇʇɐʍɐᵷᵷᴉԀ : xnꞁℲ ǝuoʇspǝᴚ
+sync.config.prop.showAllShellInfoInGui.comment=¡ʎɹoꞁᵷ uʍoꞁq ꞁꞁnɟ ꞁꞁɐ uᴉ 'sǝ⅄ = ᘔ\nop ꞁꞁᴉʍ ǝɯɐu ǝɥʇ ʇsnՐ = ⥝\noN = 0\n¿I∩⅁ ǝɥʇ uᴉ sꞁꞁǝɥs ꞁꞁɐ ɟo oɟuᴉ ʍoɥS
